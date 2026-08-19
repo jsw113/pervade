@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Package, Users, Megaphone, BookOpen, Settings, Palette, HelpCircle, ArrowRight, TrendingUp } from "lucide-react";
+import { SeedButton } from "@/components/admin/SeedButton";
 
 export const dynamic = "force-dynamic";
 
@@ -37,13 +38,16 @@ export default async function AdminDashboard() {
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight">퍼베이드 통합 관리자 백오피스</h2>
           <p className="text-xs text-zinc-400">쇼핑몰 운영, 제품, 재고, 프로모션 및 회원을 통합 제어합니다.</p>
         </div>
-        <Link
-          href="/"
-          target="_blank"
-          className="px-6 py-3 bg-white text-zinc-950 rounded-xl text-xs font-bold hover:bg-zinc-200 transition-colors shrink-0 shadow-md flex items-center gap-2"
-        >
-          쇼핑몰 메인 바로가기 <ArrowRight className="w-4 h-4" />
-        </Link>
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <SeedButton />
+          <Link
+            href="/"
+            target="_blank"
+            className="px-5 py-2 bg-white text-zinc-950 rounded-xl text-xs font-bold hover:bg-zinc-200 transition-colors shrink-0 shadow-md flex items-center gap-1.5"
+          >
+            쇼핑몰 메인 바로가기 <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
       </div>
 
       {/* Metrics Row */}
