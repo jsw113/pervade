@@ -1,0 +1,231 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String    @id @default(uuid())
+  email            String    @unique
+  passwordHash     String
+  name             String
+  phone            String?   // For SMS / Kakao
+  marketingConsent Boolean   @default(false)
+  kakaoId          String?   // Optional Kakao Sync
+  role             String    @default("USER") // "USER" or "ADMIN"
+  createdAt        DateTime  @default(now())
+
+  loginId          String?   @unique
+  birthDate        String?   // Birthdate e.g., "1995-05-12"
+  address          String?   // User delivery / address
+  realNameVerified Boolean   @default(false) // KCB / PASS verification state
+  socialProvider   String?   // "GOOGLE", "NAVER", "KAKAO", null
+  socialId         String?   // provider user id
+  
+  // Performance & Affiliate
+  totalPurchases   Int       @default(0) // Total amount purchased by the user
+  referralPoints   Int       @default(0) // Points earned from referrals
+  referralCode     String    @unique @default(uuid()) // Their own code to share
+  referredById     String?   // The user who referred them
+  
+  // Relations
+  orders           Order[]
+  posts            Post[]    @relation("UserPosts")
+  referredUsers    User[]    @relation("Referrals")
+  referrer         User?     @relation("Referrals", fields: [referredById], references: [id])
+  reviews          Review[]
+  questions        Question[]
+  messageLogs      MessageLog[]
+  cartItems        CartItem[]
+  wishlist         Wishlist[]
+}
+
+model Post {
+  id        String   @id @default(uuid())
+  title     String
+  content   String   // Rich text or Markdown
+  type      String   // "ABOUT" or "PRODUCT" or "JOURNAL"
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  authorId  String
+  author    User     @relation("UserPosts", fields: [authorId], references: [id])
+}
+
+model GuidePost {
+  id           String    @id @default(uuid())
+  title        String
+  category     String    @default("주방") // "주방", "욕실", "리빙/가구", "유리/거울", "다목적", "기타"
+  summary      String?
+  content      String    // Detailed step-by-step cleaning guide
+  thumbnailUrl String?
+  images       String?   // JSON array of step photos: '["/uploads/...", ...]'
+  tips         String?   // Pro tips or caution
+  viewCount    Int       @default(0)
+  published    Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  productId    String?
+  product      Product?  @relation(fields: [productId], references: [id])
+}
+
+model Promotion {
+  id           String    @id @default(uuid())
+  title        String
+  subtitle     String?
+  badgeText    String    @default("SPECIAL EVENT")
+  discountText String?   // e.g. "최대 30% 할인 + 신규 3,000P"
+  content      String?
+  imageUrl     String?
+  linkUrl      String?   @default("/shop")
+  buttonText   String?   @default("이벤트 혜택 받기")
+  startDate    DateTime  @default(now())
+  endDate      DateTime? // Event end date
+  isActive     Boolean   @default(true)
+  order        Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Order {
+  id             String   @id @default(uuid())
+  totalAmount    Int
+  status         String   @default("COMPLETED") // "PENDING", "COMPLETED", "CANCELLED"
+  shippingMethod String   @default("일반택배")
+  shippingFee    Int      @default(3000)
+  optionSelected String   @default("기본 패키지 단품")
+  createdAt      DateTime @default(now())
+  
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  productId      String?
+  product        Product? @relation(fields: [productId], references: [id])
+}
+
+model Policy {
+  id                 String   @id @default(uuid())
+  key                String   @unique // e.g., "REFERRAL_REWARD_PERCENTAGE", "VIP_THRESHOLD"
+  value              String   // e.g., "5", "500000"
+  description        String?
+  updatedAt          DateTime @updatedAt
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int      // 1 to 5
+  content   String
+  comment   String?  // Admin response/reply comment
+  createdAt DateTime @default(now())
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+}
+
+model Question {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  category  String   @default("일반") // "상품", "배송", "교환/반품", "기타"
+  isSecret  Boolean  @default(false)
+  answer    String?
+  createdAt DateTime @default(now())
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+}
+
+model MessageLog {
+  id        String   @id @default(uuid())
+  type      String   // "SMS", "EMAIL", "KAKAO"
+  content   String
+  status    String   // "SUCCESS", "FAILED"
+  createdAt DateTime @default(now())
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Product {
+  id            String   @id @default(uuid())
+  name          String
+  description   String
+  price         Int      // Selling/Discount price
+  originalPrice Int?     // Original regular price
+  shippingFee   Int      @default(3000) // Shipping fee
+  imageUrl      String   // Main primary image
+  images        String?  // JSON array of multiple image URLs: '["url1", "url2"]'
+  detailContent String?  // Detailed HTML / rich explanation
+  detailImages  String?  // JSON array of detail image URLs
+  stock         Int      @default(100)
+  safetyStock   Int      @default(10)
+  isVisible     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  orders        Order[]
+  cartItems     CartItem[]
+  wishlist      Wishlist[]
+  reviews       Review[]
+  questions     Question[]
+  inventoryLogs InventoryLog[]
+  guidePosts    GuidePost[]
+}
+
+model InventoryLog {
+  id        String   @id @default(uuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  type      String   // "IN", "OUT", "ADJUST"
+  quantity  Int      // Change quantity
+  balance   Int      // Final stock balance
+  reason    String   // Reason (e.g., "자사몰 주문 출고", "네이버 스마트스토어 차감", "본사 수기 입고")
+  createdAt DateTime @default(now())
+}
+
+model Content {
+  id        String   @id @default(uuid())
+  category  String   // "FAQ", "GUIDE", "SHIPPING", "TERMS", "PRIVACY"
+  title     String
+  body      String
+  order     Int      @default(0)
+  isVisible Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CartItem {
+  id             String   @id @default(uuid())
+  userId         String
+  productId      String
+  optionSelected String   @default("기본 패키지 단품")
+  shippingMethod String   @default("일반택배")
+  quantity       Int      @default(1)
+  createdAt      DateTime @default(now())
+
+  user           User     @relation(fields: [userId], references: [id])
+  product        Product  @relation(fields: [productId], references: [id])
+}
+
+model Wishlist {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+}
