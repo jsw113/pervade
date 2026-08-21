@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, FileText, Users, Settings, Package, Palette, MessageSquare, HelpCircle, ExternalLink, BookOpen, Megaphone } from "lucide-react";
+import { LayoutDashboard, FileText, Users, Settings, Package, Palette, MessageSquare, HelpCircle, ExternalLink, BookOpen, Megaphone, Layers } from "lucide-react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -25,6 +25,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Link href="/admin/products" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-zinc-100 text-zinc-700 transition-colors">
                 <Settings className="w-4 h-4 text-zinc-500" />
                 제품 관리
+              </Link>
+            </li>
+            <li>
+              <Link href="/admin/categories" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-zinc-100 text-zinc-700 transition-colors">
+                <Layers className="w-4 h-4 text-amber-600" />
+                카테고리 마스터 관리
               </Link>
             </li>
             <li>

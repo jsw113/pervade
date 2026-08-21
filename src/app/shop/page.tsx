@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Search, ShoppingBag, Sparkles, Layers, Tag } from "lucide-react";
-import { PRODUCT_CATEGORIES, getSubCategoriesByMainCategory } from "@/lib/constants/categories";
+import { getDynamicProductCategories, getSubCategoriesByMainCategory } from "@/lib/constants/categories";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +11,8 @@ export default async function ShopPage({
   searchParams: Promise<{ search?: string; category?: string; subCategory?: string }>;
 }) {
   const { search, category, subCategory } = await searchParams;
+
+  const categoriesList = await getDynamicProductCategories();
 
   const where: any = {
     isVisible: true,
@@ -30,7 +32,7 @@ export default async function ShopPage({
   });
 
   const totalAllCount = await prisma.product.count({ where: { isVisible: true } });
-  const activeSubs = category && category !== "ALL" ? getSubCategoriesByMainCategory(category) : [];
+  const activeSubs = category && category !== "ALL" ? getSubCategoriesByMainCategory(category, categoriesList) : [];
 
   return (
     <div className="container mx-auto px-4 py-16 max-w-6xl min-h-[75vh]">
@@ -64,7 +66,7 @@ export default async function ShopPage({
           >
             전체 ({totalAllCount})
           </Link>
-          {PRODUCT_CATEGORIES.map((cat) => {
+          {categoriesList.map((cat) => {
             const isSelected = category === cat.name;
             return (
               <Link

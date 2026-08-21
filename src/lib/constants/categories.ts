@@ -1,3 +1,5 @@
+import { prisma } from "@/lib/prisma";
+
 export interface CategoryDefinition {
   id: string;
   name: string; // 1st Depth 대분류
@@ -5,7 +7,7 @@ export interface CategoryDefinition {
   subCategories: string[]; // 2nd Depth 중/소분류 (용처별)
 }
 
-export const PRODUCT_CATEGORIES: CategoryDefinition[] = [
+export const DEFAULT_PRODUCT_CATEGORIES: CategoryDefinition[] = [
   {
     id: "cleaner",
     name: "세정제류",
@@ -68,9 +70,29 @@ export const PRODUCT_CATEGORIES: CategoryDefinition[] = [
   },
 ];
 
-export const ALL_MAIN_CATEGORIES = PRODUCT_CATEGORIES.map((c) => c.name);
+export const PRODUCT_CATEGORIES = DEFAULT_PRODUCT_CATEGORIES;
 
-export function getSubCategoriesByMainCategory(mainCategory: string): string[] {
-  const found = PRODUCT_CATEGORIES.find((c) => c.name === mainCategory);
+export function getSubCategoriesByMainCategory(
+  mainCategory: string,
+  categoryList: CategoryDefinition[] = DEFAULT_PRODUCT_CATEGORIES
+): string[] {
+  const found = categoryList.find((c) => c.name === mainCategory);
   return found ? found.subCategories : ["일반/기타"];
+}
+
+export async function getDynamicProductCategories(): Promise<CategoryDefinition[]> {
+  try {
+    const policy = await prisma.policy.findUnique({
+      where: { key: "PRODUCT_CATEGORIES_DATA" }
+    });
+    if (policy && policy.value) {
+      const parsed = JSON.parse(policy.value);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.error("Failed to load dynamic categories:", e);
+  }
+  return DEFAULT_PRODUCT_CATEGORIES;
 }

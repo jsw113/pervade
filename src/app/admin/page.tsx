@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Package, Users, Megaphone, BookOpen, Settings, Palette, HelpCircle, ArrowRight, TrendingUp } from "lucide-react";
+import { Package, Users, Megaphone, BookOpen, Settings, Palette, HelpCircle, ArrowRight, TrendingUp, Layers } from "lucide-react";
 import { SeedButton } from "@/components/admin/SeedButton";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +18,7 @@ export default async function AdminDashboard() {
 
   const quickLinks = [
     { title: "제품 관리", desc: "제품 등록, 다중 이미지 및 가격 설정", href: "/admin/products", icon: Package, count: `${productCount}개 등록` },
+    { title: "카테고리 마스터 관리", desc: "2단계 대분류/용처별 분류 생성 및 편집", href: "/admin/categories", icon: Layers, count: "실시간 반영" },
     { title: "통합 재고 관리", desc: "실시간 재고 차감 및 외부몰 수기 조정", href: "/admin/inventory", icon: Settings, count: "재고 실시간 연동" },
     { title: "프로모션 & 이벤트", desc: "메인 배너 할인 페스티벌 & 지난 이벤트", href: "/admin/promotions", icon: Megaphone, count: `${promoCount}개 진행중` },
     { title: "사용가이드 블로그", desc: "제품별 청소 팁 & 매거진 아티클 CMS", href: "/admin/guides", icon: BookOpen, count: `${guideCount}개 발행` },

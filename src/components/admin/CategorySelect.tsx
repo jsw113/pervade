@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { PRODUCT_CATEGORIES, getSubCategoriesByMainCategory } from "@/lib/constants/categories";
+import { DEFAULT_PRODUCT_CATEGORIES, CategoryDefinition, getSubCategoriesByMainCategory } from "@/lib/constants/categories";
 import { Layers, Tag, Plus, Check } from "lucide-react";
 
 interface CategorySelectProps {
@@ -17,12 +17,25 @@ export function CategorySelect({
   onChangeCategory,
   onChangeSubCategory,
 }: CategorySelectProps) {
+  const [categoriesList, setCategoriesList] = useState<CategoryDefinition[]>(DEFAULT_PRODUCT_CATEGORIES);
   const [availableSubCategories, setAvailableSubCategories] = useState<string[]>([]);
   const [isCustomSubCategory, setIsCustomSubCategory] = useState(false);
   const [customSubCategoryInput, setCustomSubCategoryInput] = useState("");
 
+  // Load dynamic categories from DB API
   useEffect(() => {
-    const currentSubs = getSubCategoriesByMainCategory(category || "세정제류");
+    fetch("/api/admin/categories")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setCategoriesList(data);
+        }
+      })
+      .catch((err) => console.error(err));
+  }, []);
+
+  useEffect(() => {
+    const currentSubs = getSubCategoriesByMainCategory(category || "세정제류", categoriesList);
     setAvailableSubCategories(currentSubs);
 
     // If current subCategory is not in presets and not empty, it's custom
@@ -30,11 +43,11 @@ export function CategorySelect({
       setIsCustomSubCategory(true);
       setCustomSubCategoryInput(subCategory);
     }
-  }, [category, subCategory]);
+  }, [category, subCategory, categoriesList]);
 
   const handleMainCategoryChange = (newCat: string) => {
     onChangeCategory(newCat);
-    const newSubs = getSubCategoriesByMainCategory(newCat);
+    const newSubs = getSubCategoriesByMainCategory(newCat, categoriesList);
     setAvailableSubCategories(newSubs);
     // Set default subcategory to first preset
     if (newSubs.length > 0) {
@@ -75,7 +88,7 @@ export function CategorySelect({
           1단계: 제품 대분류 (계열 선택) *
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-          {PRODUCT_CATEGORIES.map((cat) => {
+          {categoriesList.map((cat) => {
             const isSelected = category === cat.name;
             return (
               <button

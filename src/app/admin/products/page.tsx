@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Plus, Tag, Layers, Package, ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { PRODUCT_CATEGORIES } from "@/lib/constants/categories";
+import { getDynamicProductCategories } from "@/lib/constants/categories";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +11,8 @@ export default async function AdminProductsPage({
   searchParams: Promise<{ category?: string; subCategory?: string }>;
 }) {
   const { category, subCategory } = await searchParams;
+
+  const categoriesList = await getDynamicProductCategories();
 
   const where: any = {};
   if (category && category !== "ALL") {
@@ -63,7 +65,7 @@ export default async function AdminProductsPage({
           >
             전체 ({totalCount})
           </Link>
-          {PRODUCT_CATEGORIES.map((cat) => {
+          {categoriesList.map((cat) => {
             const isSelected = category === cat.name;
             return (
               <Link
