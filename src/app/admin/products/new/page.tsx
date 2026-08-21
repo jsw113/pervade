@@ -4,11 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, Trash2, Image as ImageIcon, Star, Check, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { CategorySelect } from "@/components/admin/CategorySelect";
 
 export default function NewProductPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("세정제류");
+  const [subCategory, setSubCategory] = useState("다목적/올인원");
   const [price, setPrice] = useState("");
   const [originalPrice, setOriginalPrice] = useState("");
   const [stock, setStock] = useState("100");
@@ -104,7 +107,7 @@ export default function NewProductPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (images.length === 0) {
-      alert("최소 1개 이상의 제품 사진을 업로드해주세요.");
+      alert("최소 1개 이상의 제품 이미지를 등록해주세요.");
       return;
     }
 
@@ -116,8 +119,10 @@ export default function NewProductPage() {
         body: JSON.stringify({ 
           name, 
           description, 
+          category,
+          subCategory,
           price: parseInt(price), 
-          originalPrice: originalPrice ? parseInt(originalPrice) : undefined, 
+          originalPrice: originalPrice ? parseInt(originalPrice) : null,
           shippingFee: parseInt(shippingFee) || 0,
           stock: parseInt(stock), 
           safetyStock: parseInt(safetyStock),
@@ -130,7 +135,7 @@ export default function NewProductPage() {
       });
 
       if (response.ok) {
-        alert("제품이 성공적으로 등록되었습니다.");
+        alert("새 제품이 성공적으로 등록되었습니다.");
         router.push("/admin/products");
         router.refresh();
       } else {
@@ -138,34 +143,42 @@ export default function NewProductPage() {
       }
     } catch (err) {
       console.error(err);
-      alert("네트워크 오류가 발생했습니다.");
+      alert("오류가 발생했습니다.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="space-y-6 max-w-5xl mx-auto p-6">
       <div className="flex items-center gap-4 border-b pb-4">
-        <Link href="/admin/products" className="p-2 hover:bg-zinc-100 rounded-full transition-colors">
-          <ArrowLeft className="w-5 h-5" />
+        <Link href="/admin/products" className="p-2 border rounded-xl hover:bg-zinc-100 transition-colors">
+          <ArrowLeft className="w-4 h-4 text-zinc-600" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold">새 제품 등록</h1>
-          <p className="text-xs text-zinc-500">제품의 다중 갤러리 이미지, 재고 및 상세페이지 설명을 등록합니다.</p>
+          <h1 className="text-2xl font-bold tracking-tight">신규 제품 등록</h1>
+          <p className="text-xs text-zinc-500 mt-0.5">제품 계열 분류, 가격, 재고 및 상세 이미지를 설정합니다.</p>
         </div>
       </div>
-      
+
       <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-8 rounded-2xl border space-y-8 shadow-sm">
-        {/* 1. Basic Info */}
+        {/* 1. Category 2-Depth Hierarchy */}
+        <CategorySelect
+          category={category}
+          subCategory={subCategory}
+          onChangeCategory={setCategory}
+          onChangeSubCategory={setSubCategory}
+        />
+
+        {/* 2. Basic Info */}
         <div className="space-y-4">
-          <h3 className="text-base font-bold text-zinc-900 border-b pb-2">1. 기본 제품 정보</h3>
+          <h3 className="text-base font-bold text-zinc-900 border-b pb-2">기본 제품 정보</h3>
           <div>
             <label className="block text-xs font-bold text-zinc-600 mb-1">제품명 *</label>
             <input 
               type="text" required
               value={name} onChange={e => setName(e.target.value)}
-              placeholder="예: 퍼베이드 프리미엄 다목적 세정제 500ml"
+              placeholder="예: 퍼베이드 올인원 프리미엄 다목적 세정제 500ml"
               className="w-full p-3 bg-zinc-50 border rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900"
             />
           </div>
@@ -176,7 +189,7 @@ export default function NewProductPage() {
               required
               rows={3}
               value={description} onChange={e => setDescription(e.target.value)}
-              placeholder="쇼핑몰 목록 및 상단에 노출될 1~2줄 제품 요약"
+              placeholder="쇼핑몰 목록과 상단에 표출될 핵심 한 줄 설명을 입력하세요."
               className="w-full p-3 bg-zinc-50 border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-zinc-900"
             />
           </div>
@@ -187,7 +200,7 @@ export default function NewProductPage() {
               <input 
                 type="number" required
                 value={price} onChange={e => setPrice(e.target.value)}
-                placeholder="24000"
+                placeholder="18900"
                 className="w-full p-3 bg-zinc-50 border rounded-xl text-sm font-bold text-blue-600 focus:outline-none focus:ring-2 focus:ring-zinc-900"
               />
             </div>
@@ -196,7 +209,7 @@ export default function NewProductPage() {
               <input 
                 type="number"
                 value={originalPrice} onChange={e => setOriginalPrice(e.target.value)}
-                placeholder="32000"
+                placeholder="23000"
                 className="w-full p-3 bg-zinc-50 border rounded-xl text-sm text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
               />
             </div>
@@ -218,26 +231,40 @@ export default function NewProductPage() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-zinc-600 mb-1">기본 배송비 (원)</label>
-            <input 
-              type="number"
-              value={shippingFee} onChange={e => setShippingFee(e.target.value)}
-              className="w-full sm:w-1/2 p-3 bg-zinc-50 border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-zinc-900"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-zinc-600 mb-1">기본 배송비 (원)</label>
+              <input 
+                type="number"
+                value={shippingFee} onChange={e => setShippingFee(e.target.value)}
+                className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              />
+            </div>
+            <div className="flex items-center">
+              <label className="flex items-center gap-2 cursor-pointer pt-4">
+                <input 
+                  type="checkbox" 
+                  checked={isVisible} 
+                  onChange={e => setIsVisible(e.target.checked)}
+                  className="w-4 h-4 text-zinc-900 rounded"
+                />
+                <span className="text-xs font-bold text-zinc-700">쇼핑몰에 상품 즉시 노출 활성화</span>
+              </label>
+            </div>
           </div>
         </div>
 
-        {/* 2. Multiple Product Images */}
+        {/* 3. Multi-Image Gallery */}
         <div className="space-y-4">
           <div className="flex justify-between items-center border-b pb-2">
-            <div>
-              <h3 className="text-base font-bold text-zinc-900">2. 제품 갤러리 이미지 (다중 업로드)</h3>
-              <p className="text-xs text-zinc-500">한 번에 여러 장의 사진을 선택하여 업로드할 수 있습니다.</p>
-            </div>
-            <label className="cursor-pointer px-4 py-2 bg-zinc-950 text-white rounded-xl text-xs font-bold hover:bg-zinc-800 transition-colors flex items-center gap-1.5 shadow-sm">
-              <Upload className="w-3.5 h-3.5" />
-              {isUploading ? "업로드 중..." : "이미지 추가 선택"}
+            <h3 className="text-base font-bold text-zinc-900">2. 제품 갤러리 이미지</h3>
+            <span className="text-xs text-zinc-400">첫 번째 이미지가 대표 썸네일로 사용됩니다</span>
+          </div>
+
+          <div>
+            <label className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-950 text-white rounded-xl text-xs font-bold hover:bg-zinc-800 cursor-pointer transition-colors shadow-sm">
+              <Upload className="w-4 h-4" />
+              {isUploading ? "이미지 업로드 중..." : "이미지 추가 업로드 (다중 선택 가능)"}
               <input 
                 type="file" 
                 multiple 
@@ -249,27 +276,29 @@ export default function NewProductPage() {
             </label>
           </div>
 
-          {images.length === 0 ? (
-            <div className="p-8 border-2 border-dashed rounded-2xl text-center text-zinc-400 space-y-2">
-              <ImageIcon className="w-8 h-8 mx-auto" />
-              <p className="text-xs">등록된 제품 이미지가 없습니다. 상단 버튼을 눌러 이미지를 추가해주세요.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4">
-              {images.map((img, idx) => (
-                <div key={idx} className="relative group border rounded-xl overflow-hidden bg-zinc-100 aspect-square shadow-sm">
-                  <img src={img} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
-                  {idx === 0 && (
-                    <span className="absolute top-2 left-2 bg-black text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow flex items-center gap-1">
-                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" /> 대표
+          {images.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
+              {images.map((imgUrl, index) => (
+                <div 
+                  key={index} 
+                  className={`group relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+                    index === 0 ? "border-zinc-900 shadow-md" : "border-zinc-200"
+                  }`}
+                >
+                  <img src={imgUrl} alt={`Product ${index}`} className="w-full h-full object-cover" />
+                  
+                  {index === 0 && (
+                    <span className="absolute top-1.5 left-1.5 bg-zinc-950 text-white text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm flex items-center gap-0.5">
+                      <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" /> 대표
                     </span>
                   )}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    {idx !== 0 && (
+
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    {index !== 0 && (
                       <button
                         type="button"
-                        onClick={() => handleSetMainImage(idx)}
-                        className="p-1.5 bg-white text-black rounded-lg text-xs font-bold shadow hover:bg-zinc-100"
+                        onClick={() => handleSetMainImage(index)}
+                        className="p-1.5 bg-white text-zinc-900 rounded-lg text-[10px] font-bold hover:bg-amber-100"
                         title="대표 이미지로 설정"
                       >
                         대표
@@ -277,8 +306,9 @@ export default function NewProductPage() {
                     )}
                     <button
                       type="button"
-                      onClick={() => handleRemoveImage(idx)}
-                      className="p-1.5 bg-red-600 text-white rounded-lg text-xs shadow hover:bg-red-700"
+                      onClick={() => handleRemoveImage(index)}
+                      className="p-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                      title="삭제"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -286,90 +316,76 @@ export default function NewProductPage() {
                 </div>
               ))}
             </div>
+          ) : (
+            <div className="p-8 border-2 border-dashed rounded-2xl text-center text-zinc-400 text-xs">
+              등록된 이미지가 없습니다. 상단 버튼을 눌러 이미지를 추가해주세요.
+            </div>
           )}
         </div>
 
-        {/* 3. Detailed Content & Body Images */}
+        {/* 4. Detailed Description Content & Detail Images */}
         <div className="space-y-4">
-          <div className="flex justify-between items-center border-b pb-2">
-            <div>
-              <h3 className="text-base font-bold text-zinc-900">3. 제품 상세페이지 설명 (본문 텍스트 & 상세 이미지)</h3>
-              <p className="text-xs text-zinc-500">상세페이지 하단에 노출될 설명 본문 및 고화질 통이미지를 등록합니다.</p>
-            </div>
-            <label className="cursor-pointer px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 border rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5">
-              <Upload className="w-3.5 h-3.5" />
-              {isDetailUploading ? "업로드 중..." : "상세 이미지 추가"}
-              <input 
-                type="file" 
-                multiple 
-                accept="image/*" 
-                onChange={handleDetailImageUpload} 
-                disabled={isDetailUploading}
-                className="hidden" 
-              />
-            </label>
-          </div>
-
+          <h3 className="text-base font-bold text-zinc-900 border-b pb-2">3. 상세페이지 상세 설명 및 안내 이미지</h3>
+          
           <div>
-            <label className="block text-xs font-bold text-zinc-600 mb-1">상세페이지 안내 본문 (텍스트)</label>
-            <textarea 
-              rows={6}
-              value={detailContent} 
-              onChange={e => setDetailContent(e.target.value)}
-              placeholder="제품의 성분, 효능, 친환경 인증 및 사용 시 주의사항을 자세히 기재하세요."
-              className="w-full p-3 bg-zinc-50 border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-zinc-900 leading-relaxed"
-            />
-          </div>
+            <label className="block text-xs font-bold text-zinc-600 mb-1">상세페이지 통 이미지 업로드 (카드뉴스/상세페이지용)</label>
+            <div className="space-y-3">
+              <label className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-100 text-zinc-800 border rounded-xl text-xs font-bold hover:bg-zinc-200 cursor-pointer transition-colors">
+                <Upload className="w-4 h-4" />
+                {isDetailUploading ? "상세 이미지 업로드 중..." : "상세 이미지 추가"}
+                <input 
+                  type="file" 
+                  multiple 
+                  accept="image/*" 
+                  onChange={handleDetailImageUpload} 
+                  disabled={isDetailUploading}
+                  className="hidden" 
+                />
+              </label>
 
-          {detailImages.length > 0 && (
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-zinc-600">등록된 상세페이지 이미지 ({detailImages.length}장)</label>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {detailImages.map((img, idx) => (
-                  <div key={idx} className="relative group border rounded-xl overflow-hidden bg-zinc-100 aspect-video shadow-sm">
-                    <img src={img} alt={`Detail ${idx}`} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              {detailImages.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {detailImages.map((imgUrl, index) => (
+                    <div key={index} className="group relative aspect-[3/4] rounded-xl overflow-hidden border">
+                      <img src={imgUrl} alt={`Detail ${index}`} className="w-full h-full object-cover" />
                       <button
                         type="button"
-                        onClick={() => handleRemoveDetailImage(idx)}
-                        className="p-1.5 bg-red-600 text-white rounded-lg text-xs shadow hover:bg-red-700"
+                        onClick={() => handleRemoveDetailImage(index)}
+                        className="absolute top-2 right-2 p-1.5 bg-red-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </div>
 
-        {/* 4. Visibility */}
-        <div className="pt-2">
-          <label className="flex items-center gap-2 cursor-pointer p-4 bg-zinc-50 rounded-xl border">
-            <input 
-              type="checkbox" 
-              checked={isVisible} 
-              onChange={e => setIsVisible(e.target.checked)}
-              className="w-4 h-4 text-zinc-900 rounded"
+          <div>
+            <label className="block text-xs font-bold text-zinc-600 mb-1">상세 텍스트 설명 (HTML / 텍스트 지원)</label>
+            <textarea 
+              rows={8}
+              value={detailContent} onChange={e => setDetailContent(e.target.value)}
+              placeholder="상세한 제품 특장점, 사용 방법, 주의사항 등을 입력하세요."
+              className="w-full p-4 bg-zinc-50 border rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-zinc-900 leading-relaxed"
             />
-            <span className="text-xs font-bold text-zinc-800">쇼핑몰에 제품 즉시 노출 활성화</span>
-          </label>
+          </div>
         </div>
 
-        {/* Action Buttons */}
+        {/* Actions */}
         <div className="flex justify-end gap-3 pt-6 border-t">
           <button
             type="button"
             onClick={() => router.push("/admin/products")}
-            className="px-6 py-3 border rounded-xl text-xs font-bold text-zinc-600 hover:bg-zinc-50 transition-colors"
+            className="px-6 py-2.5 border rounded-xl text-xs font-bold text-zinc-600 hover:bg-zinc-50 transition-colors"
           >
             취소
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-8 py-3 bg-zinc-950 text-white rounded-xl text-xs font-bold hover:bg-zinc-800 transition-colors shadow-lg flex items-center gap-1.5 disabled:opacity-50"
+            className="px-8 py-2.5 bg-zinc-950 text-white rounded-xl text-xs font-bold hover:bg-zinc-800 transition-colors shadow-lg flex items-center gap-2"
           >
             <Check className="w-4 h-4" />
             {isSubmitting ? "등록 중..." : "신규 제품 등록 완료"}

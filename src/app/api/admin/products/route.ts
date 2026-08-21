@@ -1,9 +1,22 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const category = searchParams.get("category");
+    const subCategory = searchParams.get("subCategory");
+
+    const where: any = {};
+    if (category && category !== "ALL") {
+      where.category = category;
+    }
+    if (subCategory && subCategory !== "ALL") {
+      where.subCategory = subCategory;
+    }
+
     const products = await prisma.product.findMany({
+      where,
       orderBy: { createdAt: "desc" },
       include: {
         inventoryLogs: {
@@ -22,7 +35,22 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, description, price, originalPrice, shippingFee, imageUrl, images, detailContent, detailImages, stock, safetyStock, isVisible } = body;
+    const { 
+      name, 
+      description, 
+      category, 
+      subCategory, 
+      price, 
+      originalPrice, 
+      shippingFee, 
+      imageUrl, 
+      images, 
+      detailContent, 
+      detailImages, 
+      stock, 
+      safetyStock, 
+      isVisible 
+    } = body;
 
     if (!name || !description || price === undefined) {
       return NextResponse.json({ error: "제품명, 설명, 판매가는 필수입니다." }, { status: 400 });
@@ -32,6 +60,8 @@ export async function POST(request: Request) {
       data: {
         name,
         description,
+        category: category || "세정제류",
+        subCategory: subCategory || "다목적/올인원",
         price: parseInt(price),
         originalPrice: originalPrice ? parseInt(originalPrice) : null,
         shippingFee: shippingFee !== undefined ? parseInt(shippingFee) : 3000,

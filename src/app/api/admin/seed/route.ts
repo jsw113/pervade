@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    // 1. Seed Products if empty
+    // 1. Seed Products if empty or update categories
     const productCount = await prisma.product.count();
     let p1Id = "";
     let p2Id = "";
@@ -13,6 +13,8 @@ export async function GET() {
         data: {
           name: "퍼베이드 올인원 프리미엄 다목적 세정제 500ml (본품)",
           description: "주방 기름때, 욕실 물때, 가구 오염을 단 하나로 말끔히 세정하는 프리미엄 포뮬러",
+          category: "세정제류",
+          subCategory: "다목적/올인원",
           price: 18900,
           originalPrice: 23000,
           shippingFee: 3000,
@@ -34,6 +36,8 @@ export async function GET() {
         data: {
           name: "퍼베이드 친환경 에코 리필 1,000ml (대용량 2회분)",
           description: "플라스틱 사용량을 70% 줄인 친환경 대용량 파우치 리필 패키지",
+          category: "기타·액세서리",
+          subCategory: "에코 리필팩",
           price: 24000,
           originalPrice: 32000,
           shippingFee: 3000,
@@ -49,6 +53,24 @@ export async function GET() {
         }
       });
       p2Id = p2.id;
+    } else {
+      // Update existing products with accurate 2-depth categories
+      const existing = await prisma.product.findMany();
+      for (const prod of existing) {
+        if (!prod.category || prod.category === "기본" || !prod.subCategory) {
+          if (prod.name.includes("리필")) {
+            await prisma.product.update({
+              where: { id: prod.id },
+              data: { category: "기타·액세서리", subCategory: "에코 리필팩" }
+            });
+          } else {
+            await prisma.product.update({
+              where: { id: prod.id },
+              data: { category: "세정제류", subCategory: "다목적/올인원" }
+            });
+          }
+        }
+      }
     }
 
     // 2. Seed Promotions if empty
@@ -164,7 +186,7 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      message: "클라우드 PostgreSQL 데이터베이스에 기본 상품, 프로모션, 가이드 매거진, 운영 정책 시드가 성공적으로 완료되었습니다."
+      message: "클라우드 PostgreSQL 데이터베이스에 기본 상품(2-Depth 계열 분류 적용), 프로모션, 가이드 매거진, 운영 정책 시드가 성공적으로 완료되었습니다."
     });
   } catch (error: any) {
     console.error("Seed error:", error);

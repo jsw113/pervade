@@ -161,6 +161,8 @@ model Product {
   id            String   @id @default(uuid())
   name          String
   description   String
+  category      String   @default("세정제류") // 1st Depth 대분류: "세정제류", "탈취제류", "소독·살균제류", "세탁·섬유케어", "기타·액세서리"
+  subCategory   String?  @default("다목적/올인원") // 2nd Depth 중/소분류(용처별): "다목적/올인원", "주방/기름때", "욕실/물때", "유리/거울", "바닥/타일" 등
   price         Int      // Selling/Discount price
   originalPrice Int?     // Original regular price
   shippingFee   Int      @default(3000) // Shipping fee

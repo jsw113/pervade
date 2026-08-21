@@ -8,7 +8,22 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, description, price, originalPrice, shippingFee, imageUrl, images, detailContent, detailImages, stock, safetyStock, isVisible } = body;
+    const { 
+      name, 
+      description, 
+      category, 
+      subCategory, 
+      price, 
+      originalPrice, 
+      shippingFee, 
+      imageUrl, 
+      images, 
+      detailContent, 
+      detailImages, 
+      stock, 
+      safetyStock, 
+      isVisible 
+    } = body;
 
     const current = await prisma.product.findUnique({ where: { id } });
     if (!current) {
@@ -23,6 +38,8 @@ export async function PATCH(
       data: {
         ...(name !== undefined && { name }),
         ...(description !== undefined && { description }),
+        ...(category !== undefined && { category }),
+        ...(subCategory !== undefined && { subCategory }),
         ...(price !== undefined && { price: parseInt(price) }),
         ...(originalPrice !== undefined && { originalPrice: originalPrice ? parseInt(originalPrice) : null }),
         ...(shippingFee !== undefined && { shippingFee: parseInt(shippingFee) }),
@@ -63,16 +80,14 @@ export async function DELETE(
   try {
     const { id } = await params;
     
-    // Clear relations
+    // Clean up relations first
+    await prisma.inventoryLog.deleteMany({ where: { productId: id } });
     await prisma.cartItem.deleteMany({ where: { productId: id } });
     await prisma.wishlist.deleteMany({ where: { productId: id } });
     await prisma.review.deleteMany({ where: { productId: id } });
     await prisma.question.deleteMany({ where: { productId: id } });
-    await prisma.inventoryLog.deleteMany({ where: { productId: id } });
+    await prisma.product.delete({ where: { id } });
 
-    await prisma.product.delete({
-      where: { id },
-    });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to delete product:", error);

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { ArrowLeft, MessageCircle, Star, Sparkles, ShieldCheck, FileText, Info } from "lucide-react";
+import { ArrowLeft, MessageCircle, Star, Sparkles, ShieldCheck, FileText, Info, ChevronRight, Tag } from "lucide-react";
 import { ProductPurchasePanel } from "@/components/shop/ProductPurchasePanel";
 import { ReviewSection } from "@/components/shop/ReviewSection";
 import { ProductGallery } from "@/components/shop/ProductGallery";
@@ -76,14 +76,33 @@ export default async function ProductDetailPage({
 `;
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-6xl">
-      {/* Back Button */}
-      <Link 
-        href="/shop" 
-        className="inline-flex items-center gap-2 text-zinc-500 hover:text-zinc-950 text-xs font-bold mb-8 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" /> 전체 상품으로 돌아가기
-      </Link>
+    <div className="container mx-auto px-4 py-10 max-w-6xl">
+      {/* 2-Depth Breadcrumb Navigation */}
+      <nav className="flex items-center gap-2 text-xs text-zinc-500 font-medium mb-8 overflow-x-auto whitespace-nowrap pb-1">
+        <Link href="/" className="hover:text-zinc-950 transition-colors">홈</Link>
+        <ChevronRight className="w-3 h-3 text-zinc-400 shrink-0" />
+        <Link href="/shop" className="hover:text-zinc-950 transition-colors">Shop</Link>
+        <ChevronRight className="w-3 h-3 text-zinc-400 shrink-0" />
+        <Link 
+          href={`/shop?category=${encodeURIComponent(product.category || "세정제류")}`} 
+          className="font-bold text-zinc-800 hover:text-amber-700 transition-colors"
+        >
+          {product.category || "세정제류"}
+        </Link>
+        {product.subCategory && (
+          <>
+            <ChevronRight className="w-3 h-3 text-zinc-400 shrink-0" />
+            <Link 
+              href={`/shop?category=${encodeURIComponent(product.category || "세정제류")}&subCategory=${encodeURIComponent(product.subCategory)}`} 
+              className="text-amber-700 font-semibold hover:underline"
+            >
+              {product.subCategory}
+            </Link>
+          </>
+        )}
+        <ChevronRight className="w-3 h-3 text-zinc-400 shrink-0" />
+        <span className="text-zinc-400 truncate max-w-[200px]">{product.name}</span>
+      </nav>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 items-start mb-16">
         
@@ -95,15 +114,22 @@ export default async function ProductDetailPage({
 
         {/* Right: Product Order Info */}
         <div className="space-y-6">
-          <div className="space-y-2 border-b border-zinc-100 pb-6">
+          <div className="space-y-3 border-b border-zinc-100 pb-6">
+            {/* 2-Depth Category Badges */}
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">PERVADE ORIGINAL</span>
-              <div className="flex items-center text-amber-500 text-xs gap-1">
+              <span className="px-2.5 py-0.5 bg-zinc-950 text-white rounded-md text-[10px] font-black tracking-wider uppercase">
+                {product.category || "세정제류"}
+              </span>
+              <span className="px-2 py-0.5 bg-amber-50 border border-amber-200 text-amber-800 rounded-md text-[10px] font-bold">
+                {product.subCategory || "다목적/올인원"}
+              </span>
+              <div className="flex items-center text-amber-500 text-xs gap-1 ml-auto">
                 <Star className="w-3.5 h-3.5 fill-current" />
                 <span className="font-bold text-zinc-800">{avgRating}</span>
                 <span className="text-zinc-400">({product.reviews.length}개 리뷰)</span>
               </div>
             </div>
+
             <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-950 tracking-tight">
               {product.name}
             </h1>
@@ -138,44 +164,42 @@ export default async function ProductDetailPage({
               </div>
             </div>
             <div className="flex justify-between items-start">
-              <span className="font-semibold text-zinc-500 w-20">배송 정보</span>
+              <span className="font-semibold text-zinc-500 w-20">배송 안내</span>
               <div className="flex-1 text-zinc-700">
-                <span>{product.shippingFee === 0 ? "무료배송" : `${product.shippingFee.toLocaleString()}원`} (CJ대한통운 / 평일 14시 당일출고)</span>
-              </div>
-            </div>
-            <div className="flex justify-between items-start">
-              <span className="font-semibold text-zinc-500 w-20">안심 포뮬러</span>
-              <div className="flex-1 text-zinc-600">
-                <p>유해 화학물질 불검출 검증, 피부 저자극 안심 테스트 완료</p>
+                <span className="font-bold">{product.shippingFee === 0 ? "무료배송" : `${product.shippingFee.toLocaleString()}원`}</span>
+                <span className="text-zinc-400 ml-1.5">(CJ대한통운 / 평일 14시 당일 출고)</span>
               </div>
             </div>
           </div>
 
-          {/* Purchase Panel */}
-          <ProductPurchasePanel product={JSON.parse(JSON.stringify(product))} />
-
+          {/* Purchase Client Interactive Component */}
+          <ProductPurchasePanel product={product} />
         </div>
       </div>
 
-      {/* Bottom Section: Separated Tab Body & Detailed Images */}
-      <div className="border-t border-zinc-200 pt-16 grid grid-cols-1 lg:grid-cols-3 gap-12">
+      {/* Detail Section Tabs & Content */}
+      <div className="border-t pt-12 space-y-12">
         
-        {/* Left/Middle: Product detailed description & Detail Images & Legal Disclosure */}
-        <div className="lg:col-span-2 space-y-8">
-          <h2 className="text-xl font-bold border-b pb-4 border-zinc-200">상품 상세 정보</h2>
+        {/* Navigation Anchor Bar */}
+        <div className="flex border-b text-sm font-bold justify-center gap-8 sticky top-16 bg-white/95 backdrop-blur-md z-30 py-3">
+          <a href="#details" className="text-zinc-950 border-b-2 border-zinc-950 pb-2">제품 상세설명</a>
+          <a href="#reviews" className="text-zinc-400 hover:text-zinc-950 transition-colors pb-2">상품 리뷰 ({product.reviews.length})</a>
+          <a href="#guide" className="text-zinc-400 hover:text-zinc-950 transition-colors pb-2">사용가이드</a>
+          <a href="#shipping" className="text-zinc-400 hover:text-zinc-950 transition-colors pb-2">배송/환불 안내</a>
+        </div>
+
+        {/* 1. Detail Content Area */}
+        <div id="details" className="max-w-3xl mx-auto space-y-8">
           
-          {/* Rich Detail Content */}
-          {product.detailContent ? (
-            <div className="prose prose-zinc max-w-none text-sm text-zinc-700 leading-relaxed whitespace-pre-wrap bg-white p-6 sm:p-8 rounded-2xl border">
-              {product.detailContent}
-            </div>
-          ) : (
-            <div className="prose prose-zinc max-w-none text-zinc-700 leading-relaxed whitespace-pre-wrap">
-              {product.description}
-            </div>
+          {/* Rich HTML Content */}
+          {product.detailContent && (
+            <div 
+              className="prose prose-zinc max-w-none text-sm leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: product.detailContent }}
+            />
           )}
 
-          {/* Detailed Image Storytelling Blocks */}
+          {/* Detail Long Images Gallery */}
           {detailImages.length > 0 && (
             <div className="space-y-4 pt-4">
               {detailImages.map((img, idx) => (
@@ -198,11 +222,11 @@ export default async function ProductDetailPage({
                 <tbody className="divide-y divide-zinc-100">
                   <tr>
                     <th className="px-5 py-3 bg-zinc-100/80 font-bold text-zinc-700 w-1/3">품목 및 제품명</th>
-                    <td className="px-5 py-3 text-zinc-800">{product.name} (다목적 세정제)</td>
+                    <td className="px-5 py-3 text-zinc-800">{product.name} ({product.category || "세정제류"})</td>
                   </tr>
                   <tr>
                     <th className="px-5 py-3 bg-zinc-100/80 font-bold text-zinc-700">용도 및 제형</th>
-                    <td className="px-5 py-3 text-zinc-800">일반용 (기름때, 물때, 실내 가구 및 공간 세정용) / 분무형(액체)</td>
+                    <td className="px-5 py-3 text-zinc-800">{product.subCategory || "다목적/올인원"} (실내 공간 및 표면 세정용) / 분무형(액체)</td>
                   </tr>
                   <tr>
                     <th className="px-5 py-3 bg-zinc-100/80 font-bold text-zinc-700">용량 또는 중량</th>
@@ -238,47 +262,48 @@ export default async function ProductDetailPage({
           </div>
           
           <div className="bg-zinc-50 p-6 rounded-2xl border space-y-2">
-            <h4 className="font-bold text-zinc-900 text-sm flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              퍼베이드 공식 사용 가이드
+            <h4 className="font-bold text-xs text-zinc-900 flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              안심 포뮬러 &amp; 품질 보증
             </h4>
-            <p className="text-xs text-zinc-600 leading-relaxed">
-              안전한 식물 유래 성분을 사용하여 일상 공간 어디든 안심하고 사용할 수 있습니다. 보다 자세한 공간별 세정 팁은 상단 메뉴의 [사용가이드]에서 확인하실 수 있습니다.
+            <p className="text-zinc-600 text-xs leading-relaxed">
+              퍼베이드는 전 성분 안전성 시험과 유해물질 불검출 테스트를 통과한 친환경 다목적 세정 솔루션입니다.
             </p>
           </div>
         </div>
 
-        {/* Right: Common Shipping & Return Notice */}
-        <div className="lg:col-span-1 space-y-6">
-          <h2 className="text-xl font-bold border-b pb-4 border-zinc-200">주문 / 배송 / 교환 공통고지</h2>
-          <div className="bg-zinc-50 p-6 rounded-2xl border text-xs text-zinc-600 leading-relaxed whitespace-pre-line">
+        {/* 2. Reviews Section */}
+        <div id="reviews" className="max-w-3xl mx-auto pt-12 border-t">
+          <ReviewSection productId={product.id} />
+        </div>
+
+        {/* 3. Guide Callout */}
+        <div id="guide" className="max-w-3xl mx-auto bg-amber-500/10 border border-amber-500/20 rounded-3xl p-8 text-center space-y-3">
+          <span className="text-[11px] font-bold text-amber-600 uppercase tracking-widest">Cleaning Pro Tips</span>
+          <h3 className="text-xl font-bold text-zinc-950">이 제품을 더 효과적으로 사용하는 방법</h3>
+          <p className="text-xs text-zinc-600 max-w-lg mx-auto leading-relaxed">
+            인덕션 기름때, 욕실 물때, 가구 얼룩 등 상황별 3분 클리닝 비법을 공식 가이드에서 확인하세요.
+          </p>
+          <Link
+            href="/guide"
+            className="inline-block px-6 py-2.5 bg-zinc-950 text-white rounded-full text-xs font-bold hover:bg-zinc-800 transition-colors shadow-sm"
+          >
+            공식 사용 가이드 보러가기 &gt;
+          </Link>
+        </div>
+
+        {/* 4. Shipping & Returns Info */}
+        <div id="shipping" className="max-w-3xl mx-auto space-y-4 pt-12 border-t">
+          <h3 className="text-base font-bold text-zinc-950 flex items-center gap-2">
+            <Info className="w-4 h-4 text-zinc-700" />
+            배송 및 교환/반품 안내
+          </h3>
+          <div className="bg-zinc-50 rounded-2xl p-6 border text-xs text-zinc-700 whitespace-pre-line leading-relaxed font-sans">
             {shippingNotice}
           </div>
-
-          <div className="p-5 border rounded-2xl bg-zinc-900 text-white space-y-3">
-            <h4 className="font-bold text-xs flex items-center gap-1.5 text-amber-300">
-              <MessageCircle className="w-4 h-4" />
-              1:1 상품 문의가 필요하신가요?
-            </h4>
-            <p className="text-[11px] text-zinc-300 leading-relaxed">
-              상품에 대해 궁금한 점이 있으시다면 언제든 1:1 Q&A 게시판에 문의를 남겨주세요.
-            </p>
-            <Link
-              href={`/qna?productId=${product.id}`}
-              className="inline-block w-full py-2 bg-white text-zinc-900 text-center rounded-xl font-bold text-xs hover:bg-zinc-200 transition-colors"
-            >
-              상품 Q&A 문의하기
-            </Link>
-          </div>
         </div>
 
       </div>
-
-      {/* Review Section */}
-      <div className="mt-16 pt-16 border-t">
-        <ReviewSection productId={id} />
-      </div>
-
     </div>
   );
 }

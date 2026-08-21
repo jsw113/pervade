@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Mail, Phone, MapPin, Lock } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function ContactPage() {
   const questions = await prisma.question.findMany({
     orderBy: { createdAt: "desc" },
