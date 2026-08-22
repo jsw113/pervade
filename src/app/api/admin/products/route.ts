@@ -47,6 +47,7 @@ export async function POST(request: Request) {
       images, 
       detailContent, 
       detailImages, 
+      options,
       stock, 
       safetyStock, 
       isVisible 
@@ -69,6 +70,7 @@ export async function POST(request: Request) {
         images: Array.isArray(images) ? JSON.stringify(images) : (typeof images === "string" ? images : null),
         detailContent: detailContent || null,
         detailImages: Array.isArray(detailImages) ? JSON.stringify(detailImages) : (typeof detailImages === "string" ? detailImages : null),
+        options: Array.isArray(options) ? JSON.stringify(options) : (typeof options === "string" ? options : null),
         stock: stock !== undefined ? parseInt(stock) : 100,
         safetyStock: safetyStock !== undefined ? parseInt(safetyStock) : 10,
         isVisible: isVisible !== undefined ? !!isVisible : true,

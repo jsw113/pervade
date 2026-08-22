@@ -2,9 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Heart, ShoppingCart, MessageCircle, Truck, ShieldCheck, ShieldAlert } from "lucide-react";
+import { Heart, ShoppingCart, MessageCircle, Truck, ShieldCheck, ShieldAlert, Check } from "lucide-react";
 import Link from "next/link";
 import { RealNameVerifier } from "./RealNameVerifier";
+
+interface ProductOption {
+  id: string;
+  name: string;
+  extraPrice: number;
+  stock: number;
+  isSoldOut?: boolean;
+}
 
 interface Product {
   id: string;
@@ -12,12 +20,35 @@ interface Product {
   price: number;
   originalPrice?: number | null;
   shippingFee: number;
+  options?: string | null;
 }
 
 export function ProductPurchasePanel({ product }: { product: Product }) {
   const router = useRouter();
-  const [optionSelected, setOptionSelected] = useState("default");
-  const [shippingMethod, setShippingMethod] = useState("일반택배");
+  
+  // Parse dynamic options
+  let initialOptions: ProductOption[] = [
+    { id: "default", name: "기본 패키지 단품", extraPrice: 0, stock: 100, isSoldOut: false },
+    { id: "set", name: "기본형 + 리필 보틀 세트", extraPrice: 5000, stock: 50, isSoldOut: false }
+  ];
+
+  if (product.options) {
+    try {
+      const parsed = JSON.parse(product.options);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        initialOptions = parsed;
+      }
+    } catch (e) {
+      console.warn("Failed to parse product options:", e);
+    }
+  }
+
+  const [availableOptions] = useState<ProductOption[]>(initialOptions);
+  const [selectedOptionId, setSelectedOptionId] = useState<string>(
+    initialOptions[0]?.id || "default"
+  );
+  
+  const [shippingMethod] = useState("일반택배");
   const [quantity, setQuantity] = useState(1);
   const [isWished, setIsWished] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,6 +56,14 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
   // User auth & verification
   const [user, setUser] = useState<{ id: string; name: string; realNameVerified: boolean } | null>(null);
   const [isVerifierOpen, setIsVerifierOpen] = useState(false);
+
+  const currentOption = availableOptions.find(o => o.id === selectedOptionId) || availableOptions[0] || {
+    id: "default",
+    name: "기본 패키지 단품",
+    extraPrice: 0,
+    stock: 100,
+    isSoldOut: false
+  };
 
   const fetchAuth = async () => {
     try {
@@ -87,18 +126,23 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
   const handleAddToCart = async () => {
     if (!checkAuthOrRedirect()) return;
 
+    if (currentOption.isSoldOut || currentOption.stock <= 0) {
+      alert("선택하신 옵션은 현재 품절 상태입니다.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      const optionName = optionSelected === "default" 
-        ? "기본 패키지 단품" 
-        : "기본형 + 리필 보틀 세트 (+5,000원)";
+      const formattedOptionName = currentOption.extraPrice !== 0
+        ? `${currentOption.name} (${currentOption.extraPrice > 0 ? `+${currentOption.extraPrice.toLocaleString()}원` : `-${Math.abs(currentOption.extraPrice).toLocaleString()}원`})`
+        : currentOption.name;
         
       const response = await fetch("/api/cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           productId: product.id,
-          optionSelected: optionName,
+          optionSelected: formattedOptionName,
           shippingMethod,
           quantity
         }),
@@ -122,6 +166,11 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
   const handleCheckout = async () => {
     if (!checkAuthOrRedirect()) return;
 
+    if (currentOption.isSoldOut || currentOption.stock <= 0) {
+      alert("선택하신 옵션은 현재 품절 상태입니다.");
+      return;
+    }
+
     // Real-name verification check requirement
     if (!user?.realNameVerified) {
       if (confirm("안전한 전자상거래 및 주문 혜택 적용을 위해 휴대폰 실명인증이 필요합니다.\n지금 바로 본인인증(실명인증)을 진행하시겠습니까?")) {
@@ -132,11 +181,11 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
 
     setIsSubmitting(true);
     try {
-      const optionName = optionSelected === "default" 
-        ? "기본 패키지 단품" 
-        : "기본형 + 리필 보틀 세트 (+5,000원)";
+      const formattedOptionName = currentOption.extraPrice !== 0
+        ? `${currentOption.name} (${currentOption.extraPrice > 0 ? `+${currentOption.extraPrice.toLocaleString()}원` : `-${Math.abs(currentOption.extraPrice).toLocaleString()}원`})`
+        : currentOption.name;
       
-      const extraCost = optionSelected === "set" ? 5000 : 0;
+      const extraCost = currentOption.extraPrice || 0;
       const totalAmount = (product.price + extraCost) * quantity + product.shippingFee;
 
       const response = await fetch("/api/checkout", {
@@ -144,7 +193,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           productId: product.id,
-          optionSelected: optionName,
+          optionSelected: formattedOptionName,
           shippingMethod,
           shippingFee: product.shippingFee,
           totalAmount
@@ -166,8 +215,9 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
     }
   };
 
-  const extraCost = optionSelected === "set" ? 5000 : 0;
-  const totalPrice = (product.price + extraCost) * quantity;
+  const extraCost = currentOption.extraPrice || 0;
+  const unitPrice = product.price + extraCost;
+  const totalPrice = unitPrice * quantity;
 
   return (
     <div className="space-y-6">
@@ -188,38 +238,54 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
         </div>
       )}
 
-      {/* Option Selector */}
+      {/* Dynamic Option Selector */}
       <div className="space-y-3 pt-4 border-t">
         <div>
           <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
-            옵션 선택 (필수) *
+            상품 구매 옵션 선택 (필수) *
           </label>
           <select 
-            value={optionSelected}
-            onChange={(e) => setOptionSelected(e.target.value)}
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-800 bg-white text-sm"
+            value={selectedOptionId}
+            onChange={(e) => setSelectedOptionId(e.target.value)}
+            className="w-full p-3.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 bg-white text-xs sm:text-sm font-semibold text-zinc-900 shadow-2xs"
           >
-            <option value="default">기본 패키지 단품 (추가금 없음)</option>
-            <option value="set">기본형 + 리필 보틀 세트 (+5,000원)</option>
+            {availableOptions.map((opt) => {
+              const isAvailable = !opt.isSoldOut && opt.stock > 0;
+              const priceText = opt.extraPrice > 0 
+                ? ` (+${opt.extraPrice.toLocaleString()}원)` 
+                : opt.extraPrice < 0 
+                ? ` (-${Math.abs(opt.extraPrice).toLocaleString()}원)` 
+                : " (추가금 없음)";
+              return (
+                <option key={opt.id} value={opt.id} disabled={!isAvailable}>
+                  {opt.name} {priceText} {!isAvailable ? " [품절]" : ""}
+                </option>
+              );
+            })}
           </select>
         </div>
         
         {/* Quantity selector */}
-        <div className="flex justify-between items-center bg-zinc-50 p-3 rounded-lg border">
-          <span className="text-sm font-medium">수량</span>
-          <div className="flex items-center border rounded-md bg-white">
+        <div className="flex justify-between items-center bg-zinc-50 p-3.5 rounded-xl border">
+          <div className="flex flex-col">
+            <span className="text-xs font-bold text-zinc-800">구매 수량</span>
+            <span className="text-[11px] text-zinc-500 font-mono">
+              단가: ₩{unitPrice.toLocaleString()}원
+            </span>
+          </div>
+          <div className="flex items-center border rounded-lg bg-white shadow-2xs overflow-hidden">
             <button 
               type="button" 
               onClick={() => setQuantity(q => Math.max(1, q - 1))}
-              className="px-3 py-1 text-lg font-bold border-r hover:bg-zinc-50"
+              className="px-3 py-1 text-base font-bold border-r hover:bg-zinc-100 text-zinc-700 transition-colors"
             >
               -
             </button>
-            <span className="px-4 py-1 text-sm font-semibold">{quantity}</span>
+            <span className="px-4 py-1 text-xs font-black min-w-[36px] text-center">{quantity}</span>
             <button 
               type="button" 
               onClick={() => setQuantity(q => q + 1)}
-              className="px-3 py-1 text-lg font-bold border-l hover:bg-zinc-50"
+              className="px-3 py-1 text-base font-bold border-l hover:bg-zinc-100 text-zinc-700 transition-colors"
             >
               +
             </button>
@@ -264,12 +330,12 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
       {/* Total Amount Card */}
       <div className="bg-zinc-50 p-4 rounded-xl border space-y-2">
         <div className="flex justify-between text-xs text-zinc-500">
-          <span>상품 금액</span>
+          <span>선택 옵션: {currentOption.name} ({quantity}개)</span>
           <span>₩{totalPrice.toLocaleString()}</span>
         </div>
         <div className="flex justify-between text-xs text-zinc-500">
           <span>배송비</span>
-          <span>₩{product.shippingFee.toLocaleString()}</span>
+          <span>{product.shippingFee === 0 ? "무료" : `₩${product.shippingFee.toLocaleString()}원`}</span>
         </div>
         <div className="border-t pt-2 flex justify-between items-baseline font-bold text-zinc-950">
           <span className="text-sm">총 결제예정금액</span>
@@ -299,7 +365,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
           <button 
             type="button"
             onClick={handleAddToCart}
-            disabled={isSubmitting}
+            disabled={isSubmitting || currentOption.isSoldOut || currentOption.stock <= 0}
             className="flex-1 py-3.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 border border-zinc-200 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
           >
             <ShoppingCart className="w-4 h-4" />
@@ -310,10 +376,14 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
         <button 
           type="button"
           onClick={handleCheckout}
-          disabled={isSubmitting}
+          disabled={isSubmitting || currentOption.isSoldOut || currentOption.stock <= 0}
           className="w-full py-4 bg-zinc-950 hover:bg-zinc-800 text-white rounded-xl font-bold text-base shadow-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
         >
-          {isSubmitting ? "결제 처리 중..." : "바로 결제하기"}
+          {isSubmitting 
+            ? "결제 처리 중..." 
+            : currentOption.isSoldOut || currentOption.stock <= 0 
+            ? "품절된 옵션입니다" 
+            : "바로 결제하기"}
         </button>
       </div>
 
@@ -323,21 +393,23 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
           href={`/qna?productId=${product.id}`}
           className="w-full py-2.5 border border-zinc-200 rounded-lg text-xs font-semibold text-zinc-600 hover:bg-zinc-50 transition-colors flex items-center justify-center gap-2"
         >
-          <MessageCircle className="w-4 h-4" />
-          이 상품에 대해 1:1 문의하기
+          <MessageCircle className="w-4 h-4 text-zinc-500" />
+          상품 문의하기 (1:1 Q&amp;A)
         </Link>
       </div>
 
-      {/* Embedded Real Name Verifier Modal */}
-      <RealNameVerifier 
-        isOpenControlled={isVerifierOpen}
-        onCloseControlled={() => setIsVerifierOpen(false)}
-        showButton={false}
-        onVerified={() => {
-          setIsVerifierOpen(false);
-          fetchAuth();
-        }}
-      />
+      {/* Real Name Verification Modal */}
+      {user && isVerifierOpen && (
+        <RealNameVerifier 
+          isOpen={isVerifierOpen}
+          onClose={() => setIsVerifierOpen(false)}
+          onSuccess={() => {
+            setIsVerifierOpen(false);
+            fetchAuth();
+          }}
+          userName={user.name}
+        />
+      )}
     </div>
   );
 }

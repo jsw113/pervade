@@ -2,10 +2,23 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, Trash2, Image as ImageIcon, Star, Check, ArrowLeft, Link2 } from "lucide-react";
+import { Upload, Trash2, Image as ImageIcon, Star, Check, ArrowLeft, Link2, Plus, Layers } from "lucide-react";
 import Link from "next/link";
 import { CategorySelect } from "@/components/admin/CategorySelect";
 import { optimizeImageFile, optimizeDetailImageFile, optimizeDataUrl } from "@/lib/utils/imageOptimizer";
+
+export type ProductOption = {
+  id: string;
+  name: string;
+  extraPrice: number;
+  stock: number;
+  isSoldOut?: boolean;
+};
+
+const DEFAULT_OPTIONS_PRESET: ProductOption[] = [
+  { id: "opt-1", name: "기본 패키지 단품", extraPrice: 0, stock: 100, isSoldOut: false },
+  { id: "opt-2", name: "기본형 + 리필 보틀 세트", extraPrice: 5000, stock: 50, isSoldOut: false }
+];
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -24,6 +37,9 @@ export default function NewProductPage() {
   const [images, setImages] = useState<string[]>([]);
   const [detailContent, setDetailContent] = useState("");
   const [detailImages, setDetailImages] = useState<string[]>([]);
+
+  // Options state
+  const [options, setOptions] = useState<ProductOption[]>(DEFAULT_OPTIONS_PRESET);
 
   const [isUploading, setIsUploading] = useState(false);
   const [isDetailUploading, setIsDetailUploading] = useState(false);
@@ -110,10 +126,43 @@ export default function NewProductPage() {
     setDetailImages(detailImages.filter((_, i) => i !== index));
   };
 
+  // Option Operations
+  const handleAddOption = (name = "새 옵션", extraPrice = 0, stock = 100) => {
+    const newOption: ProductOption = {
+      id: `opt-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      name,
+      extraPrice,
+      stock,
+      isSoldOut: false
+    };
+    setOptions((prev) => [...prev, newOption]);
+  };
+
+  const handleUpdateOption = (index: number, field: keyof ProductOption, value: any) => {
+    setOptions((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  };
+
+  const handleRemoveOption = (index: number) => {
+    if (options.length <= 1) {
+      alert("상품에는 최소 1개 이상의 옵션(기본 단품)이 필요합니다.");
+      return;
+    }
+    setOptions((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (images.length === 0) {
       alert("최소 1개 이상의 제품 갤러리 이미지를 등록해주세요.");
+      return;
+    }
+
+    if (options.length === 0) {
+      alert("최소 1개 이상의 구매 옵션을 등록해주세요.");
       return;
     }
 
@@ -144,6 +193,7 @@ export default function NewProductPage() {
         images: compressedGalleryImages,
         detailContent,
         detailImages: compressedDetailImages,
+        options,
         isVisible 
       };
 
@@ -169,7 +219,7 @@ export default function NewProductPage() {
       }
 
       if (response.ok && !data.error) {
-        alert("✅ 신규 제품이 성공적으로 등록되었습니다!");
+        alert("✅ 신규 제품 및 옵션 설정이 성공적으로 등록되었습니다!");
         router.push("/admin/products");
         router.refresh();
       } else {
@@ -190,69 +240,81 @@ export default function NewProductPage() {
         <Link 
           href="/admin/products"
           className="p-2 bg-white border rounded-xl hover:bg-zinc-100 transition-colors text-zinc-600"
+          title="목록으로"
         >
           <ArrowLeft className="w-4 h-4" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-950">신규 제품 등록</h1>
-          <p className="text-xs text-zinc-500">새로운 프리미엄 상품을 등록하고 2단계 카테고리 및 갤러리를 구성합니다.</p>
+          <h2 className="text-xl sm:text-2xl font-black text-zinc-950">새 제품 등록</h2>
+          <p className="text-xs text-zinc-500">쇼핑몰에 판매할 새로운 상품과 옵션을 등록합니다.</p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-8 rounded-2xl border space-y-8 shadow-sm">
-        {/* 1. Category 2-Depth Hierarchy */}
-        <CategorySelect
-          category={category}
-          subCategory={subCategory}
-          onChangeCategory={setCategory}
-          onChangeSubCategory={setSubCategory}
-        />
-
-        {/* 2. Basic Info */}
+      <form onSubmit={handleSubmit} className="space-y-8 bg-white p-6 sm:p-8 rounded-2xl border shadow-xs">
+        {/* 1. Basic Info */}
         <div className="space-y-4">
-          <h3 className="text-base font-bold text-zinc-900 border-b pb-2">1. 기본 제품 정보</h3>
+          <h3 className="text-base font-bold text-zinc-900 border-b pb-2">1. 기본 상품 정보</h3>
+          
           <div>
-            <label className="block text-xs font-bold text-zinc-600 mb-1">제품명 *</label>
+            <label className="block text-xs font-bold text-zinc-700 mb-1">제품명 *</label>
             <input 
-              type="text" required
+              type="text" required 
               value={name} onChange={e => setName(e.target.value)}
-              placeholder="예: 퍼베이드 올인원 프리미엄 다목적 세정제 500ml"
-              className="w-full p-3 bg-zinc-50 border rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              placeholder="예: 퍼베이드 올인원 다목적 세정제 500ml"
+              className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900"
             />
           </div>
 
+          {/* 2-Depth Category Select */}
+          <CategorySelect 
+            category={category} 
+            subCategory={subCategory} 
+            onChange={(cat, subCat) => {
+              setCategory(cat);
+              setSubCategory(subCat);
+            }} 
+          />
+
           <div>
-            <label className="block text-xs font-bold text-zinc-600 mb-1">간략 요약 설명 *</label>
-            <textarea 
-              required
-              rows={3}
+            <label className="block text-xs font-bold text-zinc-700 mb-1">간단 제품 요약 설명 *</label>
+            <input 
+              type="text" required
               value={description} onChange={e => setDescription(e.target.value)}
-              placeholder="쇼핑몰 목록 및 카드에 노출될 1~2줄 제품 소개를 입력하세요."
+              placeholder="예: 강력한 찌든 때 분해력과 피부 저자극 성분의 프리미엄 홈케어 클리너"
               className="w-full p-3 bg-zinc-50 border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-zinc-900"
             />
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-zinc-600 mb-1">판매가 (원) *</label>
-              <input 
-                type="number" required
-                value={price} onChange={e => setPrice(e.target.value)}
-                placeholder="18900"
-                className="w-full p-3 bg-zinc-50 border rounded-xl text-sm font-bold text-blue-600 focus:outline-none focus:ring-2 focus:ring-zinc-900"
-              />
+              <label className="block text-xs font-bold text-zinc-700 mb-1">판매가 (할인가/실제 결제 기준가) *</label>
+              <div className="relative">
+                <input 
+                  type="number" required
+                  value={price} onChange={e => setPrice(e.target.value)}
+                  placeholder="예: 18900"
+                  className="w-full p-3 bg-zinc-50 border rounded-xl text-sm font-bold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 pr-8"
+                />
+                <span className="absolute right-3 top-3 text-xs text-zinc-400 font-bold">원</span>
+              </div>
             </div>
             <div>
-              <label className="block text-xs font-bold text-zinc-600 mb-1">정상가/할인전 (원)</label>
-              <input 
-                type="number"
-                value={originalPrice} onChange={e => setOriginalPrice(e.target.value)}
-                placeholder="23000"
-                className="w-full p-3 bg-zinc-50 border rounded-xl text-sm text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900"
-              />
+              <label className="block text-xs font-bold text-zinc-700 mb-1">정상가 (소비자가 / 할인율 계산용)</label>
+              <div className="relative">
+                <input 
+                  type="number"
+                  value={originalPrice} onChange={e => setOriginalPrice(e.target.value)}
+                  placeholder="예: 24000 (할인율 미적용 시 비워둠)"
+                  className="w-full p-3 bg-zinc-50 border rounded-xl text-sm text-zinc-600 focus:outline-none focus:ring-2 focus:ring-zinc-900 pr-8"
+                />
+                <span className="absolute right-3 top-3 text-xs text-zinc-400 font-bold">원</span>
+              </div>
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-zinc-600 mb-1">초기 재고 (개)</label>
+              <label className="block text-xs font-bold text-zinc-700 mb-1">기본 총 재고 수량 (개) *</label>
               <input 
                 type="number" required
                 value={stock} onChange={e => setStock(e.target.value)}
@@ -260,7 +322,7 @@ export default function NewProductPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-zinc-600 mb-1">안전재고 기준 (개)</label>
+              <label className="block text-xs font-bold text-zinc-700 mb-1">안전재고 기준 (개)</label>
               <input 
                 type="number" required
                 value={safetyStock} onChange={e => setSafetyStock(e.target.value)}
@@ -333,11 +395,136 @@ export default function NewProductPage() {
           </div>
         </div>
 
+        {/* 2. Product Option Management */}
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b pb-2">
+            <div>
+              <h3 className="text-base font-bold text-zinc-900 flex items-center gap-2">
+                <Layers className="w-4 h-4 text-amber-600" />
+                <span>2. 상품 구매 옵션 관리 (단품 / 세트 / 추가구성)</span>
+              </h3>
+              <span className="text-xs text-zinc-400">
+                고객이 주문 시 선택할 수 있는 세트 구성 및 옵션별 추가금액, 재고를 자유롭게 설정합니다.
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleAddOption("새 옵션", 0, 100)}
+              className="px-3.5 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 self-start sm:self-auto shadow-2xs"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              옵션 추가하기
+            </button>
+          </div>
+
+          {/* Option Quick Presets */}
+          <div className="p-3 bg-amber-50/60 border border-amber-200/80 rounded-xl space-y-2">
+            <span className="text-[11px] font-bold text-amber-900 block">⚡ 추천 옵션 세트 원클릭 추가:</span>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { name: "기본 패키지 단품", extraPrice: 0, stock: 100 },
+                { name: "본품 + 리필 보틀 500ml 세트", extraPrice: 5000, stock: 50 },
+                { name: "리필 2개 실속 세트", extraPrice: 8000, stock: 50 },
+                { name: "1+1 본품 2개 특별 기획세트", extraPrice: 15000, stock: 30 },
+                { name: "대용량 1,000ml 리필팩", extraPrice: 6000, stock: 50 },
+              ].map((preset, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleAddOption(preset.name, preset.extraPrice, preset.stock)}
+                  className="px-2.5 py-1 bg-white hover:bg-amber-100/60 text-zinc-800 rounded-lg text-xs font-semibold border border-amber-200 transition-colors shadow-2xs"
+                >
+                  + {preset.name} ({preset.extraPrice > 0 ? `+${preset.extraPrice.toLocaleString()}원` : "0원"})
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Options List */}
+          <div className="space-y-2.5">
+            {options.map((opt, index) => (
+              <div 
+                key={opt.id || index}
+                className="p-3.5 bg-zinc-50 border rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-3 transition-all hover:border-zinc-300"
+              >
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <span className="w-6 h-6 rounded-full bg-zinc-200 text-zinc-700 text-[10px] font-black flex items-center justify-center shrink-0">
+                    {index + 1}
+                  </span>
+                  <div className="flex-1 sm:w-64">
+                    <input
+                      type="text"
+                      required
+                      value={opt.name}
+                      onChange={(e) => handleUpdateOption(index, "name", e.target.value)}
+                      placeholder="옵션명 (예: 본품 + 리필세트)"
+                      className="w-full p-2 bg-white border rounded-lg text-xs font-bold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto flex-1">
+                  <div className="flex items-center gap-1">
+                    <span className="text-[11px] text-zinc-500 font-semibold shrink-0">추가금:</span>
+                    <div className="relative w-28">
+                      <input
+                        type="number"
+                        step="500"
+                        value={opt.extraPrice}
+                        onChange={(e) => handleUpdateOption(index, "extraPrice", parseInt(e.target.value) || 0)}
+                        placeholder="0"
+                        className="w-full p-2 bg-white border rounded-lg text-xs font-bold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 pr-6"
+                      />
+                      <span className="absolute right-2 top-2 text-[10px] text-zinc-400 font-bold">원</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <span className="text-[11px] text-zinc-500 font-semibold shrink-0">재고:</span>
+                    <div className="relative w-24">
+                      <input
+                        type="number"
+                        min="0"
+                        value={opt.stock}
+                        onChange={(e) => handleUpdateOption(index, "stock", parseInt(e.target.value) || 0)}
+                        placeholder="100"
+                        className="w-full p-2 bg-white border rounded-lg text-xs font-semibold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 pr-6"
+                      />
+                      <span className="absolute right-2 top-2 text-[10px] text-zinc-400">개</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleUpdateOption(index, "isSoldOut", !opt.isSoldOut)}
+                    className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition-colors ${
+                      opt.isSoldOut
+                        ? "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
+                        : "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                    }`}
+                  >
+                    {opt.isSoldOut ? "🔴 품절 처리됨" : "🟢 판매중"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveOption(index)}
+                    className="p-2 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors ml-auto sm:ml-0"
+                    title="옵션 삭제"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* 3. Multi-Image Gallery */}
         <div className="space-y-4">
           <div className="flex justify-between items-center border-b pb-2">
             <div>
-              <h3 className="text-base font-bold text-zinc-900">2. 제품 갤러리 이미지</h3>
+              <h3 className="text-base font-bold text-zinc-900">3. 제품 갤러리 이미지</h3>
               <span className="text-xs text-zinc-400">첫 번째 이미지가 대표 썸네일로 사용됩니다</span>
             </div>
           </div>
@@ -399,12 +586,14 @@ export default function NewProductPage() {
                 >
                   <img src={imgUrl} alt={`Product ${index}`} className="w-full h-full object-cover" />
                   
+                  {/* Main badge */}
                   {index === 0 && (
                     <span className="absolute top-1.5 left-1.5 bg-zinc-950 text-white text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm flex items-center gap-0.5">
                       <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" /> 대표
                     </span>
                   )}
 
+                  {/* Hover overlay actions */}
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     {index !== 0 && (
                       <button
@@ -437,7 +626,7 @@ export default function NewProductPage() {
 
         {/* 4. Detailed Description Content & Detail Images */}
         <div className="space-y-4">
-          <h3 className="text-base font-bold text-zinc-900 border-b pb-2">3. 상세페이지 상세 설명 및 안내 이미지</h3>
+          <h3 className="text-base font-bold text-zinc-900 border-b pb-2">4. 상세페이지 상세 설명 및 안내 이미지</h3>
           
           <div>
             <label className="block text-xs font-bold text-zinc-600 mb-1">상세페이지 통 이미지 업로드 (카드뉴스/상세페이지용)</label>
@@ -516,20 +705,21 @@ export default function NewProductPage() {
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-3 pt-6 border-t">
-          <Link
-            href="/admin/products"
+        <div className="flex justify-end items-center gap-3 pt-6 border-t">
+          <button
+            type="button"
+            onClick={() => router.push("/admin/products")}
             className="px-6 py-2.5 border rounded-xl text-xs font-bold text-zinc-600 hover:bg-zinc-50 transition-colors"
           >
             취소
-          </Link>
+          </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-8 py-2.5 bg-zinc-950 text-white rounded-xl text-xs font-bold hover:bg-zinc-800 transition-colors shadow-lg flex items-center gap-2"
+            className="px-8 py-2.5 bg-zinc-950 text-white rounded-xl text-xs font-bold hover:bg-zinc-800 transition-colors shadow-lg flex items-center gap-2 disabled:opacity-50"
           >
             <Check className="w-4 h-4" />
-            {isSubmitting ? "등록 중..." : "신규 제품 등록 완료"}
+            {isSubmitting ? "등록 중..." : "신규 제품 등록"}
           </button>
         </div>
       </form>

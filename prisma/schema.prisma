@@ -170,6 +170,7 @@ model Product {
   images        String?  // JSON array of multiple image URLs: '["url1", "url2"]'
   detailContent String?  // Detailed HTML / rich explanation
   detailImages  String?  // JSON array of detail image URLs
+  options       String?  // JSON array of options: '[{"id": "...", "name": "기본 패키지 단품", "extraPrice": 0, "stock": 100}]'
   stock         Int      @default(100)
   safetyStock   Int      @default(10)
   isVisible     Boolean  @default(true)
