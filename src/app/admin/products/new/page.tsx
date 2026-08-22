@@ -506,7 +506,7 @@ export default function NewProductPage() {
               <Package className="w-6 h-6 mx-auto text-zinc-400" />
               <div className="text-xs font-bold text-zinc-700">현재 등록된 옵션이 없습니다 (단일 상품)</div>
               <p className="text-[11px] text-zinc-400">
-                고객은 옵션 선택 없이 기본 판매가(₩{parseInt(price || 0).toLocaleString()}원)로 상품을 구매하게 됩니다.
+                고객은 옵션 선택 없이 기본 판매가(₩{parseInt(price || "0").toLocaleString()}원)로 상품을 구매하게 됩니다.
               </p>
             </div>
           )}

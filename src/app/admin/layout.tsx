@@ -74,7 +74,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <li>
               <Link href="/admin/posts" className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-zinc-100 text-zinc-700 transition-colors">
                 <FileText className="w-4 h-4 text-zinc-500" />
-                저널 / 블로그 관리
+                브랜드스토리 &amp; 저널 관리
               </Link>
             </li>
             <li>

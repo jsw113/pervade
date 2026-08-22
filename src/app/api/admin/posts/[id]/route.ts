@@ -10,20 +10,18 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const guide = await prisma.guidePost.findUnique({
+    const post = await prisma.post.findUnique({
       where: { id },
-      include: {
-        product: true
-      }
+      include: { author: true }
     });
 
-    if (!guide) {
-      return NextResponse.json({ error: "Guide not found" }, { status: 404 });
+    if (!post) {
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
-    return NextResponse.json(guide);
+    return NextResponse.json(post);
   } catch (error) {
-    console.error("Admin get single guide error:", error);
+    console.error("Admin get single post error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
@@ -35,36 +33,30 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { title, category, summary, content, thumbnailUrl, images, tips, productId, published } = body;
+    const { title, type, content, published } = body;
 
-    const guide = await prisma.guidePost.update({
+    const post = await prisma.post.update({
       where: { id },
       data: {
         ...(title !== undefined && { title }),
-        ...(category !== undefined && { category }),
-        ...(summary !== undefined && { summary }),
+        ...(type !== undefined && { type }),
         ...(content !== undefined && { content }),
-        ...(thumbnailUrl !== undefined && { thumbnailUrl }),
-        ...(images !== undefined && { images: Array.isArray(images) ? JSON.stringify(images) : images }),
-        ...(tips !== undefined && { tips }),
-        ...(productId !== undefined && { productId: productId || null }),
         ...(published !== undefined && { published: !!published }),
       }
     });
 
     try {
       revalidatePath("/");
-      revalidatePath("/guides");
-      revalidatePath(`/guides/${id}`);
-      revalidatePath("/admin/guides");
-      revalidatePath(`/admin/guides/${id}/edit`);
+      revalidatePath("/about");
+      revalidatePath("/admin/posts");
+      revalidatePath(`/admin/posts/${id}/edit`);
     } catch (e) {
       console.warn("Revalidation warning:", e);
     }
 
-    return NextResponse.json({ success: true, guide });
+    return NextResponse.json({ success: true, post });
   } catch (error) {
-    console.error("Admin update guide error:", error);
+    console.error("Admin update post error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
@@ -75,19 +67,19 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    await prisma.guidePost.delete({ where: { id } });
+    await prisma.post.delete({ where: { id } });
 
     try {
       revalidatePath("/");
-      revalidatePath("/guides");
-      revalidatePath("/admin/guides");
+      revalidatePath("/about");
+      revalidatePath("/admin/posts");
     } catch (e) {
       console.warn("Revalidation warning:", e);
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Admin delete guide error:", error);
+    console.error("Admin delete post error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
