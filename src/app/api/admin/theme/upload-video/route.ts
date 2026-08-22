@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
+import { writeFile, mkdir } from "fs/promises";
 import path from "path";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
@@ -8,31 +10,33 @@ export async function POST(request: Request) {
     const file = formData.get("file") as File | null;
 
     if (!file) {
-      return NextResponse.json({ error: "File not found in form data" }, { status: 400 });
+      return NextResponse.json({ error: "동영상 파일이 제공되지 않았습니다." }, { status: 400 });
     }
 
-    // 1. Get buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-
-    // 2. Define upload paths
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
+    const mimeType = file.type || "video/mp4";
 
     const fileExt = path.extname(file.name) || ".mp4";
     const fileName = `hero_video_${Date.now()}${fileExt}`;
-    const filePath = path.join(uploadDir, fileName);
+    let fileUrl = "";
 
-    // 3. Write file
-    fs.writeFileSync(filePath, buffer);
+    try {
+      const uploadDir = path.join(process.cwd(), "public", "uploads");
+      await mkdir(uploadDir, { recursive: true });
+      const filePath = path.join(uploadDir, fileName);
 
-    // 4. Return relative public url
-    const fileUrl = `/uploads/${fileName}`;
+      await writeFile(filePath, buffer);
+      fileUrl = `/uploads/${fileName}`;
+    } catch (fsErr) {
+      // Vercel serverless read-only fallback: Base64
+      const base64 = buffer.toString("base64");
+      fileUrl = `data:${mimeType};base64,${base64}`;
+    }
+
     return NextResponse.json({ success: true, url: fileUrl });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Theme video upload error:", error);
-    return NextResponse.json({ error: "Failed to upload video file" }, { status: 500 });
+    return NextResponse.json({ error: error?.message || "동영상 업로드에 실패했습니다." }, { status: 500 });
   }
 }
