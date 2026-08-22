@@ -94,9 +94,9 @@ export default async function AdminProductsPage({
                 <th className="px-5 py-3.5">2단계 계열 분류</th>
                 <th className="px-5 py-3.5">제품명 & 요약</th>
                 <th className="px-5 py-3.5">판매가</th>
+                <th className="px-5 py-3.5">구매 옵션 구성</th>
                 <th className="px-5 py-3.5">재고 현황</th>
                 <th className="px-5 py-3.5">쇼핑몰 노출</th>
-                <th className="px-5 py-3.5">등록일</th>
                 <th className="px-5 py-3.5 text-right">관리</th>
               </tr>
             </thead>
@@ -109,68 +109,93 @@ export default async function AdminProductsPage({
                   </td>
                 </tr>
               ) : (
-                products.map((product) => (
-                  <tr key={product.id} className="hover:bg-zinc-50/80 transition-colors">
-                    <td className="px-5 py-4">
-                      <div className="w-14 h-14 bg-zinc-100 rounded-xl overflow-hidden border">
-                        {product.imageUrl ? (
-                          <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[10px] text-zinc-400">No Img</div>
+                products.map((product) => {
+                  let parsedOpts: any[] = [];
+                  try {
+                    if (product.options) parsedOpts = JSON.parse(product.options);
+                  } catch (e) {}
+
+                  return (
+                    <tr key={product.id} className="hover:bg-zinc-50/80 transition-colors">
+                      <td className="px-5 py-4">
+                        <div className="w-14 h-14 bg-zinc-100 rounded-xl overflow-hidden border">
+                          {product.imageUrl ? (
+                            <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-[10px] text-zinc-400">No Img</div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="space-y-1">
+                          <span className="inline-block px-2 py-0.5 bg-zinc-900 text-white rounded text-[10px] font-black">
+                            {product.category || "세정제류"}
+                          </span>
+                          <div className="text-[11px] text-amber-700 font-bold flex items-center gap-1">
+                            <span>↳</span>
+                            <span>{product.subCategory || "다목적/올인원"}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-5 py-4 max-w-xs">
+                        <div className="font-bold text-zinc-900 line-clamp-1">{product.name}</div>
+                        <div className="text-[11px] text-zinc-500 line-clamp-1 mt-0.5">{product.description}</div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <div className="font-extrabold text-blue-600">{product.price.toLocaleString()}원</div>
+                        {product.originalPrice && (
+                          <div className="text-[10px] text-zinc-400 line-through">
+                            {product.originalPrice.toLocaleString()}원
+                          </div>
                         )}
-                      </div>
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="space-y-1">
-                        <span className="inline-block px-2 py-0.5 bg-zinc-900 text-white rounded text-[10px] font-black">
-                          {product.category || "세정제류"}
+                      </td>
+                      <td className="px-5 py-4 max-w-[200px]">
+                        {parsedOpts.length > 0 ? (
+                          <div className="space-y-1">
+                            <span className="text-[10px] font-bold text-zinc-700 bg-zinc-100 px-1.5 py-0.5 rounded">
+                              총 {parsedOpts.length}개 옵션
+                            </span>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {parsedOpts.slice(0, 2).map((opt, i) => (
+                                <span key={i} className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.5 rounded truncate max-w-[150px]">
+                                  {opt.name} ({opt.extraPrice > 0 ? `+${opt.extraPrice.toLocaleString()}원` : "0원"})
+                                </span>
+                              ))}
+                              {parsedOpts.length > 2 && (
+                                <span className="text-[10px] text-zinc-400 font-bold">+{parsedOpts.length - 2}개 더보기</span>
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-[11px] text-zinc-400">기본 단품</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className={`font-bold ${product.stock <= product.safetyStock ? "text-red-600" : "text-zinc-900"}`}>
+                          {product.stock}개
                         </span>
-                        <div className="text-[11px] text-amber-700 font-bold flex items-center gap-1">
-                          <span>↳</span>
-                          <span>{product.subCategory || "다목적/올인원"}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-5 py-4 max-w-xs">
-                      <div className="font-bold text-zinc-900 line-clamp-1">{product.name}</div>
-                      <div className="text-[11px] text-zinc-500 line-clamp-1 mt-0.5">{product.description}</div>
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="font-extrabold text-blue-600">{product.price.toLocaleString()}원</div>
-                      {product.originalPrice && (
-                        <div className="text-[10px] text-zinc-400 line-through">
-                          {product.originalPrice.toLocaleString()}원
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className={`font-bold ${product.stock <= product.safetyStock ? "text-red-600" : "text-zinc-900"}`}>
-                        {product.stock}개
-                      </span>
-                      {product.stock <= product.safetyStock && (
-                        <span className="block text-[9px] text-red-500 font-bold mt-0.5">⚠️ 안전재고 부족</span>
-                      )}
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                        product.isVisible ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-zinc-100 text-zinc-600'
-                      }`}>
-                        {product.isVisible ? '● 노출 중' : '숨김'}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4 text-zinc-400 text-[11px]">
-                      {new Date(product.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-5 py-4 text-right">
-                      <Link 
-                        href={`/admin/products/${product.id}/edit`} 
-                        className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-950 hover:text-white rounded-lg text-xs font-bold transition-colors inline-block"
-                      >
-                        수정
-                      </Link>
-                    </td>
-                  </tr>
-                ))
+                        {product.stock <= product.safetyStock && (
+                          <span className="block text-[9px] text-red-500 font-bold mt-0.5">⚠️ 안전재고 부족</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                          product.isVisible ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-zinc-100 text-zinc-600'
+                        }`}>
+                          {product.isVisible ? '● 노출 중' : '숨김'}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        <Link 
+                          href={`/admin/products/${product.id}/edit`} 
+                          className="px-3 py-1.5 bg-zinc-900 text-white hover:bg-zinc-800 rounded-lg text-xs font-bold transition-colors inline-block shadow-2xs"
+                        >
+                          옵션/정보 수정
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
