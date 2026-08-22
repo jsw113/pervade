@@ -89,6 +89,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 운영 및 리워드 정책
               </Link>
             </li>
+            <li className="pt-2 text-[10px] uppercase font-bold text-zinc-400 px-3">시스템 매뉴얼</li>
+            <li>
+              <a
+                href="/PERVADE_Admin_ERP_Manual.pdf"
+                download="PERVADE_통합_백오피스_ERP_공식운영매뉴얼.pdf"
+                target="_blank"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 transition-colors font-bold"
+              >
+                <FileText className="w-4 h-4 text-amber-600" />
+                📥 PDF 사용설명서 다운로드
+              </a>
+            </li>
           </ul>
         </nav>
       </aside>
@@ -98,8 +110,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <header className="h-16 bg-white border-b flex items-center justify-between px-6 shadow-xs">
           <h1 className="text-base font-bold text-zinc-900">통합 어드민 콘솔</h1>
           <div className="flex items-center gap-3 text-xs text-zinc-500">
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>시스템 정상 작동 중</span>
+            <a
+              href="/PERVADE_Admin_ERP_Manual.pdf"
+              download="PERVADE_통합_백오피스_ERP_공식운영매뉴얼.pdf"
+              target="_blank"
+              className="px-3.5 py-1.5 bg-zinc-950 hover:bg-zinc-800 text-white rounded-xl font-bold transition-all shadow-xs flex items-center gap-1.5 text-[11px]"
+            >
+              <FileText className="w-3.5 h-3.5 text-amber-400" />
+              공식 PDF 운영매뉴얼 다운로드
+            </a>
+            <span className="text-zinc-300">|</span>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span>시스템 정상 작동 중</span>
+            </div>
           </div>
         </header>
         <div className="flex-1 overflow-auto p-6">

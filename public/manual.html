@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>PERVADE 통합 백오피스 & ERP 공식 운영 매뉴얼</title>
+  <style>
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+    @page {
+      size: A4;
+      margin: 20mm 15mm 20mm 15mm;
+      @bottom-right {
+        content: counter(page);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    body {
+      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #18181b;
+      line-height: 1.6;
+      font-size: 13px;
+      margin: 0;
+      padding: 0;
+      background-color: #fff;
+    }
+
+    .page-break {
+      page-break-after: always;
+      break-after: page;
+    }
+
+    /* Cover Page */
+    .cover-container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 40px 20px;
+      border: 1px solid #e4e4e7;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #09090b 0%, #18181b 100%);
+      color: #fff;
+    }
+
+    .cover-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background: rgba(251, 191, 36, 0.15);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      color: #fbbf24;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .cover-title {
+      font-size: 34px;
+      font-weight: 900;
+      line-height: 1.25;
+      margin-top: 20px;
+      letter-spacing: -0.5px;
+    }
+
+    .cover-subtitle {
+      font-size: 15px;
+      color: #a1a1aa;
+      margin-top: 15px;
+      line-height: 1.6;
+      max-width: 500px;
+    }
+
+    .cover-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      padding-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      font-size: 12px;
+      color: #71717a;
+    }
+
+    .cover-footer strong {
+      color: #fff;
+      font-size: 14px;
+    }
+
+    /* Standard Content Pages */
+    h1.chapter-title {
+      font-size: 22px;
+      font-weight: 900;
+      color: #09090b;
+      border-bottom: 2px solid #09090b;
+      padding-bottom: 8px;
+      margin-top: 30px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h2.section-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #27272a;
+      margin-top: 22px;
+      margin-bottom: 10px;
+      border-left: 4px solid #d97706;
+      padding-left: 10px;
+    }
+
+    h3.sub-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #3f3f46;
+      margin-top: 16px;
+      margin-bottom: 6px;
+    }
+
+    p, li {
+      color: #3f3f46;
+      font-size: 12.5px;
+      line-height: 1.65;
+    }
+
+    ul, ol {
+      margin-top: 6px;
+      margin-bottom: 12px;
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 4px;
+    }
+
+    /* Callout Boxes */
+    .callout {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 12px;
+    }
+
+    .callout-amber {
+      background-color: #fffbeb;
+      border-color: #fde68a;
+      color: #92400e;
+    }
+
+    .callout-emerald {
+      background-color: #f0fdf4;
+      border-color: #bbf7d0;
+      color: #166534;
+    }
+
+    .callout-blue {
+      background-color: #eff6ff;
+      border-color: #bfdbfe;
+      color: #1e40af;
+    }
+
+    .callout strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 11.5px;
+    }
+
+    th, td {
+      border: 1px solid #e4e4e7;
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f4f4f5;
+      color: #18181b;
+      font-weight: 800;
+    }
+
+    tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 10.5px;
+      font-weight: 700;
+    }
+
+    .badge-dark { background-color: #18181b; color: #fff; }
+    .badge-amber { background-color: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+    .badge-blue { background-color: #dbeafe; color: #1e40af; }
+    .badge-green { background-color: #dcfce7; color: #15803d; }
+    .badge-red { background-color: #fee2e2; color: #b91c1c; }
+
+    /* Key Steps Visual */
+    .step-card {
+      background: #fafafa;
+      border: 1px solid #e4e4e7;
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+    }
+
+    .step-number {
+      font-weight: 900;
+      color: #d97706;
+      margin-right: 6px;
+    }
+
+    /* Footer on all pages */
+    .page-footer {
+      margin-top: 30px;
+      padding-top: 10px;
+      border-top: 1px solid #e4e4e7;
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: #a1a1aa;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================= -->
+  <!-- COVER PAGE                                                                -->
+  <!-- ========================================================================= -->
+  <div class="cover-container">
+    <div>
+      <span class="cover-badge">PERVADE OFFICIAL MANUAL</span>
+      <h1 class="cover-title">
+        PERVADE<br>
+        통합 백오피스 &amp; 옴니채널 ERP<br>
+        공식 운영 매뉴얼
+      </h1>
+      <p class="cover-subtitle">
+        프리미엄 친환경 다목적 세정 솔루션 퍼베이드(PERVADE) 쇼핑몰의 
+        상품·카테고리 CMS, 네이버/쿠팡 옴니채널 주문, CJ대한통운 물류 배송, 
+        원재료 매입 수불 및 전자세금계산서 통합 관리 완벽 가이드
+      </p>
+    </div>
+
+    <div class="cover-footer">
+      <div>
+        <p style="margin: 0; color: #a1a1aa;">시스템 버전: <strong>v1.0 (Next.js 16 &amp; PostgreSQL ERP)</strong></p>
+        <p style="margin: 4px 0 0 0; color: #a1a1aa;">발행처: <strong>(주)퍼베이드 운영기획팀</strong></p>
+      </div>
+      <div style="text-align: right;">
+        <p style="margin: 0; color: #a1a1aa;">접속 URL: <strong>https://pervade.vercel.app/admin</strong></p>
+        <p style="margin: 4px 0 0 0; color: #a1a1aa;">발행일자: <strong>2026년 8월</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ========================================================================= -->
+  <!-- TABLE OF CONTENTS                                                         -->
+  <!-- ========================================================================= -->
+  <div>
+    <h1 class="chapter-title">📑 목차 (Table of Contents)</h1>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 24px;">
+      <div>
+        <h3 style="color: #d97706; margin-bottom: 8px;">제 1 편: 시스템 개요 및 기초 관리</h3>
+        <ul style="list-style: none; padding-left: 0;">
+          <li><strong>제 1 장.</strong> 백오피스 개요 및 대시보드 KPI 안내</li>
+          <li><strong>제 2 장.</strong> 제품 관리 및 2-Depth 계층 카테고리 마스터</li>
+        </ul>
+
+        <h3 style="color: #d97706; margin-top: 20px; margin-bottom: 8px;">제 2 편: 옴니채널 재고 및 배송 ERP</h3>
+        <ul style="list-style: none; padding-left: 0;">
+          <li><strong>제 3 장.</strong> 완제품 재고 현황 &amp; 온/오프라인 입출고</li>
+          <li><strong>제 4 장.</strong> 네이버/쿠팡 엑셀 일괄 발주 &amp; 수기 주문</li>
+          <li><strong>제 5 장.</strong> CJ대한통운 송장 등록 &amp; 실시간 배송추적</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 style="color: #d97706; margin-bottom: 8px;">제 3 편: 부자재 및 재무/세금 관리</h3>
+        <ul style="list-style: none; padding-left: 0;">
+          <li><strong>제 6 장.</strong> 원재료 &amp; 부자재 매입 수불부</li>
+          <li><strong>제 7 장.</strong> 매출처 &amp; 매입처 거래처 마스터 관리</li>
+          <li><strong>제 8 장.</strong> 전자세금계산서 및 통합 거래원장 정산</li>
+        </ul>
+
+        <h3 style="color: #d97706; margin-top: 20px; margin-bottom: 8px;">제 4 편: 마케팅 CMS &amp; 부록</h3>
+        <ul style="list-style: none; padding-left: 0;">
+          <li><strong>제 9 장.</strong> 프로모션 이벤트 &amp; 가이드 매거진 CMS</li>
+          <li><strong>부록 A.</strong> 네이버 &amp; 쿠팡 API 보안 키 발급 및 자동화 가이드</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout callout-amber" style="margin-top: 40px;">
+      <strong>💡 매뉴얼 활용 안내</strong>
+      본 문서는 퍼베이드 관리자 백오피스(`https://pervade.vercel.app/admin`)의 모든 기능에 대한 표준 운영 지침을 제공합니다. 현장 담당자 및 관리자는 본 매뉴얼의 절차에 따라 재고 수불, 주문 출고, 세금계산서 승인번호 등록을 진행해 주시기 바랍니다.
+    </div>
+
+    <div class="page-footer">
+      <span>PERVADE 관리자 매뉴얼</span>
+      <span>2 / 9</span>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ========================================================================= -->
+  <!-- CHAPTER 1 & 2                                                             -->
+  <!-- ========================================================================= -->
+  <div>
+    <h1 class="chapter-title">제 1 장. 백오피스 개요 및 대시보드 KPI 안내</h1>
+    
+    <h2 class="section-title">1.1 시스템 접속 및 주요 화면 구성</h2>
+    <p>
+      퍼베이드 백오피스는 클라우드 PostgreSQL 기반으로 구축되어 PC, 태블릿, 모바일 등 모든 기기에서 별도의 프로그램 설치 없이 웹 브라우저로 안전하게 접속할 수 있습니다.
+    </p>
+    <ul>
+      <li><strong>관리자 접속 URL:</strong> <code>https://pervade.vercel.app/admin</code></li>
+      <li><strong>쇼핑몰 메인 바로가기:</strong> 상단 우측 로고 클릭 또는 새창 열기</li>
+      <li><strong>지원 브라우저:</strong> Chrome, Edge, Safari, Whale 등 최신 웹 표준 브라우저</li>
+    </ul>
+
+    <h2 class="section-title">1.2 대시보드 실시간 KPI 모니터링 지표</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>KPI 지표명</th>
+          <th>표시 내용 및 의미</th>
+          <th>업무 조치 가이드</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>완제품 총 재고</strong></td>
+          <td>현재 판매 가능한 퍼베이드 전 상품의 실시간 재고 합계</td>
+          <td>안전재고 미달 품목 발생 시 붉은색 경고 표시</td>
+        </tr>
+        <tr>
+          <td><strong>옴니채널 주문 건수</strong></td>
+          <td>자사몰, 네이버, 쿠팡, 오프라인 B2B 수기 주문의 누적 건수</td>
+          <td>신규 주문 수집 및 CJ대한통운 송장 등록 처리</td>
+        </tr>
+        <tr>
+          <td><strong>총 매출 거래액</strong></td>
+          <td>온/오프라인 전 채널의 누적 총 결제 금액</td>
+          <td>매출처별 정산 주기 및 입금 확인</td>
+        </tr>
+        <tr>
+          <td><strong>원재료/제조 매입액</strong></td>
+          <td>용기, 스프레이 건, 천연 원료, 박스 등 누적 매입 원가</td>
+          <td>공급사별 매입 세금계산서 수취 확인</td>
+        </tr>
+        <tr>
+          <td><strong>세금계산서 미발행</strong></td>
+          <td>국세청 전자세금계산서 승인번호가 미등록된 매출/매입 건수</td>
+          <td>월말 합산 발행 또는 홈택스 승인번호 등록</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h1 class="chapter-title" style="margin-top: 30px;">제 2 장. 제품 관리 &amp; 2-Depth 카테고리 마스터</h1>
+    
+    <h2 class="section-title">2.1 신규 제품 등록 및 스마트 사진 업로드</h2>
+    <div class="step-card">
+      <span class="step-number">STEP 1</span>
+      <strong>2단계 계층 카테고리 선택:</strong> 1단계 대분류(세정제류, 탈취제류 등)를 누르면 하단에 세부 용처(주방/기름때, 욕실/물때 등) 칩이 전환됩니다.
+    </div>
+    <div class="step-card">
+      <span class="step-number">STEP 2</span>
+      <strong>스마트 사진 업로드:</strong> 스마트폰으로 촬영한 10MB 이상의 고화질 원본 사진을 선택해도 브라우저에서 <strong>0.1초 만에 최적화(1600px) 압축</strong>되어 초고속 업로드됩니다.
+    </div>
+    <div class="step-card">
+      <span class="step-number">STEP 3</span>
+      <strong>상세페이지 통 이미지 &amp; 고시 정보:</strong> 상세 안내 이미지 여러 장을 순서대로 업로드하고 환경부 안전기준 적합확인 고시를 입력합니다.
+    </div>
+
+    <h2 class="section-title">2.2 카테고리 마스터 관리 (<code>/admin/categories</code>)</h2>
+    <p>
+      관리자가 원하는 새로운 제품 계열(예: <code>차량용 케어</code>, <code>베이비/유아용</code>)이나 세부 용처 태그를 자유롭게 생성/수정/삭제할 수 있으며, <strong>[전체 변경사항 저장]</strong> 클릭 시 쇼핑몰 필터에 실시간 반영됩니다.
+    </p>
+
+    <div class="page-footer">
+      <span>PERVADE 관리자 매뉴얼</span>
+      <span>3 / 9</span>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ========================================================================= -->
+  <!-- CHAPTER 3 & 4                                                             -->
+  <!-- ========================================================================= -->
+  <div>
+    <h1 class="chapter-title">제 3 장. 완제품 재고 관리 &amp; 온/오프라인 입출고</h1>
+
+    <h2 class="section-title">3.1 실시간 재고 현황 카드 및 3대 수불 기능</h2>
+    <p>
+      <code>/admin/inventory</code> 콘솔의 첫 번째 탭에서 전 제품의 현재고, 안전재고 기준, 판매가격을 한눈에 확인하고 빠른 입출고를 실행할 수 있습니다.
+    </p>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 15px 0;">
+      <div style="border: 1px solid #bbf7d0; background: #f0fdf4; border-radius: 10px; padding: 12px;">
+        <span class="badge badge-green">1. 생산/입고 [+입고]</span>
+        <p style="margin-top: 6px; font-size: 11.5px;">공장에서 완제품이 생산되어 본사 창고로 입고될 때 수량 및 입고 단가를 입력하여 재고를 증가시킵니다.</p>
+      </div>
+      <div style="border: 1px solid #fecaca; background: #fef2f2; border-radius: 10px; padding: 12px;">
+        <span class="badge badge-red">2. 판매/출고 [-출고]</span>
+        <p style="margin-top: 6px; font-size: 11.5px;">스마트스토어, 쿠팡, 오프라인 팝업, B2B 도매 출고 시 매출처와 결제 금액을 기록하고 재고를 차감합니다.</p>
+      </div>
+      <div style="border: 1px solid #e4e4e7; background: #fafafa; border-radius: 10px; padding: 12px;">
+        <span class="badge badge-dark">3. 실사 정정 [실사]</span>
+        <p style="margin-top: 6px; font-size: 11.5px;">정기 재고 실사 후 파손/분실/증정 등으로 전산 수량과 실물 재고가 불일치할 때 실제 수량으로 보정합니다.</p>
+      </div>
+    </div>
+
+    <h1 class="chapter-title" style="margin-top: 30px;">제 4 장. 네이버/쿠팡 엑셀 일괄 발주 &amp; 수기 주문</h1>
+
+    <h2 class="section-title">4.1 네이버 &amp; 쿠팡 엑셀 일괄 업로드 (Batch Import)</h2>
+    <p>
+      수십~수백 건의 외부몰 주문을 개별 입력할 필요 없이, 판매자 센터에서 내려받은 엑셀 파일을 드롭하여 0.5초 만에 일괄 처리합니다.
+    </p>
+
+    <div class="callout callout-emerald">
+      <strong>📥 엑셀 일괄 발주 처리 프로세스:</strong>
+      <ol style="margin: 4px 0 0 0; padding-left: 16px;">
+        <li>네이버 스마트스토어 센터 또는 쿠팡 WING에서 <code>발주/발송관리 엑셀 다운로드</code> 실행</li>
+        <li>퍼베이드 관리자 ➔ <strong>[네이버/쿠팡 엑셀 일괄 업로드]</strong> 버튼 클릭</li>
+        <li>엑셀 내용(헤더 포함)을 복사하여 붙여넣기 후 <strong>[일괄 등록 &amp; 재고 자동 차감]</strong> 클릭</li>
+        <li>시스템이 상품명을 자동 매칭하여 <strong>주문 생성 + 완제품 재고 자동 차감 + 배송 목록 구성</strong>을 한 번에 완료</li>
+      </ol>
+    </div>
+
+    <h2 class="section-title">4.2 수기 주문 등록 (오프라인 팝업 &amp; B2B 도매 납품)</h2>
+    <p>
+      성수동 플래그십 팝업스토어 현장 결제, B2B 도매 유통처 납품, 전화/카카오 주문 등은 <strong>`[+ 수기 주문 등록]`</strong> 버튼을 통해 거래처명, 수량, 단가, 배송지를 입력하면 즉시 재고가 차감되고 거래원장에 기록됩니다.
+    </p>
+
+    <div class="page-footer">
+      <span>PERVADE 관리자 매뉴얼</span>
+      <span>4 / 9</span>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ========================================================================= -->
+  <!-- CHAPTER 5 & 6                                                             -->
+  <!-- ========================================================================= -->
+  <div>
+    <h1 class="chapter-title">제 5 장. CJ대한통운 송장 연동 &amp; 실시간 배송추적</h1>
+
+    <h2 class="section-title">5.1 CJ대한통운 운송장번호 등록 및 배송 상태 자동 전환</h2>
+    <p>
+      주문이 접수된 건은 배송준비 상태로 관리되며, CJ대한통운 택배 박스 포장 후 운송장 번호를 입력하면 즉시 <strong>`배송중(SHIPPED)`</strong>으로 전환됩니다.
+    </p>
+
+    <div class="step-card">
+      <span class="step-number">방법 1</span>
+      <strong>단건 송장 입력:</strong> 주문 목록에서 해당 주문의 <code>[+ CJ송장 입력]</code> 버튼을 누르고 12자리 운송장번호를 입력하여 저장.
+    </div>
+    <div class="step-card">
+      <span class="step-number">방법 2</span>
+      <strong>엑셀 일괄 송장 등록:</strong> 엑셀 업로드 시 송장번호 열이 포함되어 있으면 주문 생성과 동시에 배송중으로 즉시 등록.
+    </div>
+
+    <h2 class="section-title">5.2 원클릭 실시간 배송추적 (`[CJ조회]`)</h2>
+    <p>
+      송장번호가 등록된 모든 주문에는 주황색 <strong>`[CJ조회]`</strong> 버튼이 생성됩니다. 관리자 또는 고객이 클릭 시 CJ대한통운 공식 배송조회 시스템(<code>https://www.doortodoor.co.kr/...</code>)으로 즉시 연결되어 집화 ➔ 간선하역 ➔ 배달완료 실시간 위치를 실시간 확인할 수 있습니다.
+    </p>
+
+    <h1 class="chapter-title" style="margin-top: 30px;">제 6 장. 원재료 &amp; 부자재 매입 수불부</h1>
+
+    <h2 class="section-title">6.1 관리 대상 주요 부자재 및 원료 품목</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>품목명</th>
+          <th>분류</th>
+          <th>기본 단위</th>
+          <th>표준 매입 단가</th>
+          <th>주요 공급 매입처</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>500ml 친환경 리사이클 PET 공병</td>
+          <td>용기/공병</td>
+          <td>개</td>
+          <td>₩450원</td>
+          <td>(주)한국보틀 &amp; 패키지</td>
+        </tr>
+        <tr>
+          <td>프리미엄 2단 미세안개 트리거 스프레이건</td>
+          <td>스프레이/캡</td>
+          <td>개</td>
+          <td>₩650원</td>
+          <td>(주)한국보틀 &amp; 패키지</td>
+        </tr>
+        <tr>
+          <td>코코넛 천연 비이온 계면활성제 (APG)</td>
+          <td>천연원료</td>
+          <td>kg</td>
+          <td>₩12,000원</td>
+          <td>(주)그린케미칼 바이오</td>
+        </tr>
+        <tr>
+          <td>시그니처 시트러스 우디 에센셜 블렌드 오일</td>
+          <td>천연원료</td>
+          <td>L</td>
+          <td>₩85,000원</td>
+          <td>(주)그린케미칼 바이오</td>
+        </tr>
+        <tr>
+          <td>1,000ml 대용량 에코 스탠딩 파우치</td>
+          <td>용기/파우치</td>
+          <td>개</td>
+          <td>₩380원</td>
+          <td>(주)한국보틀 &amp; 패키지</td>
+        </tr>
+        <tr>
+          <td>친환경 크라프트 배송 박스 (소형)</td>
+          <td>포장패키지</td>
+          <td>개</td>
+          <td>₩550원</td>
+          <td>(주)삼원팩 패키징</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2 class="section-title">6.2 매입 입고 등록 절차</h2>
+    <p>
+      공급사로부터 용기나 원료가 입고되면 해당 품목 카드의 <strong>`[매입 입고 등록]`</strong>을 누르고 입고 수량 및 매입 전자세금계산서 승인번호를 입력합니다. 부자재 재고가 자동으로 증가하며 통합 거래원장(매입부)에 즉시 기록됩니다.
+    </p>
+
+    <div class="page-footer">
+      <span>PERVADE 관리자 매뉴얼</span>
+      <span>5 / 9</span>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ========================================================================= -->
+  <!-- CHAPTER 7 & 8                                                             -->
+  <!-- ========================================================================= -->
+  <div>
+    <h1 class="chapter-title">제 7 장. 거래처(매출처/매입처) 마스터 관리</h1>
+
+    <h2 class="section-title">7.1 거래처 분류 체계 및 관리 항목</h2>
+    <p>
+      퍼베이드 ERP는 매출처(판매채널)와 매입처(원료/용기 공급사)를 하나의 거래처 마스터에서 체계적으로 관리합니다.
+    </p>
+    <ul>
+      <li><strong>매출처 (SALES):</strong> 네이버 스마트스토어, 쿠팡 윙/로켓, 성수동 팝업스토어, B2B 리빙 편집샵 도매처 등</li>
+      <li><strong>매입처 (PURCHASE):</strong> 용기 제조사, 스프레이 사출공장, 천연 계면활성제 원료사, 박스 패키지 공장 등</li>
+    </ul>
+
+    <h2 class="section-title">7.2 거래처별 세금계산서 및 정산 주기 관리</h2>
+    <p>
+      거래처 등록 시 <strong>사업자등록번호, 대표자명, 담당자 연락처, 세금계산서 수신 이메일, 정산 메모(예: 익월 10일 결제, 도매공급률 60%)</strong>를 등록하여 세무 신고 및 월말 대금 정산 시 누락을 원천 차단합니다.
+    </p>
+
+    <h1 class="chapter-title" style="margin-top: 30px;">제 8 장. 전자세금계산서 &amp; 통합 거래원장</h1>
+
+    <h2 class="section-title">8.1 실시간 재무 KPI 및 세무 집계 지표</h2>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0;">
+      <div class="callout callout-blue">
+        <strong>💰 총 매출액 vs 총 매입액 실시간 비교</strong>
+        온/오프라인 전 채널의 매출 총액과 원자재/제조 매입 총액을 실시간 집계하여 당월 영업이익 및 원가율을 즉시 파악할 수 있습니다.
+      </div>
+      <div class="callout callout-amber">
+        <strong>🧾 추정 부가세(VAT 10%) 예수금 자동 계산</strong>
+        (매출 공급가액 - 매입 공급가액) × 10%를 실시간 산출하여 부가세 신고 기간에 납부할 예상 세액을 사전에 시뮬레이션합니다.
+      </div>
+    </div>
+
+    <h2 class="section-title">8.2 국세청 전자세금계산서 승인번호 등록</h2>
+    <p>
+      홈택스(Hometax) 또는 전자세금계산서 발행 대행사에서 발급된 <strong>24자리 승인번호(예: <code>20260822-41000021-99881122</code>)</strong>를 입력하면, 해당 거래건이 <strong>`[발행완료]`</strong> 상태로 전환되어 미발행 리스크를 완벽하게 방지합니다.
+    </p>
+
+    <div class="page-footer">
+      <span>PERVADE 관리자 매뉴얼</span>
+      <span>6 / 9</span>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ========================================================================= -->
+  <!-- CHAPTER 9 & APPENDIX                                                      -->
+  <!-- ========================================================================= -->
+  <div>
+    <h1 class="chapter-title">제 9 장. 프로모션 &amp; 가이드 매거진 &amp; 운영 CMS</h1>
+
+    <h2 class="section-title">9.1 메인 배너 프로모션 &amp; 할인 이벤트 관리 (<code>/admin/promotions</code>)</h2>
+    <ul>
+      <li><strong>메인 히어로 배너 이벤트:</strong> 할인율 뱃지, 이벤트 기간, 쇼핑몰 이동 링크 버튼 설정</li>
+      <li><strong>상단 고정 띠배너:</strong> "신규 가입 시 3,000P 즉시 적립 &amp; 첫 구매 무료배송" 등 공지 실시간 변경</li>
+    </ul>
+
+    <h2 class="section-title">9.2 공식 청소 꿀팁 가이드 블로그 CMS (<code>/admin/guides</code>)</h2>
+    <p>
+      주방 인덕션 탄때 제거, 욕실 샤워부스 물때 제거, 거실 원목가구 얼룩 케어 등 공간별 세정 매거진 아티클을 관리자가 직접 작성하고 관련 상품(`500ml 본품`, `1,000ml 리필`)을 연동하여 구매 전환율을 높입니다.
+    </p>
+
+    <h1 class="chapter-title" style="margin-top: 30px;">부록 A. 네이버 &amp; 쿠팡 API 보안 키 발급 가이드</h1>
+
+    <h2 class="section-title">A.1 네이버 스마트스토어 (Naver Commerce API) 연동</h2>
+    <ol>
+      <li><strong>[네이버 커머스 개발자센터]</strong>(<code>https://commerce-api.naver.com</code>) 접속 후 로그인</li>
+      <li><code>[애플리케이션 등록]</code> ➔ 애플리케이션 이름: <code>퍼베이드 ERP</code> 입력</li>
+      <li>발급된 <strong>Application ID</strong> 및 <strong>Application Secret</strong> 복사</li>
+      <li><code>[API 호출 IP 등록]</code>에 서버 IP를 등록하여 보안 승인 완료</li>
+    </ol>
+
+    <h2 class="section-title">A.2 쿠팡 윙 (Coupang Open API) 연동</h2>
+    <ol>
+      <li><strong>[쿠팡 WING 판매자센터]</strong>(<code>https://wing.coupang.com</code>) 로그인</li>
+      <li>우측 상단 <code>[판매자정보]</code> ➔ <code>[추가판매정보]</code> 이동 ➔ <code>[Open API 발급신청]</code> 클릭</li>
+      <li>발급된 <strong>Access Key</strong>, <strong>Secret Key</strong>, <strong>업체코드(Vendor ID)</strong> 복사</li>
+      <li><code>[발신 IP 주소]</code>에 서버 IP 등록 후 저장</li>
+    </ol>
+
+    <div class="callout callout-emerald">
+      <strong>🔒 보안 전자서명 및 토큰 자동 갱신 안내:</strong>
+      네이버와 쿠팡의 API 키를 관리자 콘솔에 등록하시면, 시스템 백엔드가 매 요청마다 <strong>HMAC-SHA256 암호화 서명</strong>을 자동 생성하고 <strong>OAuth 토큰을 스스로 갱신</strong>하므로 관리자는 수작업 인증 없이 100% 자동화된 주문 수집을 누리실 수 있습니다.
+    </div>
+
+    <div class="page-footer">
+      <span>PERVADE 관리자 매뉴얼</span>
+      <span>7 / 9</span>
+    </div>
+  </div>
+
+</body>
+</html>

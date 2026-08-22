@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Package, Users, Megaphone, BookOpen, Settings, Palette, HelpCircle, ArrowRight, TrendingUp, Layers } from "lucide-react";
+import { Package, Users, Megaphone, BookOpen, Settings, Palette, HelpCircle, ArrowRight, TrendingUp, Layers, FileText } from "lucide-react";
 import { SeedButton } from "@/components/admin/SeedButton";
 
 export const dynamic = "force-dynamic";
@@ -19,13 +19,13 @@ export default async function AdminDashboard() {
   const quickLinks = [
     { title: "제품 관리", desc: "제품 등록, 다중 이미지 및 가격 설정", href: "/admin/products", icon: Package, count: `${productCount}개 등록` },
     { title: "카테고리 마스터 관리", desc: "2단계 대분류/용처별 분류 생성 및 편집", href: "/admin/categories", icon: Layers, count: "실시간 반영" },
-    { title: "통합 재고 관리", desc: "실시간 재고 차감 및 외부몰 수기 조정", href: "/admin/inventory", icon: Settings, count: "재고 실시간 연동" },
+    { title: "통합 재고 & ERP", desc: "네이버/쿠팡 주문, CJ택배, 세금계산서", href: "/admin/inventory", icon: Settings, count: "옴니채널 연동" },
     { title: "프로모션 & 이벤트", desc: "메인 배너 할인 페스티벌 & 지난 이벤트", href: "/admin/promotions", icon: Megaphone, count: `${promoCount}개 진행중` },
     { title: "사용가이드 블로그", desc: "제품별 청소 팁 & 매거진 아티클 CMS", href: "/admin/guides", icon: BookOpen, count: `${guideCount}개 발행` },
     { title: "회원 및 권한 관리", desc: "실명인증 회원, 포인트, 등급 수정", href: "/admin/users", icon: Users, count: `${userCount}명 가입` },
     { title: "테마 & 메인 배너", desc: "배경 동영상/이미지 업로드, 로고 폰트", href: "/admin/theme", icon: Palette, count: "실시간 렌더링" },
     { title: "고객센터 CMS", desc: "자주 묻는 질문(FAQ), 배송안내, 약관", href: "/admin/contents", icon: HelpCircle, count: "공식 고지 관리" },
-    { title: "운영 정책 & 법정정보", desc: "전자상거래법 사업자 정보 및 띠배너", href: "/admin/policies", icon: Settings, count: "푸터 자동 연동" },
+    { title: "공식 PDF 운영매뉴얼", desc: "백오피스 & ERP 통합 사용설명서 다운로드", href: "/PERVADE_Admin_ERP_Manual.pdf", icon: FileText, count: "PDF 다운로드" },
   ];
 
   return (
