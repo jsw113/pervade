@@ -203,8 +203,8 @@ export default async function ProductDetailPage({
           {detailImages.length > 0 && (
             <div className="space-y-4 pt-4">
               {detailImages.map((img, idx) => (
-                <div key={idx} className="rounded-2xl overflow-hidden shadow-sm border">
-                  <img src={img} alt={`Detail story ${idx + 1}`} className="w-full h-auto object-cover" />
+                <div key={idx} className="rounded-2xl overflow-hidden shadow-xs border bg-white">
+                  <img src={img} alt={`Detail story ${idx + 1}`} className="w-full h-auto block" loading="lazy" />
                 </div>
               ))}
             </div>

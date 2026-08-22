@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Upload, Trash2, Image as ImageIcon, Star, Check, ArrowLeft, Link2 } from "lucide-react";
 import Link from "next/link";
 import { CategorySelect } from "@/components/admin/CategorySelect";
-import { optimizeImageFile } from "@/lib/utils/imageOptimizer";
+import { optimizeImageFile, optimizeDetailImageFile } from "@/lib/utils/imageOptimizer";
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -44,7 +44,7 @@ export default function NewProductPage() {
     try {
       const optimizedUrls: string[] = [];
       for (let i = 0; i < files.length; i++) {
-        const dataUrl = await optimizeImageFile(files[i], 1600, 1600, 0.85);
+        const dataUrl = await optimizeImageFile(files[i], 1600, 1600, 0.90);
         optimizedUrls.push(dataUrl);
       }
       setImages((prev) => [...prev, ...optimizedUrls]);
@@ -57,7 +57,7 @@ export default function NewProductPage() {
     }
   };
 
-  // Handle Detail Images Upload
+  // Handle Detail Images Upload (Preserves high-res vertical detail pages)
   const handleDetailImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -66,7 +66,8 @@ export default function NewProductPage() {
     try {
       const optimizedUrls: string[] = [];
       for (let i = 0; i < files.length; i++) {
-        const dataUrl = await optimizeImageFile(files[i], 1600, 2400, 0.85);
+        // High-definition width-only constraint (1200px max, 92% quality, unlimited vertical length)
+        const dataUrl = await optimizeDetailImageFile(files[i], 1200, 0.92);
         optimizedUrls.push(dataUrl);
       }
       setDetailImages((prev) => [...prev, ...optimizedUrls]);

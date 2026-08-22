@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, Plus, Trash2, Image as ImageIcon, Star, Check, Link2 } from "lucide-react";
 import { CategorySelect } from "@/components/admin/CategorySelect";
-import { optimizeImageFile } from "@/lib/utils/imageOptimizer";
+import { optimizeImageFile, optimizeDetailImageFile } from "@/lib/utils/imageOptimizer";
 
 export function ProductEditForm({ product }: { product: any }) {
   const router = useRouter();
@@ -80,7 +80,7 @@ export function ProductEditForm({ product }: { product: any }) {
     try {
       const optimizedUrls: string[] = [];
       for (let i = 0; i < files.length; i++) {
-        const dataUrl = await optimizeImageFile(files[i], 1600, 2400, 0.85);
+        const dataUrl = await optimizeDetailImageFile(files[i], 1200, 0.92);
         optimizedUrls.push(dataUrl);
       }
       setDetailImages((prev) => [...prev, ...optimizedUrls]);
