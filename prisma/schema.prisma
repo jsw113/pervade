@@ -186,14 +186,82 @@ model Product {
 }
 
 model InventoryLog {
-  id        String   @id @default(uuid())
-  productId String
-  product   Product  @relation(fields: [productId], references: [id])
-  type      String   // "IN", "OUT", "ADJUST"
-  quantity  Int      // Change quantity
-  balance   Int      // Final stock balance
-  reason    String   // Reason (e.g., "자사몰 주문 출고", "네이버 스마트스토어 차감", "본사 수기 입고")
-  createdAt DateTime @default(now())
+  id               String    @id @default(uuid())
+  productId        String?
+  product          Product?  @relation(fields: [productId], references: [id])
+  type             String    // "IN", "OUT", "ADJUST"
+  quantity         Int       // Change quantity
+  balance          Int       // Final stock balance
+  reason           String    // Reason (e.g., "자사몰 주문 출고", "네이버 스마트스토어 차감", "B2B 도매 출고", "본사 수기 입고")
+  createdAt        DateTime  @default(now())
+
+  // ERP & Tax Integration Fields
+  partnerId        String?
+  partnerName      String?   // Snapshot partner name (e.g. "네이버 스마트스토어", "쿠팡", "(주)한국보틀")
+  channelType      String?   // "NAVER", "COUPANG", "ZASAMALL", "OFFLINE", "B2B", "SUPPLIER"
+  taxInvoiceStatus String?   @default("NOT_APPLICABLE") // "ISSUED", "UNISSUED", "EXEMPT", "NOT_APPLICABLE"
+  taxInvoiceNumber String?   // Electronic Tax Invoice Approval No. (e.g. 20260822-41000001-...)
+  taxInvoiceDate   DateTime?
+  unitPrice        Int?      // Selling or purchase price per unit
+  totalAmount      Int?      // Total transaction amount
+  vatIncluded      Boolean   @default(true)
+  memo             String?
+}
+
+model Partner {
+  id          String   @id @default(uuid())
+  name        String   // 거래처명 (예: 네이버 스마트스토어, 쿠팡 윙, 성수동 팝업, (주)한국보틀, (주)그린케미칼)
+  type        String   @default("SALES") // "SALES"(매출처), "PURCHASE"(매입처), "BOTH"(매출/매입 공통)
+  channelType String   @default("ONLINE_MALL") // "ONLINE_MALL", "OFFLINE_STORE", "B2B_WHOLESALE", "RAW_MATERIAL", "MANUFACTURER", "OTHER"
+  bizNumber   String?  // 사업자등록번호
+  ceoName     String?  // 대표자명
+  contact     String?  // 담당자 연락처
+  email       String?  // 세금계산서 수신 이메일
+  address     String?  // 소재지
+  memo        String?  // 비고 / 정산 주기 메모
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ChannelOrder {
+  id               String    @id @default(uuid())
+  channel          String    @default("NAVER") // "NAVER", "COUPANG", "ZASAMALL", "OFFLINE", "B2B"
+  channelOrderNo   String?   // 외부몰 주문번호 (예: 20260822123456)
+  productName      String    // 주문 상품명
+  productId        String?   // 매핑된 퍼베이드 상품 ID (옵션)
+  quantity         Int       @default(1)
+  unitPrice        Int       @default(0)
+  totalPrice       Int       @default(0)
+  buyerName        String    // 구매자명 / 주문자
+  buyerPhone       String?   // 연락처
+  receiverName     String?   // 수령인
+  receiverPhone    String?   // 수령인 연락처
+  shippingAddress  String?   // 배송지 주소
+  shippingMsg      String?   // 배송 메시지
+  shippingCarrier  String    @default("CJ대한통운") // 택배사
+  trackingNumber   String?   // 운송장번호
+  status           String    @default("PAID") // "PAID"(결제완료), "PREPARING"(배송준비), "SHIPPED"(배송중), "DELIVERED"(배송완료), "CANCELLED"(취소)
+  taxInvoiceStatus String    @default("UNISSUED") // "ISSUED", "UNISSUED", "EXEMPT", "CASH_RECEIPT"
+  taxInvoiceNumber String?   // 세금계산서 승인번호
+  orderDate        DateTime  @default(now())
+  shippedDate      DateTime?
+  memo             String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model RawMaterial {
+  id           String   @id @default(uuid())
+  name         String   // 부자재/원료명 (예: 500ml 친환경 용기, 프리미엄 미세안개 스프레이건, 코코넛 천연계면활성제 원료, 1000ml 에코 파우치)
+  category     String   @default("CONTAINER") // "CONTAINER"(용기/공병), "SPRAY"(스프레이/캡), "RAW_INGREDIENT"(원료/액상), "PACKAGE"(단상자/박스), "LABEL"(라벨/스티커), "OTHER"
+  unit         String   @default("개") // "개", "kg", "L", "롤", "박스"
+  currentStock Int      @default(0)
+  safetyStock  Int      @default(100)
+  unitCost     Int      @default(0) // 표준 매입 단가
+  supplierId   String?  // 매입처 거래처 ID
+  supplierName String?  // 매입처명 (예: (주)한국보틀)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Content {
