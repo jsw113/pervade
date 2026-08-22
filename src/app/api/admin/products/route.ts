@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
-export async function GET(request: Request) {
+export const dynamic = "force-dynamic";
   try {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
@@ -88,6 +89,15 @@ export async function POST(request: Request) {
           reason: "초기 제품 등록 입고"
         }
       });
+    }
+
+    // Revalidate paths for instant reflect
+    try {
+      revalidatePath("/");
+      revalidatePath("/shop");
+      revalidatePath("/admin/products");
+    } catch (e) {
+      console.warn("Revalidation warning:", e);
     }
 
     return NextResponse.json(product);

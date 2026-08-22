@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
+
+export const dynamic = "force-dynamic";
 
 export async function PATCH(
   request: Request,
@@ -68,6 +71,17 @@ export async function PATCH(
       });
     }
 
+    // Revalidate paths for instant reflect
+    try {
+      revalidatePath("/");
+      revalidatePath("/shop");
+      revalidatePath(`/shop/${id}`);
+      revalidatePath("/admin/products");
+      revalidatePath(`/admin/products/${id}/edit`);
+    } catch (e) {
+      console.warn("Revalidation warning:", e);
+    }
+
     return NextResponse.json(product);
   } catch (error) {
     console.error("Failed to update product:", error);
@@ -89,6 +103,14 @@ export async function DELETE(
     await prisma.review.deleteMany({ where: { productId: id } });
     await prisma.question.deleteMany({ where: { productId: id } });
     await prisma.product.delete({ where: { id } });
+
+    try {
+      revalidatePath("/");
+      revalidatePath("/shop");
+      revalidatePath("/admin/products");
+    } catch (e) {
+      console.warn("Revalidation warning:", e);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
