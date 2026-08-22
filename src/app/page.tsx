@@ -101,7 +101,7 @@ export default async function Home() {
       case "hero":
         if (!heroVisible) return null;
         return (
-          <section key="hero" className="relative w-full h-[85vh] flex items-center justify-center bg-zinc-950 overflow-hidden">
+          <section key="hero" className="relative w-full h-[85vh] min-h-[580px] flex flex-col items-center justify-center bg-zinc-950 overflow-hidden">
             <div className="absolute inset-0 bg-black/45 z-10" />
             
             {/* Dynamic Background: Video vs Image */}
@@ -125,37 +125,38 @@ export default async function Home() {
               />
             )}
             
-            {(heroShowText || heroShowCta) && (
-              <div className="container relative z-20 mx-auto px-4 text-center text-white">
-                {heroShowText && (
-                  <>
-                    <span className="text-xs md:text-sm font-bold tracking-widest uppercase mb-4 inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-white">
-                      Pervade Premium Clean Living
-                    </span>
-                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 max-w-4xl mx-auto leading-tight whitespace-pre-line drop-shadow-md">
-                      {heroTitle}
-                    </h1>
-                    <p className="text-base md:text-xl text-white/90 mb-8 max-w-2xl mx-auto whitespace-pre-line leading-relaxed drop-shadow-sm font-light">
-                      {heroSubtitle}
-                    </p>
-                  </>
-                )}
-                {heroShowCta && (
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                    <Link 
-                      href="/shop" 
-                      className="w-full sm:w-auto px-8 py-4 bg-white text-zinc-950 rounded-full font-bold flex items-center justify-center gap-2 hover:bg-zinc-200 transition-all shadow-xl"
-                    >
-                      제품 둘러보기 <ArrowRight className="w-4 h-4" />
-                    </Link>
-                    <Link 
-                      href="/guide" 
-                      className="w-full sm:w-auto px-8 py-4 bg-black/40 text-white rounded-full font-bold flex items-center justify-center border border-white/40 hover:bg-white/10 transition-all backdrop-blur-sm"
-                    >
-                      사용 가이드 확인
-                    </Link>
-                  </div>
-                )}
+            {/* Main Headline Content Area (Upper / Center) */}
+            {heroShowText && (
+              <div className="container relative z-20 mx-auto px-4 text-center text-white pb-20 md:pb-24">
+                <span className="text-xs md:text-sm font-bold tracking-widest uppercase mb-4 inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-white shadow-xs">
+                  Pervade Premium Clean Living
+                </span>
+                <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight mb-5 max-w-4xl mx-auto leading-tight whitespace-pre-line drop-shadow-lg">
+                  {heroTitle}
+                </h1>
+                <p className="text-sm sm:text-base md:text-lg text-white/90 max-w-2xl mx-auto whitespace-pre-line leading-relaxed drop-shadow-md font-light">
+                  {heroSubtitle}
+                </p>
+              </div>
+            )}
+
+            {/* Repositioned CTA Buttons: Lower 1/4 Center */}
+            {heroShowCta && (
+              <div className="absolute bottom-10 sm:bottom-12 md:bottom-14 left-0 right-0 z-20 px-4">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-md sm:max-w-xl mx-auto">
+                  <Link 
+                    href="/shop" 
+                    className="w-full sm:w-auto px-8 py-3.5 sm:py-4 bg-white text-zinc-950 rounded-full font-bold flex items-center justify-center gap-2 hover:bg-zinc-100 transition-all shadow-2xl hover:scale-105 active:scale-95 text-xs sm:text-sm"
+                  >
+                    제품 둘러보기 <ArrowRight className="w-4 h-4" />
+                  </Link>
+                  <Link 
+                    href="/guide" 
+                    className="w-full sm:w-auto px-8 py-3.5 sm:py-4 bg-black/40 text-white rounded-full font-bold flex items-center justify-center border border-white/50 hover:bg-white/20 transition-all backdrop-blur-md shadow-2xl hover:scale-105 active:scale-95 text-xs sm:text-sm"
+                  >
+                    사용 가이드 확인
+                  </Link>
+                </div>
               </div>
             )}
           </section>
