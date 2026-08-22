@@ -23,9 +23,9 @@ export async function GET() {
         "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to fetch theme settings:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: error?.message || "Internal Server Error" }, { status: 500 });
   }
 }
 
@@ -34,18 +34,17 @@ export async function POST(request: Request) {
     const body = await request.json();
     const keys = ["HERO_TITLE", "HERO_SUBTITLE", "HERO_BG_TYPE", "HERO_BG_URL", "HOME_SECTIONS_ORDER", "LOGO_URL", "LOGO_FONT"];
 
-    // Update or insert all provided theme keys in transaction
-    await prisma.$transaction(
-      keys
-        .filter(key => body[key] !== undefined)
-        .map(key =>
-          prisma.policy.upsert({
-            where: { key },
-            update: { value: String(body[key] ?? "") },
-            create: { key, value: String(body[key] ?? ""), description: `Main Theme ${key}` }
-          })
-        )
-    );
+    // Individual upserts for rock-solid reliability
+    for (const key of keys) {
+      if (body[key] !== undefined) {
+        const val = String(body[key] ?? "");
+        await prisma.policy.upsert({
+          where: { key },
+          update: { value: val },
+          create: { key, value: val, description: `Main Theme ${key}` }
+        });
+      }
+    }
 
     // Revalidate paths for instant reflect
     try {

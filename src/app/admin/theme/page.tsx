@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { GripVertical, Eye, EyeOff, Save, RefreshCw, Upload, Image as ImageIcon, Video, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
-import { optimizeImage } from "@/lib/utils/imageOptimizer";
+import { optimizeImageFile } from "@/lib/utils/imageOptimizer";
 
 type Section = {
   id: string;
@@ -57,29 +57,12 @@ export default function ThemeAdminPage() {
     setIsLogoUploading(true);
     try {
       // 1. Optimize image in browser
-      const optimized = await optimizeImage(file, 800, 800, 0.9);
-
-      // 2. Try server upload with Base64 fallback
-      const formData = new FormData();
-      formData.append("file", optimized.file);
-
-      const res = await fetch("/api/admin/theme/upload-logo", {
-        method: "POST",
-        body: formData
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setLogoUrl(data.url || optimized.dataUri);
-        alert("로고 이미지가 성공적으로 업로드되었습니다.");
-      } else {
-        // Direct Base64 fallback
-        setLogoUrl(optimized.dataUri);
-        alert("로고 이미지가 설정되었습니다.");
-      }
-    } catch (err) {
+      const dataUrl = await optimizeImageFile(file, 800, 800, 0.9);
+      setLogoUrl(dataUrl);
+      alert("로고 이미지가 설정되었습니다. 상단 또는 하단의 [전체 변경사항 저장]을 눌러 최종 적용해 주세요.");
+    } catch (err: any) {
       console.error(err);
-      alert("로고 업로드 중 오류가 발생했습니다.");
+      alert("로고 처리 중 오류가 발생했습니다: " + (err?.message || ""));
     } finally {
       setIsLogoUploading(false);
     }
@@ -102,13 +85,13 @@ export default function ThemeAdminPage() {
       if (res.ok) {
         const data = await res.json();
         setHeroBgUrl(data.url);
-        alert("동영상이 성공적으로 업로드되었습니다.");
+        alert("동영상이 업로드되었습니다. [전체 변경사항 저장]을 눌러 최종 적용해 주세요.");
       } else {
-        alert("동영상 업로드에 실패했습니다. 비디오 스트리밍 URL 직접 입력을 권장합니다.");
+        alert("동영상 파일 크기가 너무 큽니다. 비디오 URL 직접 입력을 권장합니다.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("업로드 중 오류가 발생했습니다.");
+      alert("업로드 중 오류가 발생했습니다: " + (err?.message || ""));
     } finally {
       setIsUploading(false);
     }
@@ -120,29 +103,13 @@ export default function ThemeAdminPage() {
 
     setIsImageUploading(true);
     try {
-      // 1. Optimize image in browser
-      const optimized = await optimizeImage(file, 1920, 1080, 0.85);
-
-      // 2. Try server upload with Base64 fallback
-      const formData = new FormData();
-      formData.append("file", optimized.file);
-
-      const res = await fetch("/api/admin/theme/upload-image", {
-        method: "POST",
-        body: formData
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setHeroBgUrl(data.url || optimized.dataUri);
-        alert("배경 이미지가 성공적으로 업로드되었습니다.");
-      } else {
-        setHeroBgUrl(optimized.dataUri);
-        alert("배경 이미지가 설정되었습니다.");
-      }
-    } catch (err) {
+      // Optimize image in browser down to 1600x900
+      const dataUrl = await optimizeImageFile(file, 1600, 900, 0.85);
+      setHeroBgUrl(dataUrl);
+      alert("배경 이미지가 설정되었습니다. 상단 또는 하단의 [전체 변경사항 저장]을 눌러 최종 적용해 주세요.");
+    } catch (err: any) {
       console.error(err);
-      alert("이미지 업로드 중 오류가 발생했습니다.");
+      alert("이미지 처리 중 오류가 발생했습니다: " + (err?.message || ""));
     } finally {
       setIsImageUploading(false);
     }
@@ -241,12 +208,12 @@ export default function ThemeAdminPage() {
       const orderToSave = sections.map(s => ({ id: s.id, visible: s.visible }));
       
       const payload = {
-        HERO_TITLE: heroTitle,
-        HERO_SUBTITLE: heroSubtitle,
-        HERO_BG_TYPE: heroBgType,
-        HERO_BG_URL: heroBgUrl,
-        LOGO_URL: logoUrl,
-        LOGO_FONT: logoFont,
+        HERO_TITLE: heroTitle || "",
+        HERO_SUBTITLE: heroSubtitle || "",
+        HERO_BG_TYPE: heroBgType || "IMAGE",
+        HERO_BG_URL: heroBgUrl || "",
+        LOGO_URL: logoUrl || "",
+        LOGO_FONT: logoFont || "'Inter', sans-serif",
         HOME_SECTIONS_ORDER: JSON.stringify(orderToSave)
       };
 
@@ -256,17 +223,18 @@ export default function ThemeAdminPage() {
         body: JSON.stringify(payload),
       });
 
-      if (response.ok) {
+      const data = await response.json().catch(() => ({}));
+
+      if (response.ok && data.success) {
         setSaveSuccess(true);
         alert("✅ 테마 및 메인 배너 설정이 성공적으로 저장되었습니다!\n쇼핑몰 메인페이지에 즉시 적용되었습니다.");
         setTimeout(() => setSaveSuccess(false), 4000);
       } else {
-        const errData = await response.json().catch(() => ({}));
-        alert(`❌ 저장에 실패했습니다: ${errData.error || "서버 오류"}`);
+        alert(`❌ 저장에 실패했습니다: ${data.error || "서버 응답 오류 (상태코드: " + response.status + ")"}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to save theme settings:", error);
-      alert("❌ 저장 중 네트워크 오류가 발생했습니다.");
+      alert(`❌ 저장 중 네트워크 오류가 발생했습니다: ${error?.message || "알 수 없는 오류"}`);
     } finally {
       setIsSaving(false);
     }

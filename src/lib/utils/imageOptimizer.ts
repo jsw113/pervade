@@ -58,3 +58,6 @@ export async function optimizeImageFile(file: File, maxWidth = 1600, maxHeight =
     reader.readAsDataURL(file);
   });
 }
+
+// Alias for backwards compatibility
+export const optimizeImage = optimizeImageFile;
