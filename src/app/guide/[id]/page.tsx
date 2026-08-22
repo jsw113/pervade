@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { ArrowLeft, BookOpen, Sparkles, ShieldCheck, Eye, ArrowRight, ShoppingCart } from "lucide-react";
+import { ShareButtons } from "@/components/common/ShareButtons";
 
 export const dynamic = "force-dynamic";
 
@@ -147,9 +148,17 @@ export default async function GuideDetailPage({
         </div>
       )}
 
+      {/* Social Share Buttons */}
+      <div className="mt-8 mb-8">
+        <ShareButtons 
+          title={guide.title}
+          description={guide.summary || guide.content.substring(0, 100)}
+        />
+      </div>
+
       {/* Connected Product Purchase Card */}
       {guide.product && (
-        <div className="mt-12 bg-zinc-950 text-white rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="mt-8 bg-zinc-950 text-white rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-5">
             <div className="w-20 h-20 bg-white rounded-2xl overflow-hidden shrink-0 border border-zinc-800 p-1">
               <img 

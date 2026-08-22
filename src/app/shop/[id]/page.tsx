@@ -4,6 +4,7 @@ import { ArrowLeft, MessageCircle, Star, Sparkles, ShieldCheck, FileText, Info, 
 import { ProductPurchasePanel } from "@/components/shop/ProductPurchasePanel";
 import { ReviewSection } from "@/components/shop/ReviewSection";
 import { ProductGallery } from "@/components/shop/ProductGallery";
+import { ShareButtons } from "@/components/common/ShareButtons";
 
 export const dynamic = "force-dynamic";
 
@@ -174,6 +175,14 @@ export default async function ProductDetailPage({
 
           {/* Purchase Client Interactive Component */}
           <ProductPurchasePanel product={product} />
+
+          {/* Social Share Buttons */}
+          <div className="pt-2">
+            <ShareButtons 
+              title={product.name}
+              description={product.description}
+            />
+          </div>
         </div>
       </div>
 
