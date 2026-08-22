@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
 import path from "path";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
@@ -13,17 +15,27 @@ export async function POST(request: Request) {
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+    const mimeType = file.type || "image/jpeg";
 
-    const ext = path.extname(file.name) || ".jpg";
-    const filename = `promo_${Date.now()}_${Math.random().toString(36).substring(2, 7)}${ext}`;
-    const filepath = path.join(process.cwd(), "public", "uploads", "promotions", filename);
+    let fileUrl = "";
+    try {
+      const uploadDir = path.join(process.cwd(), "public", "uploads", "promotions");
+      await mkdir(uploadDir, { recursive: true });
 
-    await writeFile(filepath, buffer);
-    const fileUrl = `/uploads/promotions/${filename}`;
+      const ext = path.extname(file.name) || ".jpg";
+      const filename = `promo_${Date.now()}_${Math.random().toString(36).substring(2, 7)}${ext}`;
+      const filepath = path.join(uploadDir, filename);
+
+      await writeFile(filepath, buffer);
+      fileUrl = `/uploads/promotions/${filename}`;
+    } catch (fsErr) {
+      const base64 = buffer.toString("base64");
+      fileUrl = `data:${mimeType};base64,${base64}`;
+    }
 
     return NextResponse.json({ success: true, url: fileUrl });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Promotion image upload error:", error);
-    return NextResponse.json({ error: "업로드에 실패했습니다." }, { status: 500 });
+    return NextResponse.json({ error: error?.message || "업로드에 실패했습니다." }, { status: 500 });
   }
 }

@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, Plus, Trash2, Image as ImageIcon, Star, Check } from "lucide-react";
+import { Upload, Plus, Trash2, Image as ImageIcon, Star, Check, Link2 } from "lucide-react";
 import { CategorySelect } from "@/components/admin/CategorySelect";
+import { optimizeImageFile } from "@/lib/utils/imageOptimizer";
 
 export function ProductEditForm({ product }: { product: any }) {
   const router = useRouter();
@@ -41,33 +42,32 @@ export function ProductEditForm({ product }: { product: any }) {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Handle Multi-Image Upload
+  // URL Input States
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const [urlInput, setUrlInput] = useState("");
+  const [showDetailUrlInput, setShowDetailUrlInput] = useState(false);
+  const [detailUrlInput, setDetailUrlInput] = useState("");
+
+  // Handle Multi-Image Upload (Client-side optimized & resilient)
   const handleImageFilesUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     setIsUploading(true);
-    const formData = new FormData();
-    for (let i = 0; i < files.length; i++) {
-      formData.append("files", files[i]);
-    }
-
     try {
-      const res = await fetch("/api/admin/products/upload-images", {
-        method: "POST",
-        body: formData,
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setImages((prev) => [...prev, ...data.urls]);
-      } else {
-        alert("이미지 업로드에 실패했습니다.");
+      const optimizedUrls: string[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const dataUrl = await optimizeImageFile(files[i], 1600, 1600, 0.85);
+        optimizedUrls.push(dataUrl);
       }
-    } catch (err) {
+      setImages((prev) => [...prev, ...optimizedUrls]);
+    } catch (err: any) {
       console.error(err);
-      alert("오류가 발생했습니다.");
+      alert("이미지 처리 중 오류가 발생했습니다: " + err.message);
     } finally {
       setIsUploading(false);
+      // Reset input value so same file can be re-selected
+      e.target.value = "";
     }
   };
 
@@ -77,28 +77,34 @@ export function ProductEditForm({ product }: { product: any }) {
     if (!files || files.length === 0) return;
 
     setIsDetailUploading(true);
-    const formData = new FormData();
-    for (let i = 0; i < files.length; i++) {
-      formData.append("files", files[i]);
-    }
-
     try {
-      const res = await fetch("/api/admin/products/upload-images", {
-        method: "POST",
-        body: formData,
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setDetailImages((prev) => [...prev, ...data.urls]);
-      } else {
-        alert("상세 이미지 업로드에 실패했습니다.");
+      const optimizedUrls: string[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const dataUrl = await optimizeImageFile(files[i], 1600, 2400, 0.85);
+        optimizedUrls.push(dataUrl);
       }
-    } catch (err) {
+      setDetailImages((prev) => [...prev, ...optimizedUrls]);
+    } catch (err: any) {
       console.error(err);
-      alert("오류가 발생했습니다.");
+      alert("상세 이미지 처리 중 오류가 발생했습니다: " + err.message);
     } finally {
       setIsDetailUploading(false);
+      e.target.value = "";
     }
+  };
+
+  const handleAddImageUrl = () => {
+    if (!urlInput.trim()) return;
+    setImages((prev) => [...prev, urlInput.trim()]);
+    setUrlInput("");
+    setShowUrlInput(false);
+  };
+
+  const handleAddDetailImageUrl = () => {
+    if (!detailUrlInput.trim()) return;
+    setDetailImages((prev) => [...prev, detailUrlInput.trim()]);
+    setDetailUrlInput("");
+    setShowDetailUrlInput(false);
   };
 
   const handleSetMainImage = (index: number) => {
@@ -152,11 +158,12 @@ export function ProductEditForm({ product }: { product: any }) {
         router.push("/admin/products");
         router.refresh();
       } else {
-        alert("저장에 실패했습니다.");
+        const data = await response.json();
+        alert("저장에 실패했습니다: " + (data.error || ""));
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("오류가 발생했습니다.");
+      alert("오류가 발생했습니다: " + err.message);
     } finally {
       setIsSaving(false);
     }
@@ -178,9 +185,9 @@ export function ProductEditForm({ product }: { product: any }) {
       } else {
         alert("삭제에 실패했습니다.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("오류가 발생했습니다.");
+      alert("오류가 발생했습니다: " + err.message);
     } finally {
       setIsDeleting(false);
     }
@@ -279,15 +286,17 @@ export function ProductEditForm({ product }: { product: any }) {
       {/* 3. Multi-Image Gallery */}
       <div className="space-y-4">
         <div className="flex justify-between items-center border-b pb-2">
-          <h3 className="text-base font-bold text-zinc-900">2. 제품 갤러리 이미지</h3>
-          <span className="text-xs text-zinc-400">첫 번째 이미지가 대표 썸네일로 사용됩니다</span>
+          <div>
+            <h3 className="text-base font-bold text-zinc-900">2. 제품 갤러리 이미지</h3>
+            <span className="text-xs text-zinc-400">첫 번째 이미지가 대표 썸네일로 사용됩니다</span>
+          </div>
         </div>
 
-        {/* Upload Button */}
-        <div>
+        {/* Upload and URL Buttons */}
+        <div className="flex flex-wrap items-center gap-2.5">
           <label className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-950 text-white rounded-xl text-xs font-bold hover:bg-zinc-800 cursor-pointer transition-colors shadow-sm">
             <Upload className="w-4 h-4" />
-            {isUploading ? "이미지 업로드 중..." : "이미지 추가 업로드 (다중 선택 가능)"}
+            {isUploading ? "이미지 최적화 처리 중..." : "PC/스마트폰 사진 파일 업로드 (다중 선택 가능)"}
             <input 
               type="file" 
               multiple 
@@ -297,7 +306,36 @@ export function ProductEditForm({ product }: { product: any }) {
               className="hidden" 
             />
           </label>
+
+          <button
+            type="button"
+            onClick={() => setShowUrlInput(!showUrlInput)}
+            className="px-4 py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 border"
+          >
+            <Link2 className="w-3.5 h-3.5" />
+            웹 이미지 URL 추가
+          </button>
         </div>
+
+        {/* URL Input Form */}
+        {showUrlInput && (
+          <div className="flex items-center gap-2 p-3 bg-zinc-50 border rounded-xl animate-in fade-in">
+            <input
+              type="url"
+              value={urlInput}
+              onChange={(e) => setUrlInput(e.target.value)}
+              placeholder="https://images.unsplash.com/... 등 이미지 URL을 입력하세요"
+              className="flex-1 p-2 bg-white border rounded-lg text-xs"
+            />
+            <button
+              type="button"
+              onClick={handleAddImageUrl}
+              className="px-4 py-2 bg-zinc-900 text-white text-xs font-bold rounded-lg hover:bg-zinc-800"
+            >
+              추가
+            </button>
+          </div>
+        )}
 
         {/* Image Grid */}
         {images.length > 0 ? (
@@ -356,18 +394,48 @@ export function ProductEditForm({ product }: { product: any }) {
         <div>
           <label className="block text-xs font-bold text-zinc-600 mb-1">상세페이지 통 이미지 업로드 (카드뉴스/상세페이지용)</label>
           <div className="space-y-3">
-            <label className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-100 text-zinc-800 border rounded-xl text-xs font-bold hover:bg-zinc-200 cursor-pointer transition-colors">
-              <Upload className="w-4 h-4" />
-              {isDetailUploading ? "상세 이미지 업로드 중..." : "상세 이미지 추가"}
-              <input 
-                type="file" 
-                multiple 
-                accept="image/*" 
-                onChange={handleDetailImageUpload} 
-                disabled={isDetailUploading}
-                className="hidden" 
-              />
-            </label>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <label className="inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-100 text-zinc-800 border rounded-xl text-xs font-bold hover:bg-zinc-200 cursor-pointer transition-colors">
+                <Upload className="w-4 h-4" />
+                {isDetailUploading ? "상세 이미지 처리 중..." : "상세 이미지 파일 추가"}
+                <input 
+                  type="file" 
+                  multiple 
+                  accept="image/*" 
+                  onChange={handleDetailImageUpload} 
+                  disabled={isDetailUploading}
+                  className="hidden" 
+                />
+              </label>
+
+              <button
+                type="button"
+                onClick={() => setShowDetailUrlInput(!showDetailUrlInput)}
+                className="px-4 py-2.5 bg-zinc-50 hover:bg-zinc-100 text-zinc-700 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 border"
+              >
+                <Link2 className="w-3.5 h-3.5" />
+                상세 이미지 URL 추가
+              </button>
+            </div>
+
+            {showDetailUrlInput && (
+              <div className="flex items-center gap-2 p-3 bg-zinc-50 border rounded-xl animate-in fade-in">
+                <input
+                  type="url"
+                  value={detailUrlInput}
+                  onChange={(e) => setDetailUrlInput(e.target.value)}
+                  placeholder="https://... 상세 이미지 URL을 입력하세요"
+                  className="flex-1 p-2 bg-white border rounded-lg text-xs"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddDetailImageUrl}
+                  className="px-4 py-2 bg-zinc-900 text-white text-xs font-bold rounded-lg hover:bg-zinc-800"
+                >
+                  추가
+                </button>
+              </div>
+            )}
 
             {detailImages.length > 0 && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

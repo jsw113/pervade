@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
 import path from "path";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
@@ -16,14 +18,29 @@ export async function POST(request: Request) {
     for (const file of files) {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
+      const mimeType = file.type || "image/jpeg";
 
-      // Clean file extension & unique filename
-      const ext = path.extname(file.name) || ".jpg";
-      const filename = `prod_${Date.now()}_${Math.random().toString(36).substring(2, 8)}${ext}`;
-      const filepath = path.join(process.cwd(), "public", "uploads", "products", filename);
+      let savedUrl = "";
 
-      await writeFile(filepath, buffer);
-      uploadedUrls.push(`/uploads/products/${filename}`);
+      // Try local filesystem write first (for local dev / VPS)
+      try {
+        const uploadDir = path.join(process.cwd(), "public", "uploads", "products");
+        await mkdir(uploadDir, { recursive: true });
+
+        const ext = path.extname(file.name) || ".jpg";
+        const filename = `prod_${Date.now()}_${Math.random().toString(36).substring(2, 8)}${ext}`;
+        const filepath = path.join(uploadDir, filename);
+
+        await writeFile(filepath, buffer);
+        savedUrl = `/uploads/products/${filename}`;
+      } catch (fsError) {
+        // Fallback for Vercel / serverless read-only filesystem: convert to optimized Data URI (Base64)
+        console.warn("Filesystem write not available, using Base64 Data URI fallback:", fsError);
+        const base64 = buffer.toString("base64");
+        savedUrl = `data:${mimeType};base64,${base64}`;
+      }
+
+      uploadedUrls.push(savedUrl);
     }
 
     return NextResponse.json({
@@ -31,8 +48,8 @@ export async function POST(request: Request) {
       urls: uploadedUrls,
       count: uploadedUrls.length
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Product image upload error:", error);
-    return NextResponse.json({ error: "이미지 업로드에 실패했습니다." }, { status: 500 });
+    return NextResponse.json({ error: error?.message || "이미지 업로드에 실패했습니다." }, { status: 500 });
   }
 }
