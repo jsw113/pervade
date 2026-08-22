@@ -243,24 +243,65 @@ export default function NewProductPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-zinc-600 mb-1">기본 배송비 (원)</label>
-              <input 
-                type="number"
-                value={shippingFee} onChange={e => setShippingFee(e.target.value)}
-                className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-zinc-900"
-              />
-            </div>
-            <div className="flex items-center">
-              <label className="flex items-center gap-2 cursor-pointer pt-4">
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <label className="block text-xs font-bold text-zinc-700">기본 배송비 (택배비 설정)</label>
+                <span className="text-[10px] text-zinc-400 font-mono">0원 입력 시 [무료배송] 자동 표기</span>
+              </div>
+              <div className="relative">
                 <input 
-                  type="checkbox" 
-                  checked={isVisible} 
-                  onChange={e => setIsVisible(e.target.checked)}
-                  className="w-4 h-4 text-zinc-900 rounded"
+                  type="number"
+                  min="0"
+                  step="500"
+                  value={shippingFee} 
+                  onChange={e => setShippingFee(e.target.value)}
+                  placeholder="예: 3000 (무료배송은 0)"
+                  className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900 pr-8"
                 />
-                <span className="text-xs font-bold text-zinc-700">쇼핑몰에 상품 즉시 노출 활성화</span>
-              </label>
+                <span className="absolute right-3 top-3 text-xs text-zinc-400 font-bold">원</span>
+              </div>
+              
+              {/* Quick Preset Buttons */}
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                <span className="text-[10px] text-zinc-400 font-semibold">퀵설정:</span>
+                {[
+                  { label: "무료배송 (0원)", val: "0" },
+                  { label: "2,500원", val: "2500" },
+                  { label: "3,000원", val: "3000" },
+                  { label: "3,500원", val: "3500" },
+                  { label: "4,000원", val: "4000" },
+                ].map(preset => (
+                  <button
+                    key={preset.val}
+                    type="button"
+                    onClick={() => setShippingFee(preset.val)}
+                    className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors ${
+                      String(shippingFee) === preset.val
+                        ? "bg-zinc-900 text-white border-zinc-900 shadow-2xs"
+                        : "bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-100"
+                    }`}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col justify-end">
+              <div className="p-3 bg-zinc-50 border rounded-xl">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    checked={isVisible} 
+                    onChange={e => setIsVisible(e.target.checked)}
+                    className="w-4 h-4 text-zinc-900 rounded"
+                  />
+                  <span className="text-xs font-bold text-zinc-800">쇼핑몰에 상품 즉시 노출 활성화</span>
+                </label>
+                <p className="text-[10px] text-zinc-400 mt-1 pl-6">
+                  체크 해제 시 관리자에게만 보이고 쇼핑몰에서는 일시 품절/비노출 처리됩니다.
+                </p>
+              </div>
             </div>
           </div>
         </div>

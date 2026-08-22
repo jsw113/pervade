@@ -227,32 +227,37 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
         </div>
       </div>
 
-      {/* Shipping Method Selector */}
+      {/* Shipping Method Information */}
       <div className="space-y-2 pt-4 border-t">
         <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider">
-          배송 방법 선택
+          배송 방법
         </label>
-        <div className="grid grid-cols-2 gap-3">
-          {["일반택배", "당일/새벽배송"].map((method) => (
-            <button
-              key={method}
-              type="button"
-              onClick={() => setShippingMethod(method)}
-              className={`p-3 text-left border rounded-xl flex items-center gap-3 transition-all ${
-                shippingMethod === method 
-                  ? "border-black bg-zinc-900 text-white shadow-sm" 
-                  : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400"
-              }`}
-            >
-              <Truck className={`w-4 h-4 ${shippingMethod === method ? "text-white" : "text-zinc-500"}`} />
-              <div>
-                <div className="text-xs font-bold">{method}</div>
-                <div className={`text-[10px] ${shippingMethod === method ? "text-zinc-300" : "text-zinc-400"}`}>
-                  {method === "일반택배" ? "평균 1~2일 소요" : "수도권 당일 도착"}
-                </div>
+        <div className="p-3.5 bg-zinc-50 border rounded-xl flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-white border rounded-lg shadow-2xs">
+              <Truck className="w-4 h-4 text-zinc-800" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-zinc-900 flex items-center gap-1.5">
+                <span>일반택배 (CJ대한통운)</span>
+                <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                  당일 출고
+                </span>
               </div>
-            </button>
-          ))}
+              <div className="text-[11px] text-zinc-500 mt-0.5">
+                평일 14:00 이전 결제 시 당일 발송 (1~2일 소요)
+              </div>
+            </div>
+          </div>
+          <div className="text-right">
+            <span className="text-xs font-black text-zinc-900">
+              {product.shippingFee === 0 ? (
+                <span className="text-emerald-600 font-bold">무료배송</span>
+              ) : (
+                `₩${product.shippingFee.toLocaleString()}원`
+              )}
+            </span>
+          </div>
         </div>
       </div>
 
