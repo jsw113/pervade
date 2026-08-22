@@ -119,38 +119,54 @@ export default function NewProductPage() {
 
     setIsSubmitting(true);
     try {
+      const payload = { 
+        name, 
+        description, 
+        category,
+        subCategory,
+        price: parseInt(price), 
+        originalPrice: originalPrice ? parseInt(originalPrice) : null,
+        shippingFee: parseInt(shippingFee) || 0,
+        stock: parseInt(stock), 
+        safetyStock: parseInt(safetyStock),
+        imageUrl: images[0], 
+        images,
+        detailContent,
+        detailImages,
+        isVisible 
+      };
+
+      const payloadStr = JSON.stringify(payload);
+      if (payloadStr.length > 3.5 * 1024 * 1024) {
+        alert("⚠️ 등록된 상세 이미지 또는 갤러리 이미지 전체 용량이 너무 큽니다 (3.5MB 초과).\n일부 이미지를 웹 URL로 입력하시거나 사진 수를 줄여주세요.");
+        setIsSubmitting(false);
+        return;
+      }
+
       const response = await fetch("/api/admin/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          name, 
-          description, 
-          category,
-          subCategory,
-          price: parseInt(price), 
-          originalPrice: originalPrice ? parseInt(originalPrice) : null,
-          shippingFee: parseInt(shippingFee) || 0,
-          stock: parseInt(stock), 
-          safetyStock: parseInt(safetyStock),
-          imageUrl: images[0], 
-          images,
-          detailContent,
-          detailImages,
-          isVisible 
-        }),
+        body: payloadStr,
       });
 
-      if (response.ok) {
-        alert("신규 제품이 성공적으로 등록되었습니다.");
+      const responseText = await response.text();
+      let data: any = {};
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        data = { error: response.status === 413 ? "이미지 용량이 서버 허용치(4.5MB)를 초과했습니다." : responseText };
+      }
+
+      if (response.ok && !data.error) {
+        alert("✅ 신규 제품이 성공적으로 등록되었습니다!");
         router.push("/admin/products");
         router.refresh();
       } else {
-        const data = await response.json();
-        alert("등록에 실패했습니다: " + (data.error || ""));
+        alert("❌ 등록에 실패했습니다: " + (data.error || responseText || "알 수 없는 오류"));
       }
     } catch (err: any) {
       console.error(err);
-      alert("오류가 발생했습니다: " + err.message);
+      alert("오류가 발생했습니다: " + (err.message || "네트워크 오류"));
     } finally {
       setIsSubmitting(false);
     }
