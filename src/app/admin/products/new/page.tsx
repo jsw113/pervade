@@ -269,10 +269,8 @@ export default function NewProductPage() {
           <CategorySelect 
             category={category} 
             subCategory={subCategory} 
-            onChange={(cat, subCat) => {
-              setCategory(cat);
-              setSubCategory(subCat);
-            }} 
+            onChangeCategory={(cat: string) => setCategory(cat)}
+            onChangeSubCategory={(subCat: string) => setSubCategory(subCat)}
           />
 
           <div>

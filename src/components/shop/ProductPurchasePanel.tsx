@@ -401,13 +401,13 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
       {/* Real Name Verification Modal */}
       {user && isVerifierOpen && (
         <RealNameVerifier 
-          isOpen={isVerifierOpen}
-          onClose={() => setIsVerifierOpen(false)}
-          onSuccess={() => {
+          isOpenControlled={isVerifierOpen}
+          onCloseControlled={() => setIsVerifierOpen(false)}
+          onVerified={() => {
             setIsVerifierOpen(false);
             fetchAuth();
           }}
-          userName={user.name}
+          showButton={false}
         />
       )}
     </div>
