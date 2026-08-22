@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, Plus, Trash2, Image as ImageIcon, Star, Check, Link2 } from "lucide-react";
 import { CategorySelect } from "@/components/admin/CategorySelect";
-import { optimizeImageFile, optimizeDetailImageFile } from "@/lib/utils/imageOptimizer";
+import { optimizeImageFile, optimizeDetailImageFile, optimizeDataUrl } from "@/lib/utils/imageOptimizer";
 
 export function ProductEditForm({ product }: { product: any }) {
   const router = useRouter();
@@ -31,7 +31,9 @@ export function ProductEditForm({ product }: { product: any }) {
   let parsedDetailImages: string[] = [];
   try {
     if (product.detailImages) parsedDetailImages = JSON.parse(product.detailImages);
-  } catch (e) {}
+  } catch (e) {
+    parsedDetailImages = [];
+  }
 
   const [images, setImages] = useState<string[]>(parsedImages);
   const [detailContent, setDetailContent] = useState(product.detailContent || "");
@@ -57,7 +59,7 @@ export function ProductEditForm({ product }: { product: any }) {
     try {
       const optimizedUrls: string[] = [];
       for (let i = 0; i < files.length; i++) {
-        const dataUrl = await optimizeImageFile(files[i], 1600, 1600, 0.85);
+        const dataUrl = await optimizeImageFile(files[i], 1000, 1000, 0.80);
         optimizedUrls.push(dataUrl);
       }
       setImages((prev) => [...prev, ...optimizedUrls]);
@@ -71,7 +73,7 @@ export function ProductEditForm({ product }: { product: any }) {
     }
   };
 
-  // Handle Detail Description Images Upload
+  // Handle Detail Description Images Upload (Preserves high-res vertical detail pages)
   const handleDetailImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -80,7 +82,8 @@ export function ProductEditForm({ product }: { product: any }) {
     try {
       const optimizedUrls: string[] = [];
       for (let i = 0; i < files.length; i++) {
-        const dataUrl = await optimizeDetailImageFile(files[i], 1200, 0.92);
+        // High-definition standard width constraint (860px max, 78% quality, unlimited vertical length)
+        const dataUrl = await optimizeDetailImageFile(files[i], 860, 0.78);
         optimizedUrls.push(dataUrl);
       }
       setDetailImages((prev) => [...prev, ...optimizedUrls]);
@@ -132,6 +135,17 @@ export function ProductEditForm({ product }: { product: any }) {
 
     setIsSaving(true);
     try {
+      // Auto-compress any oversized data URLs before sending
+      const compressedGalleryImages: string[] = [];
+      for (const imgUrl of images) {
+        compressedGalleryImages.push(await optimizeDataUrl(imgUrl, 1000, 0.80));
+      }
+
+      const compressedDetailImages: string[] = [];
+      for (const dUrl of detailImages) {
+        compressedDetailImages.push(await optimizeDataUrl(dUrl, 860, 0.78));
+      }
+
       const payload = { 
         name, 
         description, 
@@ -142,10 +156,10 @@ export function ProductEditForm({ product }: { product: any }) {
         shippingFee: parseInt(shippingFee) || 0,
         stock: parseInt(stock), 
         safetyStock: parseInt(safetyStock),
-        imageUrl: images[0], 
-        images,
+        imageUrl: compressedGalleryImages[0], 
+        images: compressedGalleryImages,
         detailContent,
-        detailImages,
+        detailImages: compressedDetailImages,
         isVisible 
       };
 

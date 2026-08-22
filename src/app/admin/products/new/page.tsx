@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Upload, Trash2, Image as ImageIcon, Star, Check, ArrowLeft, Link2 } from "lucide-react";
 import Link from "next/link";
 import { CategorySelect } from "@/components/admin/CategorySelect";
-import { optimizeImageFile, optimizeDetailImageFile } from "@/lib/utils/imageOptimizer";
+import { optimizeImageFile, optimizeDetailImageFile, optimizeDataUrl } from "@/lib/utils/imageOptimizer";
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -44,7 +44,7 @@ export default function NewProductPage() {
     try {
       const optimizedUrls: string[] = [];
       for (let i = 0; i < files.length; i++) {
-        const dataUrl = await optimizeImageFile(files[i], 1600, 1600, 0.90);
+        const dataUrl = await optimizeImageFile(files[i], 1000, 1000, 0.80);
         optimizedUrls.push(dataUrl);
       }
       setImages((prev) => [...prev, ...optimizedUrls]);
@@ -66,8 +66,8 @@ export default function NewProductPage() {
     try {
       const optimizedUrls: string[] = [];
       for (let i = 0; i < files.length; i++) {
-        // High-definition width-only constraint (1200px max, 92% quality, unlimited vertical length)
-        const dataUrl = await optimizeDetailImageFile(files[i], 1200, 0.92);
+        // High-definition standard width constraint (860px max, 78% quality, unlimited vertical length)
+        const dataUrl = await optimizeDetailImageFile(files[i], 860, 0.78);
         optimizedUrls.push(dataUrl);
       }
       setDetailImages((prev) => [...prev, ...optimizedUrls]);
@@ -119,6 +119,17 @@ export default function NewProductPage() {
 
     setIsSubmitting(true);
     try {
+      // Auto-compress any oversized data URLs before sending
+      const compressedGalleryImages: string[] = [];
+      for (const imgUrl of images) {
+        compressedGalleryImages.push(await optimizeDataUrl(imgUrl, 1000, 0.80));
+      }
+
+      const compressedDetailImages: string[] = [];
+      for (const dUrl of detailImages) {
+        compressedDetailImages.push(await optimizeDataUrl(dUrl, 860, 0.78));
+      }
+
       const payload = { 
         name, 
         description, 
@@ -129,10 +140,10 @@ export default function NewProductPage() {
         shippingFee: parseInt(shippingFee) || 0,
         stock: parseInt(stock), 
         safetyStock: parseInt(safetyStock),
-        imageUrl: images[0], 
-        images,
+        imageUrl: compressedGalleryImages[0], 
+        images: compressedGalleryImages,
         detailContent,
-        detailImages,
+        detailImages: compressedDetailImages,
         isVisible 
       };
 
