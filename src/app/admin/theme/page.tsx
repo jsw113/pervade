@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { GripVertical, Eye, EyeOff, Save, RefreshCw, Upload, Image as ImageIcon, Video, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
+import { GripVertical, Eye, EyeOff, Save, RefreshCw, Upload, Image as ImageIcon, Video, CheckCircle2, AlertCircle, Sparkles, Wand2 } from "lucide-react";
 import { optimizeImageFile } from "@/lib/utils/imageOptimizer";
 
 type Section = {
@@ -30,6 +30,18 @@ const LOGO_FONTS = [
   { id: "Noto_Sans_KR", name: "Noto Sans KR (기본 한국어 고딕)", value: "'Noto Sans KR', sans-serif" }
 ];
 
+const PRESET_BG_IMAGES = [
+  { name: "미니멀 모던 키친", url: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=2000&auto=format&fit=crop" },
+  { name: "내추럴 리빙룸", url: "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?q=80&w=2000&auto=format&fit=crop" },
+  { name: "호텔급 프리미엄 욕실", url: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=2000&auto=format&fit=crop" },
+  { name: "햇살 가득한 다이닝", url: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2000&auto=format&fit=crop" }
+];
+
+const PRESET_BG_VIDEOS = [
+  { name: "물방울 & 클린 미디어 (샘플)", url: "https://assets.mixkit.co/videos/preview/mixkit-water-bubbles-in-a-glass-of-water-42999-large.mp4" },
+  { name: "자연 햇살 인테리어 (샘플)", url: "https://assets.mixkit.co/videos/preview/mixkit-sunlight-passing-through-the-leaves-of-a-plant-in-a-room-41537-large.mp4" }
+];
+
 export default function ThemeAdminPage() {
   const [heroTitle, setHeroTitle] = useState("");
   const [heroSubtitle, setHeroSubtitle] = useState("");
@@ -54,12 +66,16 @@ export default function ThemeAdminPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 5 * 1024 * 1024) {
+      alert("로고 원본 파일 크기는 5MB 이하를 권장합니다.");
+    }
+
     setIsLogoUploading(true);
     try {
-      // 1. Optimize image in browser
-      const dataUrl = await optimizeImageFile(file, 800, 800, 0.9);
+      // High-compression for logo: 400x400 max, 80% quality (typically ~20KB)
+      const dataUrl = await optimizeImageFile(file, 400, 400, 0.8);
       setLogoUrl(dataUrl);
-      alert("로고 이미지가 설정되었습니다. 상단 또는 하단의 [전체 변경사항 저장]을 눌러 최종 적용해 주세요.");
+      alert("로고 이미지가 등록되었습니다. 상단 [전체 변경사항 저장]을 눌러 적용하세요.");
     } catch (err: any) {
       console.error(err);
       alert("로고 처리 중 오류가 발생했습니다: " + (err?.message || ""));
@@ -71,6 +87,12 @@ export default function ThemeAdminPage() {
   const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Vercel Serverless payload limit check
+    if (file.size > 3 * 1024 * 1024) {
+      alert("⚠️ 동영상 직접 업로드는 서버리스 용량 제한(3MB)이 적용됩니다.\n고화질 동영상은 YouTube / Cloudinary / 비디오 호스팅 URL(MP4) 입력을 권장합니다.");
+      return;
+    }
 
     setIsUploading(true);
     try {
@@ -85,9 +107,9 @@ export default function ThemeAdminPage() {
       if (res.ok) {
         const data = await res.json();
         setHeroBgUrl(data.url);
-        alert("동영상이 업로드되었습니다. [전체 변경사항 저장]을 눌러 최종 적용해 주세요.");
+        alert("동영상이 업로드되었습니다. [전체 변경사항 저장]을 눌러 적용하세요.");
       } else {
-        alert("동영상 파일 크기가 너무 큽니다. 비디오 URL 직접 입력을 권장합니다.");
+        alert("동영상 업로드에 실패했습니다. 비디오 스트리밍 URL 직접 입력을 권장합니다.");
       }
     } catch (err: any) {
       console.error(err);
@@ -103,10 +125,10 @@ export default function ThemeAdminPage() {
 
     setIsImageUploading(true);
     try {
-      // Optimize image in browser down to 1600x900
-      const dataUrl = await optimizeImageFile(file, 1600, 900, 0.85);
+      // High-efficiency web compression: 1280x720, 80% quality (typically ~100KB)
+      const dataUrl = await optimizeImageFile(file, 1280, 720, 0.8);
       setHeroBgUrl(dataUrl);
-      alert("배경 이미지가 설정되었습니다. 상단 또는 하단의 [전체 변경사항 저장]을 눌러 최종 적용해 주세요.");
+      alert("배경 이미지가 등록되었습니다. 상단 [전체 변경사항 저장]을 눌러 적용하세요.");
     } catch (err: any) {
       console.error(err);
       alert("이미지 처리 중 오류가 발생했습니다: " + (err?.message || ""));
@@ -217,24 +239,38 @@ export default function ThemeAdminPage() {
         HOME_SECTIONS_ORDER: JSON.stringify(orderToSave)
       };
 
+      const payloadStr = JSON.stringify(payload);
+      // Payload size safeguard for Vercel Serverless Function (max 2.5MB)
+      if (payloadStr.length > 2.5 * 1024 * 1024) {
+        alert("⚠️ 등록된 배경 이미지 또는 데이터 용량이 너무 큽니다 (2.5MB 초과).\n웹 이미지 URL을 입력하시거나 더 작은 사진을 업로드해 주세요.");
+        setIsSaving(false);
+        return;
+      }
+
       const response = await fetch("/api/admin/theme", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: payloadStr,
       });
 
-      const data = await response.json().catch(() => ({}));
+      const responseText = await response.text();
+      let data: any = {};
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        data = { error: responseText };
+      }
 
       if (response.ok && data.success) {
         setSaveSuccess(true);
-        alert("✅ 테마 및 메인 배너 설정이 성공적으로 저장되었습니다!\n쇼핑몰 메인페이지에 즉시 적용되었습니다.");
+        alert("✅ 테마 및 메인 배너 설정이 성공적으로 저장되었습니다!\n쇼핑몰 메인페이지에 즉시 반영되었습니다.");
         setTimeout(() => setSaveSuccess(false), 4000);
       } else {
-        alert(`❌ 저장에 실패했습니다: ${data.error || "서버 응답 오류 (상태코드: " + response.status + ")"}`);
+        alert(`❌ 저장 실패 (코드: ${response.status})\n원인: ${data.error || responseText || "알 수 없는 오류"}`);
       }
     } catch (error: any) {
       console.error("Failed to save theme settings:", error);
-      alert(`❌ 저장 중 네트워크 오류가 발생했습니다: ${error?.message || "알 수 없는 오류"}`);
+      alert(`❌ 저장 중 네트워크 통신 오류가 발생했습니다: ${error?.message || "네트워크 오류"}`);
     } finally {
       setIsSaving(false);
     }
@@ -364,26 +400,44 @@ export default function ThemeAdminPage() {
                       onChange={() => setVideoSourceType("FILE")}
                       className="text-zinc-900 focus:ring-zinc-900"
                     />
-                    서버 직접 업로드 (MP4)
+                    서버 직접 업로드 (3MB 이하)
                   </label>
                 </div>
 
                 {videoSourceType === "URL" ? (
-                  <div>
-                    <label className="block text-xs font-bold text-zinc-700 mb-1">비디오 스트리밍 URL (mp4)</label>
-                    <input 
-                      type="url" 
-                      value={heroBgUrl}
-                      onChange={e => setHeroBgUrl(e.target.value)}
-                      className="w-full p-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 text-xs font-mono"
-                      placeholder="https://.../video.mp4"
-                    />
+                  <div className="space-y-2">
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-700 mb-1">비디오 스트리밍 URL (mp4)</label>
+                      <input 
+                        type="url" 
+                        value={heroBgUrl}
+                        onChange={e => setHeroBgUrl(e.target.value)}
+                        className="w-full p-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 text-xs font-mono"
+                        placeholder="https://.../video.mp4"
+                      />
+                    </div>
+                    {/* Preset Videos */}
+                    <div>
+                      <span className="text-[10px] text-zinc-500 font-bold block mb-1">🎬 추천 고화질 배경 비디오 프리셋 (원클릭 적용):</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {PRESET_BG_VIDEOS.map((v, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => { setHeroBgUrl(v.url); }}
+                            className="px-2.5 py-1 bg-zinc-100 hover:bg-zinc-200 rounded-lg text-[11px] font-semibold text-zinc-700 transition-colors"
+                          >
+                            + {v.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <div className="p-4 border-2 border-dashed rounded-xl bg-zinc-50 flex flex-col items-center justify-center gap-2">
                     <label className="px-4 py-2.5 bg-zinc-950 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer hover:bg-zinc-800 transition-colors flex items-center gap-1.5">
                       <Upload className="w-3.5 h-3.5" />
-                      {isUploading ? "동영상 파일 업로드 중..." : "MP4 파일 선택 및 업로드"}
+                      {isUploading ? "동영상 파일 업로드 중..." : "MP4 파일 선택 및 업로드 (3MB 이하)"}
                       <input 
                         type="file" 
                         accept="video/mp4,video/webm"
@@ -392,7 +446,7 @@ export default function ThemeAdminPage() {
                         className="hidden" 
                       />
                     </label>
-                    <p className="text-[10px] text-zinc-400">권장: 1080p 이하, 50MB 이내의 mp4 파일</p>
+                    <p className="text-[10px] text-zinc-400">대용량 1080p 영상은 외부 비디오 URL(Cloudinary/YouTube)을 권장합니다.</p>
                   </div>
                 )}
 
@@ -432,26 +486,44 @@ export default function ThemeAdminPage() {
                       onChange={() => setImageSourceType("FILE")}
                       className="text-zinc-900 focus:ring-zinc-900"
                     />
-                    일반 JPG/PNG 직접 업로드
+                    일반 사진 직접 업로드 (자동 압축)
                   </label>
                 </div>
 
                 {imageSourceType === "URL" ? (
-                  <div>
-                    <label className="block text-xs font-bold text-zinc-700 mb-1">이미지 주소 (URL)</label>
-                    <input 
-                      type="url" 
-                      value={heroBgUrl}
-                      onChange={e => setHeroBgUrl(e.target.value)}
-                      className="w-full p-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 text-xs"
-                      placeholder="https://images.unsplash.com/..."
-                    />
+                  <div className="space-y-2">
+                    <div>
+                      <label className="block text-xs font-bold text-zinc-700 mb-1">이미지 주소 (URL)</label>
+                      <input 
+                        type="url" 
+                        value={heroBgUrl}
+                        onChange={e => setHeroBgUrl(e.target.value)}
+                        className="w-full p-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 text-xs"
+                        placeholder="https://images.unsplash.com/..."
+                      />
+                    </div>
+                    {/* Preset Images */}
+                    <div>
+                      <span className="text-[10px] text-zinc-500 font-bold block mb-1">🖼️ 고화질 프리미엄 인테리어 프리셋 (원클릭 적용):</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {PRESET_BG_IMAGES.map((img, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => { setHeroBgUrl(img.url); }}
+                            className="px-2.5 py-1 bg-zinc-100 hover:bg-zinc-200 rounded-lg text-[11px] font-semibold text-zinc-700 transition-colors"
+                          >
+                            + {img.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <div className="p-4 border-2 border-dashed rounded-xl bg-zinc-50 flex flex-col items-center justify-center gap-2">
                     <label className="px-4 py-2.5 bg-zinc-950 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer hover:bg-zinc-800 transition-colors flex items-center gap-1.5">
                       <Upload className="w-3.5 h-3.5" />
-                      {isImageUploading ? "이미지 업로드 중..." : "JPG / PNG 파일 선택 및 자동 최적화 업로드"}
+                      {isImageUploading ? "이미지 업로드 중..." : "JPG / PNG 파일 선택 및 초고속 압축 업로드"}
                       <input 
                         type="file" 
                         accept="image/*"
@@ -460,7 +532,7 @@ export default function ThemeAdminPage() {
                         className="hidden" 
                       />
                     </label>
-                    <p className="text-[10px] text-zinc-400">대용량 스마트폰 사진도 브라우저에서 자동 압축되어 0.1초 만에 최적화됩니다.</p>
+                    <p className="text-[10px] text-zinc-400">10MB 이상의 고화질 원본 사진도 웹 최적화 해상도로 자동 압축 변환됩니다.</p>
                   </div>
                 )}
 
