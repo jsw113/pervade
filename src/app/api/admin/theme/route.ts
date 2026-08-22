@@ -6,7 +6,18 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const keys = ["HERO_TITLE", "HERO_SUBTITLE", "HERO_BG_TYPE", "HERO_BG_URL", "HOME_SECTIONS_ORDER", "LOGO_URL", "LOGO_FONT"];
+    const keys = [
+      "HERO_TITLE",
+      "HERO_SUBTITLE",
+      "HERO_BG_TYPE",
+      "HERO_BG_URL",
+      "HERO_VISIBLE",
+      "HERO_SHOW_TEXT",
+      "HERO_SHOW_CTA",
+      "HOME_SECTIONS_ORDER",
+      "LOGO_URL",
+      "LOGO_FONT"
+    ];
     const policies = await prisma.policy.findMany({
       where: { key: { in: keys } }
     });
@@ -32,7 +43,18 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const keys = ["HERO_TITLE", "HERO_SUBTITLE", "HERO_BG_TYPE", "HERO_BG_URL", "HOME_SECTIONS_ORDER", "LOGO_URL", "LOGO_FONT"];
+    const keys = [
+      "HERO_TITLE",
+      "HERO_SUBTITLE",
+      "HERO_BG_TYPE",
+      "HERO_BG_URL",
+      "HERO_VISIBLE",
+      "HERO_SHOW_TEXT",
+      "HERO_SHOW_CTA",
+      "HOME_SECTIONS_ORDER",
+      "LOGO_URL",
+      "LOGO_FONT"
+    ];
 
     // Individual upserts for rock-solid reliability
     for (const key of keys) {

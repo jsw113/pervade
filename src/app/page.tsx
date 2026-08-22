@@ -9,7 +9,7 @@ export default async function Home() {
   const policies = await prisma.policy.findMany({
     where: {
       key: {
-        in: ["HERO_TITLE", "HERO_SUBTITLE", "HERO_BG_TYPE", "HERO_BG_URL", "HOME_SECTIONS_ORDER"]
+        in: ["HERO_TITLE", "HERO_SUBTITLE", "HERO_BG_TYPE", "HERO_BG_URL", "HERO_VISIBLE", "HERO_SHOW_TEXT", "HERO_SHOW_CTA", "HOME_SECTIONS_ORDER"]
       }
     }
   });
@@ -17,6 +17,9 @@ export default async function Home() {
   const getPolicy = (key: string, defaultValue: string) => 
     policies.find(p => p.key === key)?.value || defaultValue;
 
+  const heroVisible = getPolicy("HERO_VISIBLE", "true") !== "false";
+  const heroShowText = getPolicy("HERO_SHOW_TEXT", "true") !== "false";
+  const heroShowCta = getPolicy("HERO_SHOW_CTA", "true") !== "false";
   const heroTitle = getPolicy("HERO_TITLE", "완벽한 깨끗함,\n당신의 공간을 깨우다");
   const heroSubtitle = getPolicy("HERO_SUBTITLE", "퍼베이드 다목적 세정제는 강력한 세정력과 안전한 성분으로 집안 곳곳의 찌든 때를 말끔히 지워줍니다.");
   const heroBgType = getPolicy("HERO_BG_TYPE", "IMAGE");
@@ -96,6 +99,7 @@ export default async function Home() {
   const renderSection = (id: string) => {
     switch (id) {
       case "hero":
+        if (!heroVisible) return null;
         return (
           <section key="hero" className="relative w-full h-[85vh] flex items-center justify-center bg-zinc-950 overflow-hidden">
             <div className="absolute inset-0 bg-black/45 z-10" />
@@ -121,31 +125,39 @@ export default async function Home() {
               />
             )}
             
-            <div className="container relative z-20 mx-auto px-4 text-center text-white">
-              <span className="text-xs md:text-sm font-bold tracking-widest uppercase mb-4 inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-white">
-                Pervade Premium Clean Living
-              </span>
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 max-w-4xl mx-auto leading-tight whitespace-pre-line drop-shadow-md">
-                {heroTitle}
-              </h1>
-              <p className="text-base md:text-xl text-white/90 mb-8 max-w-2xl mx-auto whitespace-pre-line leading-relaxed drop-shadow-sm font-light">
-                {heroSubtitle}
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link 
-                  href="/shop" 
-                  className="w-full sm:w-auto px-8 py-4 bg-white text-zinc-950 rounded-full font-bold flex items-center justify-center gap-2 hover:bg-zinc-200 transition-all shadow-xl"
-                >
-                  제품 둘러보기 <ArrowRight className="w-4 h-4" />
-                </Link>
-                <Link 
-                  href="/guide" 
-                  className="w-full sm:w-auto px-8 py-4 bg-black/40 text-white rounded-full font-bold flex items-center justify-center border border-white/40 hover:bg-white/10 transition-all backdrop-blur-sm"
-                >
-                  사용 가이드 확인
-                </Link>
+            {(heroShowText || heroShowCta) && (
+              <div className="container relative z-20 mx-auto px-4 text-center text-white">
+                {heroShowText && (
+                  <>
+                    <span className="text-xs md:text-sm font-bold tracking-widest uppercase mb-4 inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-white">
+                      Pervade Premium Clean Living
+                    </span>
+                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 max-w-4xl mx-auto leading-tight whitespace-pre-line drop-shadow-md">
+                      {heroTitle}
+                    </h1>
+                    <p className="text-base md:text-xl text-white/90 mb-8 max-w-2xl mx-auto whitespace-pre-line leading-relaxed drop-shadow-sm font-light">
+                      {heroSubtitle}
+                    </p>
+                  </>
+                )}
+                {heroShowCta && (
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <Link 
+                      href="/shop" 
+                      className="w-full sm:w-auto px-8 py-4 bg-white text-zinc-950 rounded-full font-bold flex items-center justify-center gap-2 hover:bg-zinc-200 transition-all shadow-xl"
+                    >
+                      제품 둘러보기 <ArrowRight className="w-4 h-4" />
+                    </Link>
+                    <Link 
+                      href="/guide" 
+                      className="w-full sm:w-auto px-8 py-4 bg-black/40 text-white rounded-full font-bold flex items-center justify-center border border-white/40 hover:bg-white/10 transition-all backdrop-blur-sm"
+                    >
+                      사용 가이드 확인
+                    </Link>
+                  </div>
+                )}
               </div>
-            </div>
+            )}
           </section>
         );
 

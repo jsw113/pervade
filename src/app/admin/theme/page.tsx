@@ -43,6 +43,9 @@ const PRESET_BG_VIDEOS = [
 ];
 
 export default function ThemeAdminPage() {
+  const [heroVisible, setHeroVisible] = useState(true);
+  const [heroShowText, setHeroShowText] = useState(true);
+  const [heroShowCta, setHeroShowCta] = useState(true);
   const [heroTitle, setHeroTitle] = useState("");
   const [heroSubtitle, setHeroSubtitle] = useState("");
   const [heroBgType, setHeroBgType] = useState<"IMAGE" | "VIDEO" | "COLOR">("IMAGE");
@@ -146,6 +149,9 @@ export default function ThemeAdminPage() {
       if (response.ok) {
         const data = await response.json();
         
+        setHeroVisible(data.HERO_VISIBLE !== "false");
+        setHeroShowText(data.HERO_SHOW_TEXT !== "false");
+        setHeroShowCta(data.HERO_SHOW_CTA !== "false");
         setHeroTitle(data.HERO_TITLE || "완벽한 깨끗함,\n당신의 공간을 깨우다");
         setHeroSubtitle(data.HERO_SUBTITLE || "퍼베이드 다목적 세정제는 강력한 세정력과 안전한 성분으로 집안 곳곳의 찌든 때를 말끔히 지워줍니다.");
         setHeroBgType((data.HERO_BG_TYPE as any) || "IMAGE");
@@ -188,6 +194,12 @@ export default function ThemeAdminPage() {
               }
             });
 
+            // Sync hero visible from HERO_VISIBLE policy if present
+            if (data.HERO_VISIBLE !== undefined) {
+              const heroSec = mapped.find((s: any) => s.id === "hero");
+              if (heroSec) heroSec.visible = data.HERO_VISIBLE !== "false";
+            }
+
             setSections(mapped);
           } catch (e) {
             setSections(DEFAULT_SECTIONS);
@@ -220,6 +232,15 @@ export default function ThemeAdminPage() {
   const toggleVisibility = (index: number) => {
     const newSections = [...sections];
     newSections[index].visible = !newSections[index].visible;
+    if (newSections[index].id === "hero") {
+      setHeroVisible(newSections[index].visible);
+    }
+    setSections(newSections);
+  };
+
+  const handleHeroVisibleToggle = (visible: boolean) => {
+    setHeroVisible(visible);
+    const newSections = sections.map(s => s.id === "hero" ? { ...s, visible } : s);
     setSections(newSections);
   };
 
@@ -227,9 +248,15 @@ export default function ThemeAdminPage() {
     setIsSaving(true);
     setSaveSuccess(false);
     try {
-      const orderToSave = sections.map(s => ({ id: s.id, visible: s.visible }));
+      const orderToSave = sections.map(s => ({
+        id: s.id,
+        visible: s.id === "hero" ? heroVisible : s.visible
+      }));
       
       const payload = {
+        HERO_VISIBLE: heroVisible ? "true" : "false",
+        HERO_SHOW_TEXT: heroShowText ? "true" : "false",
+        HERO_SHOW_CTA: heroShowCta ? "true" : "false",
         HERO_TITLE: heroTitle || "",
         HERO_SUBTITLE: heroSubtitle || "",
         HERO_BG_TYPE: heroBgType || "IMAGE",
@@ -330,10 +357,73 @@ export default function ThemeAdminPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         
         {/* 1. Hero Banner Content */}
-        <div className="bg-white rounded-2xl border p-6 space-y-6 shadow-xs">
-          <h2 className="text-base font-bold border-b pb-3 text-zinc-900 flex items-center gap-2">
-            <span>1. 메인 배너 (Hero) 텍스트 및 미디어</span>
-          </h2>
+        <div className={`bg-white rounded-2xl border p-6 space-y-6 shadow-xs transition-all ${!heroVisible ? "opacity-75 bg-zinc-50" : ""}`}>
+          <div className="flex items-center justify-between border-b pb-3">
+            <h2 className="text-base font-bold text-zinc-900 flex items-center gap-2">
+              <span>1. 메인 배너 (Hero) 텍스트 및 미디어</span>
+            </h2>
+            <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${heroVisible ? "bg-emerald-100 text-emerald-800 border border-emerald-200" : "bg-zinc-200 text-zinc-700"}`}>
+              {heroVisible ? "🟢 화면 노출 중" : "⚪ 숨김 상태"}
+            </span>
+          </div>
+
+          {/* MAIN HERO VISIBILITY TOGGLE */}
+          <div className="p-3.5 bg-zinc-50 border rounded-xl space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-xs font-bold text-zinc-900 block">메인 배너 섹션 전체 노출 여부</span>
+                <span className="text-[10px] text-zinc-500">배너 자체를 홈페이지 첫 화면에서 완전히 숨기거나 노출합니다.</span>
+              </div>
+              <div className="flex gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleHeroVisibleToggle(true)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                    heroVisible
+                      ? "bg-zinc-950 text-white shadow-xs"
+                      : "bg-white text-zinc-600 border hover:bg-zinc-100"
+                  }`}
+                >
+                  <Eye className="w-3.5 h-3.5 text-emerald-400" /> 노출 (보이기)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleHeroVisibleToggle(false)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                    !heroVisible
+                      ? "bg-rose-600 text-white shadow-xs"
+                      : "bg-white text-zinc-600 border hover:bg-zinc-100"
+                  }`}
+                >
+                  <EyeOff className="w-3.5 h-3.5" /> 숨김 (안보이게)
+                </button>
+              </div>
+            </div>
+
+            {/* Sub-toggles: Text & CTA visibility */}
+            {heroVisible && (
+              <div className="pt-2 border-t border-zinc-200 flex flex-wrap gap-4 text-xs">
+                <label className="flex items-center gap-2 cursor-pointer font-semibold text-zinc-700">
+                  <input
+                    type="checkbox"
+                    checked={heroShowText}
+                    onChange={(e) => setHeroShowText(e.target.checked)}
+                    className="w-4 h-4 rounded text-zinc-900 focus:ring-zinc-900"
+                  />
+                  <span>헤드라인 텍스트 표시</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer font-semibold text-zinc-700">
+                  <input
+                    type="checkbox"
+                    checked={heroShowCta}
+                    onChange={(e) => setHeroShowCta(e.target.checked)}
+                    className="w-4 h-4 rounded text-zinc-900 focus:ring-zinc-900"
+                  />
+                  <span>제품 둘러보기 바로가기 버튼(CTA) 표시</span>
+                </label>
+              </div>
+            )}
+          </div>
           
           <div className="space-y-4">
             <div>
@@ -342,7 +432,8 @@ export default function ThemeAdminPage() {
                 rows={2}
                 value={heroTitle}
                 onChange={e => setHeroTitle(e.target.value)}
-                className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 text-xs font-bold leading-relaxed"
+                disabled={!heroVisible || !heroShowText}
+                className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 text-xs font-bold leading-relaxed disabled:bg-zinc-100 disabled:text-zinc-400"
                 placeholder="완벽한 깨끗함,&#10;당신의 공간을 깨우다"
               />
             </div>
@@ -353,7 +444,8 @@ export default function ThemeAdminPage() {
                 rows={3}
                 value={heroSubtitle}
                 onChange={e => setHeroSubtitle(e.target.value)}
-                className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 text-xs leading-relaxed"
+                disabled={!heroVisible || !heroShowText}
+                className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 text-xs leading-relaxed disabled:bg-zinc-100 disabled:text-zinc-400"
                 placeholder="퍼베이드 다목적 세정제는 강력한 세정력과 안전한 성분으로 집안 곳곳의 찌든 때를 말끔히 지워줍니다."
               />
             </div>
