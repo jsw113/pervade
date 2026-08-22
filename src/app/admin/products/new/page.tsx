@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, Trash2, Image as ImageIcon, Star, Check, ArrowLeft, Link2, Plus, Layers } from "lucide-react";
+import { Upload, Trash2, Image as ImageIcon, Star, Check, ArrowLeft, Link2, Plus, Layers, Package } from "lucide-react";
 import Link from "next/link";
 import { CategorySelect } from "@/components/admin/CategorySelect";
 import { optimizeImageFile, optimizeDetailImageFile, optimizeDataUrl } from "@/lib/utils/imageOptimizer";
@@ -11,14 +11,8 @@ export type ProductOption = {
   id: string;
   name: string;
   extraPrice: number;
-  stock: number;
   isSoldOut?: boolean;
 };
-
-const DEFAULT_OPTIONS_PRESET: ProductOption[] = [
-  { id: "opt-1", name: "기본 패키지 단품", extraPrice: 0, stock: 100, isSoldOut: false },
-  { id: "opt-2", name: "기본형 + 리필 보틀 세트", extraPrice: 5000, stock: 50, isSoldOut: false }
-];
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -38,8 +32,8 @@ export default function NewProductPage() {
   const [detailContent, setDetailContent] = useState("");
   const [detailImages, setDetailImages] = useState<string[]>([]);
 
-  // Options state
-  const [options, setOptions] = useState<ProductOption[]>(DEFAULT_OPTIONS_PRESET);
+  // Options state (defaults to empty so products are single item by default)
+  const [options, setOptions] = useState<ProductOption[]>([]);
 
   const [isUploading, setIsUploading] = useState(false);
   const [isDetailUploading, setIsDetailUploading] = useState(false);
@@ -51,7 +45,7 @@ export default function NewProductPage() {
   const [showDetailUrlInput, setShowDetailUrlInput] = useState(false);
   const [detailUrlInput, setDetailUrlInput] = useState("");
 
-  // Handle Multi-Image Upload (Client-side optimized & resilient)
+  // Handle Multi-Image Upload
   const handleImageFilesUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -73,7 +67,7 @@ export default function NewProductPage() {
     }
   };
 
-  // Handle Detail Images Upload (Preserves high-res vertical detail pages)
+  // Handle Detail Images Upload
   const handleDetailImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -82,7 +76,6 @@ export default function NewProductPage() {
     try {
       const optimizedUrls: string[] = [];
       for (let i = 0; i < files.length; i++) {
-        // High-definition standard width constraint (860px max, 78% quality, unlimited vertical length)
         const dataUrl = await optimizeDetailImageFile(files[i], 860, 0.78);
         optimizedUrls.push(dataUrl);
       }
@@ -127,12 +120,11 @@ export default function NewProductPage() {
   };
 
   // Option Operations
-  const handleAddOption = (name = "새 옵션", extraPrice = 0, stock = 100) => {
+  const handleAddOption = (name = "새 옵션", extraPrice = 0) => {
     const newOption: ProductOption = {
       id: `opt-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       name,
       extraPrice,
-      stock,
       isSoldOut: false
     };
     setOptions((prev) => [...prev, newOption]);
@@ -147,22 +139,17 @@ export default function NewProductPage() {
   };
 
   const handleRemoveOption = (index: number) => {
-    if (options.length <= 1) {
-      alert("상품에는 최소 1개 이상의 옵션(기본 단품)이 필요합니다.");
-      return;
-    }
     setOptions((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleClearAllOptions = () => {
+    setOptions([]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (images.length === 0) {
       alert("최소 1개 이상의 제품 갤러리 이미지를 등록해주세요.");
-      return;
-    }
-
-    if (options.length === 0) {
-      alert("최소 1개 이상의 구매 옵션을 등록해주세요.");
       return;
     }
 
@@ -193,7 +180,7 @@ export default function NewProductPage() {
         images: compressedGalleryImages,
         detailContent,
         detailImages: compressedDetailImages,
-        options,
+        options: options.length > 0 ? options : null,
         isVisible 
       };
 
@@ -219,7 +206,7 @@ export default function NewProductPage() {
       }
 
       if (response.ok && !data.error) {
-        alert("✅ 신규 제품 및 옵션 설정이 성공적으로 등록되었습니다!");
+        alert("✅ 신규 제품이 성공적으로 등록되었습니다!");
         router.push("/admin/products");
         router.refresh();
       } else {
@@ -312,12 +299,13 @@ export default function NewProductPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-zinc-700 mb-1">기본 총 재고 수량 (개) *</label>
+              <label className="block text-xs font-bold text-zinc-700 mb-1">상품 총 재고 수량 (개) *</label>
               <input 
                 type="number" required
                 value={stock} onChange={e => setStock(e.target.value)}
                 className="w-full p-3 bg-zinc-50 border rounded-xl text-sm font-bold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
               />
+              <span className="text-[10px] text-zinc-400 mt-1 block">모든 주문은 상품 총 재고에서 일괄 차감 관리됩니다.</span>
             </div>
             <div>
               <label className="block text-xs font-bold text-zinc-700 mb-1">안전재고 기준 (개)</label>
@@ -399,20 +387,31 @@ export default function NewProductPage() {
             <div>
               <h3 className="text-base font-bold text-zinc-900 flex items-center gap-2">
                 <Layers className="w-4 h-4 text-amber-600" />
-                <span>2. 상품 구매 옵션 관리 (단품 / 세트 / 추가구성)</span>
+                <span>2. 상품 구매 옵션 관리 (선택 사항)</span>
               </h3>
               <span className="text-xs text-zinc-400">
-                고객이 주문 시 선택할 수 있는 세트 구성 및 옵션별 추가금액, 재고를 자유롭게 설정합니다.
+                세트 구성이나 추가구성 옵션이 있는 경우에만 등록하세요. (옵션 미등록 시 '단일 단품'으로 자동 판매됩니다)
               </span>
             </div>
-            <button
-              type="button"
-              onClick={() => handleAddOption("새 옵션", 0, 100)}
-              className="px-3.5 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 self-start sm:self-auto shadow-2xs"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              옵션 추가하기
-            </button>
+            <div className="flex items-center gap-2">
+              {options.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleClearAllOptions}
+                  className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-xl text-xs font-semibold transition-colors"
+                >
+                  옵션 전체 삭제 (단일상품 전환)
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => handleAddOption("새 옵션", 0)}
+                className="px-3.5 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 shadow-2xs"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                옵션 추가하기
+              </button>
+            </div>
           </div>
 
           {/* Option Quick Presets */}
@@ -420,16 +419,16 @@ export default function NewProductPage() {
             <span className="text-[11px] font-bold text-amber-900 block">⚡ 추천 옵션 세트 원클릭 추가:</span>
             <div className="flex flex-wrap gap-2">
               {[
-                { name: "기본 패키지 단품", extraPrice: 0, stock: 100 },
-                { name: "본품 + 리필 보틀 500ml 세트", extraPrice: 5000, stock: 50 },
-                { name: "리필 2개 실속 세트", extraPrice: 8000, stock: 50 },
-                { name: "1+1 본품 2개 특별 기획세트", extraPrice: 15000, stock: 30 },
-                { name: "대용량 1,000ml 리필팩", extraPrice: 6000, stock: 50 },
+                { name: "기본 패키지 단품", extraPrice: 0 },
+                { name: "본품 + 리필 보틀 500ml 세트", extraPrice: 5000 },
+                { name: "리필 2개 실속 세트", extraPrice: 8000 },
+                { name: "1+1 본품 2개 특별 기획세트", extraPrice: 15000 },
+                { name: "대용량 1,000ml 리필팩", extraPrice: 6000 },
               ].map((preset, idx) => (
                 <button
                   key={idx}
                   type="button"
-                  onClick={() => handleAddOption(preset.name, preset.extraPrice, preset.stock)}
+                  onClick={() => handleAddOption(preset.name, preset.extraPrice)}
                   className="px-2.5 py-1 bg-white hover:bg-amber-100/60 text-zinc-800 rounded-lg text-xs font-semibold border border-amber-200 transition-colors shadow-2xs"
                 >
                   + {preset.name} ({preset.extraPrice > 0 ? `+${preset.extraPrice.toLocaleString()}원` : "0원"})
@@ -438,84 +437,79 @@ export default function NewProductPage() {
             </div>
           </div>
 
-          {/* Options List */}
-          <div className="space-y-2.5">
-            {options.map((opt, index) => (
-              <div 
-                key={opt.id || index}
-                className="p-3.5 bg-zinc-50 border rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-3 transition-all hover:border-zinc-300"
-              >
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <span className="w-6 h-6 rounded-full bg-zinc-200 text-zinc-700 text-[10px] font-black flex items-center justify-center shrink-0">
-                    {index + 1}
-                  </span>
-                  <div className="flex-1 sm:w-64">
-                    <input
-                      type="text"
-                      required
-                      value={opt.name}
-                      onChange={(e) => handleUpdateOption(index, "name", e.target.value)}
-                      placeholder="옵션명 (예: 본품 + 리필세트)"
-                      className="w-full p-2 bg-white border rounded-lg text-xs font-bold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto flex-1">
-                  <div className="flex items-center gap-1">
-                    <span className="text-[11px] text-zinc-500 font-semibold shrink-0">추가금:</span>
-                    <div className="relative w-28">
+          {/* Options List or Empty Banner */}
+          {options.length > 0 ? (
+            <div className="space-y-2.5">
+              {options.map((opt, index) => (
+                <div 
+                  key={opt.id || index}
+                  className="p-3.5 bg-zinc-50 border rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-3 transition-all hover:border-zinc-300"
+                >
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <span className="w-6 h-6 rounded-full bg-zinc-200 text-zinc-700 text-[10px] font-black flex items-center justify-center shrink-0">
+                      {index + 1}
+                    </span>
+                    <div className="flex-1 sm:w-80">
                       <input
-                        type="number"
-                        step="500"
-                        value={opt.extraPrice}
-                        onChange={(e) => handleUpdateOption(index, "extraPrice", parseInt(e.target.value) || 0)}
-                        placeholder="0"
-                        className="w-full p-2 bg-white border rounded-lg text-xs font-bold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 pr-6"
+                        type="text"
+                        required
+                        value={opt.name}
+                        onChange={(e) => handleUpdateOption(index, "name", e.target.value)}
+                        placeholder="옵션명 (예: 본품 + 리필세트)"
+                        className="w-full p-2 bg-white border rounded-lg text-xs font-bold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900"
                       />
-                      <span className="absolute right-2 top-2 text-[10px] text-zinc-400 font-bold">원</span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1">
-                    <span className="text-[11px] text-zinc-500 font-semibold shrink-0">재고:</span>
-                    <div className="relative w-24">
-                      <input
-                        type="number"
-                        min="0"
-                        value={opt.stock}
-                        onChange={(e) => handleUpdateOption(index, "stock", parseInt(e.target.value) || 0)}
-                        placeholder="100"
-                        className="w-full p-2 bg-white border rounded-lg text-xs font-semibold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 pr-6"
-                      />
-                      <span className="absolute right-2 top-2 text-[10px] text-zinc-400">개</span>
+                  <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto flex-1">
+                    <div className="flex items-center gap-1">
+                      <span className="text-[11px] text-zinc-500 font-semibold shrink-0">추가금:</span>
+                      <div className="relative w-32">
+                        <input
+                          type="number"
+                          step="500"
+                          value={opt.extraPrice}
+                          onChange={(e) => handleUpdateOption(index, "extraPrice", parseInt(e.target.value) || 0)}
+                          placeholder="0"
+                          className="w-full p-2 bg-white border rounded-lg text-xs font-bold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 pr-6"
+                        />
+                        <span className="absolute right-2 top-2 text-[10px] text-zinc-400 font-bold">원</span>
+                      </div>
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleUpdateOption(index, "isSoldOut", !opt.isSoldOut)}
+                      className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition-colors ${
+                        opt.isSoldOut
+                          ? "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
+                          : "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                      }`}
+                    >
+                      {opt.isSoldOut ? "🔴 품절 처리됨" : "🟢 판매중"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveOption(index)}
+                      className="p-2 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors ml-auto sm:ml-0"
+                      title="옵션 삭제"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={() => handleUpdateOption(index, "isSoldOut", !opt.isSoldOut)}
-                    className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold border transition-colors ${
-                      opt.isSoldOut
-                        ? "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
-                        : "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
-                    }`}
-                  >
-                    {opt.isSoldOut ? "🔴 품절 처리됨" : "🟢 판매중"}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveOption(index)}
-                    className="p-2 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors ml-auto sm:ml-0"
-                    title="옵션 삭제"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="p-6 border-2 border-dashed rounded-2xl text-center bg-zinc-50/50 space-y-1">
+              <Package className="w-6 h-6 mx-auto text-zinc-400" />
+              <div className="text-xs font-bold text-zinc-700">현재 등록된 옵션이 없습니다 (단일 상품)</div>
+              <p className="text-[11px] text-zinc-400">
+                고객은 옵션 선택 없이 기본 판매가(₩{parseInt(price || 0).toLocaleString()}원)로 상품을 구매하게 됩니다.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* 3. Multi-Image Gallery */}

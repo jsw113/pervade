@@ -10,7 +10,6 @@ interface ProductOption {
   id: string;
   name: string;
   extraPrice: number;
-  stock: number;
   isSoldOut?: boolean;
 }
 
@@ -26,12 +25,8 @@ interface Product {
 export function ProductPurchasePanel({ product }: { product: Product }) {
   const router = useRouter();
   
-  // Parse dynamic options
-  let initialOptions: ProductOption[] = [
-    { id: "default", name: "기본 패키지 단품", extraPrice: 0, stock: 100, isSoldOut: false },
-    { id: "set", name: "기본형 + 리필 보틀 세트", extraPrice: 5000, stock: 50, isSoldOut: false }
-  ];
-
+  // Parse dynamic options (if none configured, it's an empty array)
+  let initialOptions: ProductOption[] = [];
   if (product.options) {
     try {
       const parsed = JSON.parse(product.options);
@@ -45,7 +40,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
 
   const [availableOptions] = useState<ProductOption[]>(initialOptions);
   const [selectedOptionId, setSelectedOptionId] = useState<string>(
-    initialOptions[0]?.id || "default"
+    initialOptions[0]?.id || ""
   );
   
   const [shippingMethod] = useState("일반택배");
@@ -57,13 +52,10 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
   const [user, setUser] = useState<{ id: string; name: string; realNameVerified: boolean } | null>(null);
   const [isVerifierOpen, setIsVerifierOpen] = useState(false);
 
-  const currentOption = availableOptions.find(o => o.id === selectedOptionId) || availableOptions[0] || {
-    id: "default",
-    name: "기본 패키지 단품",
-    extraPrice: 0,
-    stock: 100,
-    isSoldOut: false
-  };
+  const hasOptions = availableOptions.length > 0;
+  const currentOption = hasOptions 
+    ? (availableOptions.find(o => o.id === selectedOptionId) || availableOptions[0])
+    : null;
 
   const fetchAuth = async () => {
     try {
@@ -126,16 +118,19 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
   const handleAddToCart = async () => {
     if (!checkAuthOrRedirect()) return;
 
-    if (currentOption.isSoldOut || currentOption.stock <= 0) {
+    if (currentOption && currentOption.isSoldOut) {
       alert("선택하신 옵션은 현재 품절 상태입니다.");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const formattedOptionName = currentOption.extraPrice !== 0
-        ? `${currentOption.name} (${currentOption.extraPrice > 0 ? `+${currentOption.extraPrice.toLocaleString()}원` : `-${Math.abs(currentOption.extraPrice).toLocaleString()}원`})`
-        : currentOption.name;
+      let formattedOptionName = "단품";
+      if (currentOption) {
+        formattedOptionName = currentOption.extraPrice !== 0
+          ? `${currentOption.name} (${currentOption.extraPrice > 0 ? `+${currentOption.extraPrice.toLocaleString()}원` : `-${Math.abs(currentOption.extraPrice).toLocaleString()}원`})`
+          : currentOption.name;
+      }
         
       const response = await fetch("/api/cart", {
         method: "POST",
@@ -166,7 +161,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
   const handleCheckout = async () => {
     if (!checkAuthOrRedirect()) return;
 
-    if (currentOption.isSoldOut || currentOption.stock <= 0) {
+    if (currentOption && currentOption.isSoldOut) {
       alert("선택하신 옵션은 현재 품절 상태입니다.");
       return;
     }
@@ -181,11 +176,14 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
 
     setIsSubmitting(true);
     try {
-      const formattedOptionName = currentOption.extraPrice !== 0
-        ? `${currentOption.name} (${currentOption.extraPrice > 0 ? `+${currentOption.extraPrice.toLocaleString()}원` : `-${Math.abs(currentOption.extraPrice).toLocaleString()}원`})`
-        : currentOption.name;
+      let formattedOptionName = "단품";
+      if (currentOption) {
+        formattedOptionName = currentOption.extraPrice !== 0
+          ? `${currentOption.name} (${currentOption.extraPrice > 0 ? `+${currentOption.extraPrice.toLocaleString()}원` : `-${Math.abs(currentOption.extraPrice).toLocaleString()}원`})`
+          : currentOption.name;
+      }
       
-      const extraCost = currentOption.extraPrice || 0;
+      const extraCost = currentOption ? (currentOption.extraPrice || 0) : 0;
       const totalAmount = (product.price + extraCost) * quantity + product.shippingFee;
 
       const response = await fetch("/api/checkout", {
@@ -215,7 +213,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
     }
   };
 
-  const extraCost = currentOption.extraPrice || 0;
+  const extraCost = currentOption ? (currentOption.extraPrice || 0) : 0;
   const unitPrice = product.price + extraCost;
   const totalPrice = unitPrice * quantity;
 
@@ -238,32 +236,34 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
         </div>
       )}
 
-      {/* Dynamic Option Selector */}
+      {/* Option Selector (Only rendered if product has options) */}
       <div className="space-y-3 pt-4 border-t">
-        <div>
-          <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
-            상품 구매 옵션 선택 (필수) *
-          </label>
-          <select 
-            value={selectedOptionId}
-            onChange={(e) => setSelectedOptionId(e.target.value)}
-            className="w-full p-3.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 bg-white text-xs sm:text-sm font-semibold text-zinc-900 shadow-2xs"
-          >
-            {availableOptions.map((opt) => {
-              const isAvailable = !opt.isSoldOut && opt.stock > 0;
-              const priceText = opt.extraPrice > 0 
-                ? ` (+${opt.extraPrice.toLocaleString()}원)` 
-                : opt.extraPrice < 0 
-                ? ` (-${Math.abs(opt.extraPrice).toLocaleString()}원)` 
-                : " (추가금 없음)";
-              return (
-                <option key={opt.id} value={opt.id} disabled={!isAvailable}>
-                  {opt.name} {priceText} {!isAvailable ? " [품절]" : ""}
-                </option>
-              );
-            })}
-          </select>
-        </div>
+        {hasOptions && (
+          <div>
+            <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
+              상품 구매 옵션 선택 (필수) *
+            </label>
+            <select 
+              value={selectedOptionId}
+              onChange={(e) => setSelectedOptionId(e.target.value)}
+              className="w-full p-3.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 bg-white text-xs sm:text-sm font-semibold text-zinc-900 shadow-2xs"
+            >
+              {availableOptions.map((opt) => {
+                const isAvailable = !opt.isSoldOut;
+                const priceText = opt.extraPrice > 0 
+                  ? ` (+${opt.extraPrice.toLocaleString()}원)` 
+                  : opt.extraPrice < 0 
+                  ? ` (-${Math.abs(opt.extraPrice).toLocaleString()}원)` 
+                  : " (추가금 없음)";
+                return (
+                  <option key={opt.id} value={opt.id} disabled={!isAvailable}>
+                    {opt.name} {priceText} {!isAvailable ? " [품절]" : ""}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+        )}
         
         {/* Quantity selector */}
         <div className="flex justify-between items-center bg-zinc-50 p-3.5 rounded-xl border">
@@ -329,10 +329,12 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
 
       {/* Total Amount Card */}
       <div className="bg-zinc-50 p-4 rounded-xl border space-y-2">
-        <div className="flex justify-between text-xs text-zinc-500">
-          <span>선택 옵션: {currentOption.name} ({quantity}개)</span>
-          <span>₩{totalPrice.toLocaleString()}</span>
-        </div>
+        {hasOptions && currentOption && (
+          <div className="flex justify-between text-xs text-zinc-500">
+            <span>선택 옵션: {currentOption.name} ({quantity}개)</span>
+            <span>₩{totalPrice.toLocaleString()}</span>
+          </div>
+        )}
         <div className="flex justify-between text-xs text-zinc-500">
           <span>배송비</span>
           <span>{product.shippingFee === 0 ? "무료" : `₩${product.shippingFee.toLocaleString()}원`}</span>
@@ -365,7 +367,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
           <button 
             type="button"
             onClick={handleAddToCart}
-            disabled={isSubmitting || currentOption.isSoldOut || currentOption.stock <= 0}
+            disabled={isSubmitting || (!!currentOption && currentOption.isSoldOut)}
             className="flex-1 py-3.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 border border-zinc-200 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
           >
             <ShoppingCart className="w-4 h-4" />
@@ -376,12 +378,12 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
         <button 
           type="button"
           onClick={handleCheckout}
-          disabled={isSubmitting || currentOption.isSoldOut || currentOption.stock <= 0}
+          disabled={isSubmitting || (!!currentOption && currentOption.isSoldOut)}
           className="w-full py-4 bg-zinc-950 hover:bg-zinc-800 text-white rounded-xl font-bold text-base shadow-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {isSubmitting 
             ? "결제 처리 중..." 
-            : currentOption.isSoldOut || currentOption.stock <= 0 
+            : currentOption && currentOption.isSoldOut 
             ? "품절된 옵션입니다" 
             : "바로 결제하기"}
         </button>
