@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 
+export const dynamic = "force-dynamic";
+
 async function getAuthenticatedUserId() {
   const cookieStore = await cookies();
   return cookieStore.get("userId")?.value || null;
@@ -40,7 +42,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Product ID required" }, { status: 400 });
     }
 
-    // Check if item already exists in cart with same product and option
     const existing = await prisma.cartItem.findFirst({
       where: {
         userId,
@@ -77,6 +78,41 @@ export async function POST(request: Request) {
   }
 }
 
+export async function PATCH(request: Request) {
+  try {
+    const userId = await getAuthenticatedUserId();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { id, quantity } = body;
+
+    if (!id || typeof quantity !== "number") {
+      return NextResponse.json({ error: "Item ID and valid quantity required" }, { status: 400 });
+    }
+
+    if (quantity <= 0) {
+      // Delete if quantity is 0 or negative
+      await prisma.cartItem.delete({
+        where: { id, userId }
+      });
+      return NextResponse.json({ success: true, deleted: true });
+    }
+
+    const updatedItem = await prisma.cartItem.update({
+      where: { id, userId },
+      data: { quantity },
+      include: { product: true }
+    });
+
+    return NextResponse.json({ success: true, item: updatedItem });
+  } catch (error) {
+    console.error("Failed to update cart item quantity:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
+
 export async function DELETE(request: Request) {
   try {
     const userId = await getAuthenticatedUserId();
@@ -92,7 +128,6 @@ export async function DELETE(request: Request) {
         where: { id: cartItemId, userId }
       });
     } else {
-      // Clear entire cart
       await prisma.cartItem.deleteMany({
         where: { userId }
       });

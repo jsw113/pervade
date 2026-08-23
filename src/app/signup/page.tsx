@@ -220,6 +220,22 @@ export default function SignupPage() {
           </p>
         </div>
 
+        {/* Real-Name Verification Benefit Notice */}
+        <div className="p-4 bg-emerald-50/80 border border-emerald-200 rounded-2xl flex items-start gap-3">
+          <div className="p-2 bg-emerald-600 text-white rounded-xl shrink-0 mt-0.5 shadow-2xs">
+            <ShieldCheck className="w-4 h-4" />
+          </div>
+          <div className="text-xs text-emerald-950 space-y-0.5">
+            <div className="font-bold flex items-center gap-1.5">
+              <span>💡 본인인증(실명인증) 완료 시 특별 혜택</span>
+              <span className="bg-emerald-600 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">5% 적립</span>
+            </div>
+            <p className="text-[11px] text-emerald-800 leading-relaxed font-normal">
+              회원가입 후 [마이페이지] 또는 [주문 결제] 단계에서 <strong>PASS 휴대폰 본인인증(실명인증)</strong>을 완료하시면, 모든 제품 구매 시 <strong>결제 금액의 5% 즉시 포인트 적립</strong> 및 <strong>안전 결제 보호 혜택</strong>이 적용됩니다.
+            </p>
+          </div>
+        </div>
+
         {/* 1. Social Quick Signup */}
         <div className="space-y-3 bg-zinc-50/80 p-5 rounded-2xl border">
           <div className="flex justify-between items-center">
