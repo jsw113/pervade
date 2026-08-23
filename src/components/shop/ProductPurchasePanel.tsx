@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Heart, ShoppingCart, MessageCircle, Truck, ShieldCheck, ShieldAlert, Check } from "lucide-react";
+import { Heart, ShoppingCart, MessageCircle, Truck, ShieldCheck, ShieldAlert, Check, MapPin, ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 import { RealNameVerifier } from "./RealNameVerifier";
+import { ShippingAddressSelector } from "./ShippingAddressSelector";
 
 interface ProductOption {
   id: string;
@@ -25,7 +26,7 @@ interface Product {
 export function ProductPurchasePanel({ product }: { product: Product }) {
   const router = useRouter();
   
-  // Parse dynamic options (if none configured, it's an empty array)
+  // Parse dynamic options
   let initialOptions: ProductOption[] = [];
   if (product.options) {
     try {
@@ -49,8 +50,13 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // User auth & verification
-  const [user, setUser] = useState<{ id: string; name: string; realNameVerified: boolean } | null>(null);
+  const [user, setUser] = useState<{ id: string; name: string; address?: string | null; realNameVerified: boolean } | null>(null);
   const [isVerifierOpen, setIsVerifierOpen] = useState(false);
+
+  // Address state for direct purchase
+  const [showAddressPicker, setShowAddressPicker] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState("");
+  const [saveAsDefaultAddress, setSaveAsDefaultAddress] = useState(true);
 
   const hasOptions = availableOptions.length > 0;
   const currentOption = hasOptions 
@@ -64,6 +70,9 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
         const authData = await authRes.json();
         if (authData.loggedIn) {
           setUser(authData.user);
+          if (authData.user.address) {
+            setSelectedAddress(authData.user.address);
+          }
           
           // Wishlist check
           const wishRes = await fetch("/api/wishlist");
@@ -101,14 +110,16 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
     if (!checkAuthOrRedirect()) return;
 
     try {
-      const response = await fetch("/api/wishlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId: product.id }),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setIsWished(data.wished);
+      if (isWished) {
+        await fetch(`/api/wishlist?productId=${product.id}`, { method: "DELETE" });
+        setIsWished(false);
+      } else {
+        await fetch("/api/wishlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productId: product.id })
+        });
+        setIsWished(true);
       }
     } catch (err) {
       console.error(err);
@@ -166,6 +177,13 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
       return;
     }
 
+    // If user has no address selected, show address picker first
+    if (!selectedAddress) {
+      setShowAddressPicker(true);
+      alert("상품을 수령하실 배송지를 입력하거나 선택해주세요.");
+      return;
+    }
+
     // Real-name verification check requirement
     if (!user?.realNameVerified) {
       if (confirm("안전한 전자상거래 및 주문 혜택 적용을 위해 휴대폰 실명인증이 필요합니다.\n지금 바로 본인인증(실명인증)을 진행하시겠습니까?")) {
@@ -194,12 +212,14 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
           optionSelected: formattedOptionName,
           shippingMethod,
           shippingFee: product.shippingFee,
-          totalAmount
+          totalAmount,
+          shippingAddress: selectedAddress,
+          saveAsDefaultAddress
         }),
       });
 
       if (response.ok) {
-        alert("주문 및 결제가 성공적으로 완료되었습니다!");
+        alert("🎉 주문 및 결제가 성공적으로 완료되었습니다!");
         router.push("/mypage");
         router.refresh();
       } else {
@@ -218,124 +238,134 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
   const totalPrice = unitPrice * quantity;
 
   return (
-    <div className="space-y-6">
-      {/* Real Name Verification Notification if logged in but unverified */}
+    <div className="space-y-6 pt-4">
+      {/* 1. Dynamic Option Selector */}
+      {hasOptions && (
+        <div className="space-y-2">
+          <label className="block text-xs font-bold text-zinc-700">
+            상품 옵션 선택 <span className="text-zinc-400 font-normal">({availableOptions.length}개 옵션)</span>
+          </label>
+          <div className="space-y-2">
+            {availableOptions.map((opt) => {
+              const isSelected = selectedOptionId === opt.id;
+              const isSoldOut = !!opt.isSoldOut;
+
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  disabled={isSoldOut}
+                  onClick={() => setSelectedOptionId(opt.id)}
+                  className={`w-full p-3.5 rounded-2xl border text-left flex items-center justify-between transition-all cursor-pointer ${
+                    isSelected
+                      ? "border-zinc-950 bg-zinc-900 text-white shadow-sm"
+                      : isSoldOut
+                      ? "border-zinc-100 bg-zinc-50/60 text-zinc-300 cursor-not-allowed"
+                      : "border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-900"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                      isSelected ? "border-white bg-white text-zinc-950" : "border-zinc-300"
+                    }`}>
+                      {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                    </div>
+                    <span className="text-xs font-bold">{opt.name}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-bold ${isSelected ? "text-zinc-200" : "text-zinc-700"}`}>
+                      {opt.extraPrice > 0 ? `+₩${opt.extraPrice.toLocaleString()}원` : opt.extraPrice < 0 ? `-₩${Math.abs(opt.extraPrice).toLocaleString()}원` : "기본가"}
+                    </span>
+                    {isSoldOut && (
+                      <span className="px-2 py-0.5 bg-rose-100 text-rose-700 rounded-md text-[10px] font-bold">
+                        품절
+                      </span>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* 2. Quantity & Total Price */}
+      <div className="flex items-center justify-between p-4 bg-zinc-50 border rounded-2xl">
+        <span className="text-xs font-bold text-zinc-700">구매 수량</span>
+        <div className="flex items-center gap-3">
+          <button 
+            type="button"
+            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+            className="w-8 h-8 rounded-lg bg-white border flex items-center justify-center text-sm font-bold hover:bg-zinc-100 transition-colors cursor-pointer"
+          >
+            -
+          </button>
+          <span className="w-6 text-center text-xs font-bold">{quantity}</span>
+          <button 
+            type="button"
+            onClick={() => setQuantity(quantity + 1)}
+            className="w-8 h-8 rounded-lg bg-white border flex items-center justify-center text-sm font-bold hover:bg-zinc-100 transition-colors cursor-pointer"
+          >
+            +
+          </button>
+        </div>
+      </div>
+
+      {/* 3. Real-Name Verification Benefit Notification */}
       {user && !user.realNameVerified && (
-        <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between text-xs text-amber-800">
-          <div className="flex items-center gap-2 font-medium">
+        <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl flex items-center justify-between text-xs text-amber-900">
+          <div className="flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
-            <span>실명 미인증 회원 (주문 시 본인인증 필요)</span>
+            <span>본인인증 완료 시 결제 금액의 <strong>5% 즉시 포인트 적립</strong></span>
           </div>
           <button
             type="button"
             onClick={() => setIsVerifierOpen(true)}
-            className="px-2.5 py-1 bg-amber-600 text-white rounded-lg font-bold text-[11px] hover:bg-amber-700 transition-colors"
+            className="px-2.5 py-1 bg-amber-600 text-white rounded-lg text-[11px] font-bold hover:bg-amber-700 transition-colors shrink-0 cursor-pointer"
           >
             인증하기
           </button>
         </div>
       )}
 
-      {/* Option Selector (Only rendered if product has options) */}
-      <div className="space-y-3 pt-4 border-t">
-        {hasOptions && (
-          <div>
-            <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
-              상품 구매 옵션 선택 (필수) *
-            </label>
-            <select 
-              value={selectedOptionId}
-              onChange={(e) => setSelectedOptionId(e.target.value)}
-              className="w-full p-3.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 bg-white text-xs sm:text-sm font-semibold text-zinc-900 shadow-2xs"
-            >
-              {availableOptions.map((opt) => {
-                const isAvailable = !opt.isSoldOut;
-                const priceText = opt.extraPrice > 0 
-                  ? ` (+${opt.extraPrice.toLocaleString()}원)` 
-                  : opt.extraPrice < 0 
-                  ? ` (-${Math.abs(opt.extraPrice).toLocaleString()}원)` 
-                  : " (추가금 없음)";
-                return (
-                  <option key={opt.id} value={opt.id} disabled={!isAvailable}>
-                    {opt.name} {priceText} {!isAvailable ? " [품절]" : ""}
-                  </option>
-                );
-              })}
-            </select>
+      {/* 4. Shipping Address Selector (Collapsible / Modal) */}
+      <div className="border rounded-2xl p-4 bg-zinc-50/50 space-y-3">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-800">
+            <MapPin className="w-4 h-4 text-zinc-500" />
+            <span>배송지: {selectedAddress ? selectedAddress.substring(0, 30) + "..." : "배송지 설정 필요"}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowAddressPicker(!showAddressPicker)}
+            className="text-[11px] font-bold text-blue-600 hover:underline flex items-center gap-0.5 cursor-pointer"
+          >
+            <span>{showAddressPicker ? "닫기" : "배송지 변경/검색"}</span>
+            {showAddressPicker ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+        </div>
+
+        {showAddressPicker && (
+          <div className="pt-2">
+            <ShippingAddressSelector
+              defaultAddress={user?.address}
+              onAddressChange={(addr, saveAsDef) => {
+                setSelectedAddress(addr);
+                setSaveAsDefaultAddress(saveAsDef);
+              }}
+            />
           </div>
         )}
-        
-        {/* Quantity selector */}
-        <div className="flex justify-between items-center bg-zinc-50 p-3.5 rounded-xl border">
-          <div className="flex flex-col">
-            <span className="text-xs font-bold text-zinc-800">구매 수량</span>
-            <span className="text-[11px] text-zinc-500 font-mono">
-              단가: ₩{unitPrice.toLocaleString()}원
-            </span>
-          </div>
-          <div className="flex items-center border rounded-lg bg-white shadow-2xs overflow-hidden">
-            <button 
-              type="button" 
-              onClick={() => setQuantity(q => Math.max(1, q - 1))}
-              className="px-3 py-1 text-base font-bold border-r hover:bg-zinc-100 text-zinc-700 transition-colors"
-            >
-              -
-            </button>
-            <span className="px-4 py-1 text-xs font-black min-w-[36px] text-center">{quantity}</span>
-            <button 
-              type="button" 
-              onClick={() => setQuantity(q => q + 1)}
-              className="px-3 py-1 text-base font-bold border-l hover:bg-zinc-100 text-zinc-700 transition-colors"
-            >
-              +
-            </button>
-          </div>
-        </div>
       </div>
 
-      {/* Shipping Method Information */}
-      <div className="space-y-2 pt-4 border-t">
-        <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider">
-          배송 방법
-        </label>
-        <div className="p-3.5 bg-zinc-50 border rounded-xl flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-white border rounded-lg shadow-2xs">
-              <Truck className="w-4 h-4 text-zinc-800" />
-            </div>
-            <div>
-              <div className="text-xs font-bold text-zinc-900 flex items-center gap-1.5">
-                <span>일반택배 (CJ대한통운)</span>
-                <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                  당일 출고
-                </span>
-              </div>
-              <div className="text-[11px] text-zinc-500 mt-0.5">
-                평일 14:00 이전 결제 시 당일 발송 (1~2일 소요)
-              </div>
-            </div>
-          </div>
-          <div className="text-right">
-            <span className="text-xs font-black text-zinc-900">
-              {product.shippingFee === 0 ? (
-                <span className="text-emerald-600 font-bold">무료배송</span>
-              ) : (
-                `₩${product.shippingFee.toLocaleString()}원`
-              )}
-            </span>
-          </div>
+      {/* 5. Summary Total */}
+      <div className="space-y-1 text-xs text-zinc-500 pt-2 border-t">
+        <div className="flex justify-between">
+          <span>상품 금액</span>
+          <span>₩{totalPrice.toLocaleString()}원</span>
         </div>
-      </div>
-
-      {/* Total Amount Card */}
-      <div className="bg-zinc-50 p-4 rounded-xl border space-y-2">
-        {hasOptions && currentOption && (
-          <div className="flex justify-between text-xs text-zinc-500">
-            <span>선택 옵션: {currentOption.name} ({quantity}개)</span>
-            <span>₩{totalPrice.toLocaleString()}</span>
-          </div>
-        )}
-        <div className="flex justify-between text-xs text-zinc-500">
+        <div className="flex justify-between">
           <span>배송비</span>
           <span>{product.shippingFee === 0 ? "무료" : `₩${product.shippingFee.toLocaleString()}원`}</span>
         </div>
@@ -353,7 +383,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
           <button 
             type="button"
             onClick={handleWishlist}
-            className={`p-3.5 border rounded-xl flex items-center justify-center gap-2 transition-all ${
+            className={`p-3.5 border rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer ${
               isWished 
                 ? "border-red-200 bg-red-50 text-red-600 shadow-sm" 
                 : "border-zinc-200 text-zinc-600 hover:bg-zinc-50"
@@ -368,7 +398,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
             type="button"
             onClick={handleAddToCart}
             disabled={isSubmitting || (!!currentOption && currentOption.isSoldOut)}
-            className="flex-1 py-3.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 border border-zinc-200 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+            className="flex-1 py-3.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 border border-zinc-200 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
           >
             <ShoppingCart className="w-4 h-4" />
             장바구니 담기
@@ -379,7 +409,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
           type="button"
           onClick={handleCheckout}
           disabled={isSubmitting || (!!currentOption && currentOption.isSoldOut)}
-          className="w-full py-4 bg-zinc-950 hover:bg-zinc-800 text-white rounded-xl font-bold text-base shadow-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+          className="w-full py-4 bg-zinc-950 hover:bg-zinc-800 text-white rounded-xl font-bold text-base shadow-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
         >
           {isSubmitting 
             ? "결제 처리 중..." 

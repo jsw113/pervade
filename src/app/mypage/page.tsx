@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { RealNameVerifier } from "@/components/shop/RealNameVerifier";
+import { MyPageAddressEditor } from "@/components/shop/MyPageAddressEditor";
 
 export default async function MyPage() {
   const cookieStore = await cookies();
@@ -131,9 +132,8 @@ export default async function MyPage() {
               {dbUser.socialProvider ? `${dbUser.socialProvider} 간편가입` : "일반 회원가입"}
             </span>
           </div>
-          <div className="flex border-b pb-2 md:col-span-2">
-            <span className="w-28 text-zinc-500 font-bold flex-shrink-0">배송 주소</span>
-            <span className="text-zinc-950 font-medium flex-1">{dbUser.address || "미등록 (주문 배송지 설정 필요)"}</span>
+          <div className="border-t pt-4 md:col-span-2">
+            <MyPageAddressEditor currentAddress={dbUser.address} />
           </div>
         </div>
       </div>

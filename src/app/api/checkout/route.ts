@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 
+export const dynamic = "force-dynamic";
+
 async function getAuthenticatedUser() {
   const cookieStore = await cookies();
   const userId = cookieStore.get("userId")?.value;
@@ -24,7 +26,24 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { productId, optionSelected, shippingMethod, shippingFee, totalAmount, fromCart } = body;
+    const { 
+      productId, 
+      optionSelected, 
+      shippingMethod, 
+      shippingFee, 
+      totalAmount, 
+      fromCart,
+      shippingAddress,
+      saveAsDefaultAddress
+    } = body;
+
+    // Auto-update user default address if toggled or user address was empty
+    if (shippingAddress && (saveAsDefaultAddress || !user.address)) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { address: shippingAddress }
+      });
+    }
 
     let ordersCreated = [];
     let orderGrandTotal = 0;
