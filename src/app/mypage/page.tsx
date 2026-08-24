@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { RealNameVerifier } from "@/components/shop/RealNameVerifier";
 import { MyPageAddressEditor } from "@/components/shop/MyPageAddressEditor";
 import { ShippingAddressManager } from "@/components/shop/ShippingAddressManager";
+import { ClientSessionSync } from "@/components/shop/ClientSessionSync";
 import { calculateUserTier } from "@/lib/userTier";
 
 export const dynamic = "force-dynamic";
@@ -57,6 +58,7 @@ export default async function MyPage() {
 
   return (
     <div className="container mx-auto px-4 py-16 max-w-5xl space-y-10">
+      <ClientSessionSync user={{ id: dbUser.id, name: dbUser.name, email: dbUser.email, role: dbUser.role }} />
       <div className="flex justify-between items-center border-b pb-4">
         <div>
           <h1 className="text-3xl font-black tracking-tight text-zinc-950">마이페이지</h1>

@@ -24,14 +24,24 @@ export function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
 
-  // 1. Instantly read user from localStorage on mount (Zero flicker)
+  // 1. Instantly read user from localStorage on mount and on custom auth event (Zero flicker)
   useEffect(() => {
-    try {
-      const cached = localStorage.getItem("pervade_user");
-      if (cached) {
-        setUser(JSON.parse(cached));
-      }
-    } catch (e) {}
+    const loadCachedUser = () => {
+      try {
+        const cached = localStorage.getItem("pervade_user");
+        if (cached) {
+          setUser(JSON.parse(cached));
+        }
+      } catch (e) {}
+    };
+
+    loadCachedUser();
+    window.addEventListener("pervade_auth_update", loadCachedUser);
+    window.addEventListener("storage", loadCachedUser);
+    return () => {
+      window.removeEventListener("pervade_auth_update", loadCachedUser);
+      window.removeEventListener("storage", loadCachedUser);
+    };
   }, []);
 
   const checkAuthAndCart = async () => {
