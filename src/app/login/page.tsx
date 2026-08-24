@@ -29,8 +29,13 @@ export default function LoginPage() {
       });
 
       if (response.ok) {
+        const data = await response.json();
         alert("🎉 로그인되었습니다.");
-        router.push("/mypage");
+        if (data.user?.role === "ADMIN") {
+          router.push("/admin");
+        } else {
+          router.push("/mypage");
+        }
         router.refresh();
       } else {
         const errorData = await response.json();

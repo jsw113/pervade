@@ -1,11 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getAdminUser } from "@/lib/adminAuth";
+
+export const dynamic = "force-dynamic";
 
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const admin = await getAdminUser();
+    if (!admin) {
+      return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 });
+    }
+
     const { id } = await params;
     const body = await request.json();
     const { name, email, phone, loginId, address, birthDate, role, totalPurchases, referralPoints, realNameVerified } = body;
@@ -38,9 +46,20 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const admin = await getAdminUser();
+    if (!admin) {
+      return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 });
+    }
+
     const { id } = await params;
 
-    // Delete related records first to avoid foreign key constraints in sqlite
+    // Prevent deleting the main admin account
+    const targetUser = await prisma.user.findUnique({ where: { id } });
+    if (targetUser?.loginId === "admin" || targetUser?.email === "admin@pervade.co.kr") {
+      return NextResponse.json({ error: "기본 최고관리자 계정은 삭제할 수 없습니다." }, { status: 400 });
+    }
+
+    // Delete related records first to avoid foreign key constraints
     await prisma.cartItem.deleteMany({ where: { userId: id } });
     await prisma.wishlist.deleteMany({ where: { userId: id } });
     await prisma.order.deleteMany({ where: { userId: id } });

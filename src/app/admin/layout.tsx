@@ -1,13 +1,31 @@
 import Link from "next/link";
-import { LayoutDashboard, FileText, Users, Settings, Package, Palette, MessageSquare, HelpCircle, ExternalLink, BookOpen, Megaphone, Layers } from "lucide-react";
+import { LayoutDashboard, FileText, Users, Settings, Package, Palette, MessageSquare, HelpCircle, ExternalLink, BookOpen, Megaphone, Layers, ShieldCheck, LogOut } from "lucide-react";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import { getAdminUser, ensureDefaultAdminExists } from "@/lib/adminAuth";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export const dynamic = "force-dynamic";
+
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  // Ensure default admin exists
+  await ensureDefaultAdminExists();
+
+  const admin = await getAdminUser();
+
+  if (!admin) {
+    redirect("/login?redirect=/admin&error=admin_only");
+  }
+
   return (
     <div className="flex h-screen bg-zinc-50 overflow-hidden">
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r flex flex-col">
         <div className="h-16 flex items-center justify-between px-6 border-b font-bold text-base tracking-tight text-zinc-950">
-          <span>PERVADE 관리자</span>
+          <div className="flex items-center gap-2">
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-100"></div>
+            <span>PERVADE 관리자</span>
+          </div>
           <Link href="/" target="_blank" className="text-zinc-400 hover:text-black p-1" title="쇼핑몰 메인으로 이동">
             <ExternalLink className="w-4 h-4" />
           </Link>
@@ -108,22 +126,34 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         <header className="h-16 bg-white border-b flex items-center justify-between px-6 shadow-xs">
-          <h1 className="text-base font-bold text-zinc-900">통합 어드민 콘솔</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-base font-bold text-zinc-900">통합 어드민 콘솔</h1>
+            <span className="px-2 py-0.5 bg-zinc-900 text-white rounded-md text-[10px] font-black">
+              보안 인증됨 (ADMIN)
+            </span>
+          </div>
+
           <div className="flex items-center gap-3 text-xs text-zinc-500">
+            <div className="flex items-center gap-2 pr-2 border-r">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span className="font-bold text-zinc-800">{admin.name} ({admin.loginId})님</span>
+            </div>
             <a
               href="/PERVADE_Admin_ERP_Manual.pdf"
               download="PERVADE_통합_백오피스_ERP_공식운영매뉴얼.pdf"
               target="_blank"
-              className="px-3.5 py-1.5 bg-zinc-950 hover:bg-zinc-800 text-white rounded-xl font-bold transition-all shadow-xs flex items-center gap-1.5 text-[11px]"
+              className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 rounded-xl font-bold transition-all flex items-center gap-1.5 text-[11px]"
             >
-              <FileText className="w-3.5 h-3.5 text-amber-400" />
-              공식 PDF 운영매뉴얼 다운로드
+              <FileText className="w-3.5 h-3.5 text-amber-600" />
+              PDF 매뉴얼
             </a>
-            <span className="text-zinc-300">|</span>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span>시스템 정상 작동 중</span>
-            </div>
+            <Link
+              href="/api/auth/logout"
+              className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl font-bold transition-all flex items-center gap-1 text-[11px]"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              로그아웃
+            </Link>
           </div>
         </header>
         <div className="flex-1 overflow-auto p-6">

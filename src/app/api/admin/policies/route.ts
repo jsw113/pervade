@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getAdminUser } from "@/lib/adminAuth";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
@@ -17,6 +20,11 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const admin = await getAdminUser();
+    if (!admin) {
+      return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 });
+    }
+
     const body = await request.json();
     
     // Support batch update: { policies: { KEY1: VAL1, KEY2: VAL2, ... } }

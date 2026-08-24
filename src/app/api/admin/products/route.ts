@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { getAdminUser } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +38,11 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const admin = await getAdminUser();
+    if (!admin) {
+      return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 });
+    }
+
     const body = await request.json();
     const { 
       name, 
@@ -60,47 +66,45 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "제품명, 설명, 판매가는 필수입니다." }, { status: 400 });
     }
 
+    const parsedPrice = parseInt(price);
+    const parsedStock = parseInt(stock || "0");
+    const parsedSafetyStock = parseInt(safetyStock || "0");
+    const parsedShippingFee = parseInt(shippingFee || "0");
+
     const product = await prisma.product.create({
       data: {
         name,
         description,
-        category: category || "세정제류",
-        subCategory: subCategory || "다목적/올인원",
-        price: parseInt(price),
+        category: category || "BATHROOM",
+        subCategory: subCategory || "",
+        price: parsedPrice,
         originalPrice: originalPrice ? parseInt(originalPrice) : null,
-        shippingFee: shippingFee !== undefined ? parseInt(shippingFee) : 3000,
-        imageUrl: imageUrl || (Array.isArray(images) && images.length > 0 ? images[0] : ""),
-        images: Array.isArray(images) ? JSON.stringify(images) : (typeof images === "string" ? images : null),
-        detailContent: detailContent || null,
-        detailImages: Array.isArray(detailImages) ? JSON.stringify(detailImages) : (typeof detailImages === "string" ? detailImages : null),
-        options: Array.isArray(options) ? JSON.stringify(options) : (typeof options === "string" ? options : null),
-        stock: stock !== undefined ? parseInt(stock) : 100,
-        safetyStock: safetyStock !== undefined ? parseInt(safetyStock) : 10,
+        shippingFee: parsedShippingFee,
+        imageUrl: imageUrl || "",
+        images: images ? (typeof images === "string" ? images : JSON.stringify(images)) : null,
+        detailContent: detailContent || "",
+        detailImages: detailImages ? (typeof detailImages === "string" ? detailImages : JSON.stringify(detailImages)) : null,
+        options: options ? (typeof options === "string" ? options : JSON.stringify(options)) : null,
+        stock: parsedStock,
+        safetyStock: parsedSafetyStock,
         isVisible: isVisible !== undefined ? !!isVisible : true,
-      },
+      }
     });
 
-    // Record initial inventory log
-    if (product.stock > 0) {
+    if (parsedStock > 0) {
       await prisma.inventoryLog.create({
         data: {
           productId: product.id,
           type: "IN",
-          quantity: product.stock,
-          balance: product.stock,
-          reason: "초기 제품 등록 입고"
+          quantity: parsedStock,
+          balance: parsedStock,
+          reason: "신규 제품 최초 등록 입고"
         }
       });
     }
 
-    // Revalidate paths for instant reflect
-    try {
-      revalidatePath("/");
-      revalidatePath("/shop");
-      revalidatePath("/admin/products");
-    } catch (e) {
-      console.warn("Revalidation warning:", e);
-    }
+    revalidatePath("/shop");
+    revalidatePath("/admin/products");
 
     return NextResponse.json(product);
   } catch (error) {

@@ -1,8 +1,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getAdminUser } from "@/lib/adminAuth";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
+    const admin = await getAdminUser();
+    if (!admin) {
+      return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 });
+    }
+
     const users = await prisma.user.findMany({
       orderBy: { createdAt: "desc" },
       include: {
@@ -20,6 +28,11 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const admin = await getAdminUser();
+    if (!admin) {
+      return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 });
+    }
+
     const body = await request.json();
     const { name, email, phone, loginId, password, address, birthDate, role, referralPoints } = body;
 
