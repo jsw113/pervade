@@ -133,12 +133,9 @@ export function Navbar() {
             <div className="flex items-center gap-4">
               {user ? (
                 <div className="flex items-center gap-3">
-                  <Link 
-                    href="/mypage" 
-                    className="text-zinc-300 hover:text-white transition-colors font-semibold"
-                  >
-                    마이페이지 ({user.name}님)
-                  </Link>
+                  <span className="text-zinc-300 font-medium">
+                    <strong className="text-white font-bold">{user.name}</strong>님 환영합니다!
+                  </span>
                   <span className="text-zinc-700">|</span>
                   <button 
                     onClick={handleLogout} 
