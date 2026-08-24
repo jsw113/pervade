@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "이미 존재하는 사용자 아이디입니다." }, { status: 400 });
     }
 
-    // Create user in DB (No automatic session cookie / No auto-login)
+    // Create user in DB with 3,000 welcome points
     const user = await prisma.user.create({
       data: {
         loginId,
@@ -39,16 +40,32 @@ export async function POST(request: Request) {
         address: address || "",
         marketingConsent: !!consent,
         passwordHash: "$2b$10$dummyhashvalue",
+        referralPoints: 3000, // 3,000 welcome points
+        role: "USER"
       },
     });
 
-    // NOTE: Auto-login is DISABLED upon signup.
-    // User must manually log in with their ID/Password.
+    // Set session cookie for immediate auto-login to MyPage
+    const cookieStore = await cookies();
+    cookieStore.set("userId", user.id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+    });
 
     return NextResponse.json({ 
       success: true, 
-      message: "회원가입이 성공적으로 완료되었습니다. 로그인해 주세요.",
-      user: { id: user.id, email: user.email, name: user.name, loginId: user.loginId } 
+      message: "회원가입이 완료되었습니다. 마이페이지로 이동합니다.",
+      user: { 
+        id: user.id, 
+        email: user.email, 
+        name: user.name, 
+        loginId: user.loginId,
+        role: user.role,
+        referralPoints: user.referralPoints
+      } 
     });
   } catch (error) {
     console.error("Signup error:", error);

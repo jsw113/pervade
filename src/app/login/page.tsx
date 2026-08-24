@@ -53,9 +53,8 @@ export default function LoginPage() {
           } catch (e) {}
         }
         alert("🎉 로그인되었습니다.");
-        const destination = (data.user?.role === "ADMIN" || data.user?.role === "SUPER_ADMIN" || data.user?.role?.startsWith("MANAGER"))
-          ? (redirectUrl || "/admin")
-          : (redirectUrl || "/mypage");
+        const isAdmin = (data.user?.role === "ADMIN" || data.user?.role === "SUPER_ADMIN" || data.user?.role?.startsWith("MANAGER"));
+        const destination = redirectUrl || (isAdmin ? "/admin" : "/");
         window.location.href = destination;
       } else {
         const errorData = await response.json();
@@ -117,7 +116,7 @@ export default function LoginPage() {
         }
         alert(`✅ ${provider} 간편 로그인 완료! (${data.user?.name || socialName}님 환영합니다)`);
         setSocialModalProvider(null);
-        window.location.href = redirectUrl || "/mypage";
+        window.location.href = redirectUrl || "/";
       } else {
         alert(`${provider} 간편 로그인에 실패했습니다.`);
       }
