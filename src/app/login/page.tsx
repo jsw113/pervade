@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ShieldCheck, ArrowRight, HelpCircle, Check, X, Shield, Lock } from "lucide-react";
@@ -15,6 +15,11 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSocialAuthHelp, setShowSocialAuthHelp] = useState(false);
+
+  // Always reset password input on page load/mount to prevent auto-fill
+  useEffect(() => {
+    setPassword("");
+  }, []);
 
   // Social Auth Modal State
   const [socialModalProvider, setSocialModalProvider] = useState<"KAKAO" | "NAVER" | "GOOGLE" | null>(null);
@@ -184,12 +189,13 @@ export default function LoginPage() {
         </div>
 
         {/* Regular Login Form */}
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleLogin} className="space-y-4" autoComplete="off">
           <div>
             <label className="block text-xs font-bold text-zinc-700 mb-1">아이디 또는 이메일</label>
             <input 
               type="text" 
               required
+              autoComplete="username"
               value={identifier}
               onChange={e => setIdentifier(e.target.value)}
               className="w-full px-3.5 py-2.5 bg-zinc-50 rounded-xl border text-xs font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900" 
@@ -204,9 +210,10 @@ export default function LoginPage() {
             <input 
               type="password" 
               required
+              autoComplete="new-password"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-zinc-50 rounded-xl border text-xs focus:outline-none focus:ring-2 focus:ring-zinc-900" 
+              className="w-full px-3.5 py-2.5 bg-zinc-50 rounded-xl border text-xs focus:outline-none focus:ring-2 focus:ring-zinc-900 font-mono" 
               placeholder="••••••••"
             />
           </div>

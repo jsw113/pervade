@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { Menu, Search, ShoppingBag, User as UserIcon, LogOut, ShieldCheck, X } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoFont, setLogoFont] = useState<string>("'Inter', sans-serif");
@@ -43,7 +44,7 @@ export function Navbar() {
       }
 
       // 3. Auth
-      const authRes = await fetch("/api/auth/me");
+      const authRes = await fetch("/api/auth/me", { cache: "no-store" });
       if (authRes.ok) {
         const authData = await authRes.json();
         if (authData.loggedIn && authData.user) {
@@ -56,7 +57,7 @@ export function Navbar() {
       }
 
       // 4. Cart
-      const cartRes = await fetch("/api/cart");
+      const cartRes = await fetch("/api/cart", { cache: "no-store" });
       if (cartRes.ok) {
         const cartData = await cartRes.json();
         setCartCount(Array.isArray(cartData) ? cartData.length : 0);
@@ -66,19 +67,19 @@ export function Navbar() {
     }
   };
 
+  // Re-check auth state on route changes
   useEffect(() => {
     checkAuthAndCart();
-  }, []);
+  }, [pathname]);
 
   const handleLogout = async () => {
-    if (!confirm("로그아웃 하시겠습니까?")) return;
+    if (!confirm("로그아웃(로그오프) 하시겠습니까?")) return;
     try {
       await fetch("/api/auth/logout", { method: "POST" });
       setUser(null);
       setCartCount(0);
       alert("로그아웃되었습니다.");
-      router.push("/");
-      router.refresh();
+      window.location.href = "/login";
     } catch (e) {
       console.error(e);
     }
@@ -118,18 +119,21 @@ export function Navbar() {
               {user ? (
                 <div className="flex items-center gap-3">
                   <span className="text-zinc-200 font-semibold">
-                    <strong className="text-white">{user.name}</strong>님 환영합니다
+                    <strong className="text-white">{user.name}</strong>님
                   </span>
                   {user.realNameVerified && (
                     <span className="bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded text-[9px] font-bold">
-                      실명인증 완료
+                      인증완료
                     </span>
                   )}
-                  <Link href="/mypage" className="text-zinc-300 hover:text-white transition-colors">
+                  <Link href="/mypage" className="text-zinc-300 hover:text-white transition-colors font-medium">
                     마이페이지
                   </Link>
-                  <button onClick={handleLogout} className="text-zinc-400 hover:text-white flex items-center gap-1">
-                    <LogOut className="w-3 h-3" /> 로그아웃
+                  <button 
+                    onClick={handleLogout} 
+                    className="text-rose-400 hover:text-rose-300 flex items-center gap-1 font-bold cursor-pointer"
+                  >
+                    <LogOut className="w-3 h-3" /> 로그오프
                   </button>
                 </div>
               ) : (
@@ -190,7 +194,7 @@ export function Navbar() {
             <button 
               type="button" 
               onClick={() => setIsSearchOpen(true)}
-              className="p-2 hover:bg-zinc-100 rounded-full transition-colors relative"
+              className="p-2 hover:bg-zinc-100 rounded-full transition-colors relative cursor-pointer"
               title="상품 검색"
             >
               <Search className="w-5 h-5 text-zinc-700" />
@@ -206,7 +210,7 @@ export function Navbar() {
               )}
             </Link>
 
-            {/* User Auth Capsule & Prominent Logout */}
+            {/* User Auth Capsule & Dynamic Logout Toggle */}
             {user ? (
               <div className="flex items-center gap-1.5">
                 <Link 
@@ -220,11 +224,11 @@ export function Navbar() {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="flex items-center gap-1 px-2.5 py-1.5 text-zinc-500 hover:text-rose-600 hover:bg-rose-50 rounded-full text-xs font-bold transition-all cursor-pointer border border-transparent hover:border-rose-200"
-                  title="로그아웃"
+                  className="flex items-center gap-1 px-3 py-1.5 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-full text-xs font-bold transition-all cursor-pointer border border-rose-200"
+                  title="로그오프"
                 >
                   <LogOut className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">로그아웃</span>
+                  <span>로그오프</span>
                 </button>
               </div>
             ) : (
@@ -262,19 +266,19 @@ export function Navbar() {
             <div className="pt-4 border-t flex flex-col gap-2">
               {user ? (
                 <>
-                  <Link href="/mypage" onClick={() => setIsMenuOpen(false)} className="w-full text-center py-2 bg-zinc-100 rounded-lg text-xs font-bold">
+                  <Link href="/mypage" onClick={() => setIsMenuOpen(false)} className="w-full text-center py-2.5 bg-zinc-100 rounded-xl text-xs font-bold">
                     마이페이지 ({user.name}님)
                   </Link>
-                  <button onClick={handleLogout} className="w-full text-center py-2 border rounded-lg text-xs text-red-600">
-                    로그아웃
+                  <button onClick={handleLogout} className="w-full text-center py-2.5 bg-rose-50 border border-rose-200 rounded-xl text-xs font-bold text-rose-700 flex items-center justify-center gap-1">
+                    <LogOut className="w-3.5 h-3.5" /> 로그오프
                   </button>
                 </>
               ) : (
                 <div className="flex gap-2">
-                  <Link href="/login" onClick={() => setIsMenuOpen(false)} className="flex-1 text-center py-2 bg-black text-white rounded-lg text-xs font-bold">
+                  <Link href="/login" onClick={() => setIsMenuOpen(false)} className="flex-1 text-center py-2.5 bg-black text-white rounded-xl text-xs font-bold">
                     로그인
                   </Link>
-                  <Link href="/signup" onClick={() => setIsMenuOpen(false)} className="flex-1 text-center py-2 border rounded-lg text-xs font-bold">
+                  <Link href="/signup" onClick={() => setIsMenuOpen(false)} className="flex-1 text-center py-2.5 border rounded-xl text-xs font-bold">
                     회원가입
                   </Link>
                 </div>
