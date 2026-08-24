@@ -54,10 +54,24 @@ export function Navbar() {
       }
 
       // 3. Auth
+      let cachedUserId = "";
+      try {
+        const cached = localStorage.getItem("pervade_user");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && parsed.id) cachedUserId = parsed.id;
+        }
+      } catch (e) {}
+
+      const authHeaders: Record<string, string> = { "Cache-Control": "no-cache" };
+      if (cachedUserId) {
+        authHeaders["x-user-id"] = cachedUserId;
+      }
+
       const authRes = await fetch("/api/auth/me", { 
         cache: "no-store", 
         credentials: "include",
-        headers: { "Cache-Control": "no-cache" }
+        headers: authHeaders
       });
       if (authRes.ok) {
         const authData = await authRes.json();
@@ -66,7 +80,7 @@ export function Navbar() {
           try {
             localStorage.setItem("pervade_user", JSON.stringify(authData.user));
           } catch (e) {}
-        } else {
+        } else if (!cachedUserId) {
           setUser(null);
           try {
             localStorage.removeItem("pervade_user");

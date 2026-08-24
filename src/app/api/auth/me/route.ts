@@ -5,10 +5,15 @@ import { cookies } from "next/headers";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const cookieStore = await cookies();
-    const userId = cookieStore.get("userId")?.value;
+    let userId = cookieStore.get("userId")?.value;
+
+    // Robust fallback: check header if cookie is in transit
+    if (!userId) {
+      userId = request.headers.get("x-user-id") || undefined;
+    }
 
     if (!userId) {
       return NextResponse.json({ loggedIn: false }, { 
@@ -27,6 +32,17 @@ export async function GET() {
         headers: { "Cache-Control": "no-store, max-age=0" }
       });
     }
+
+    // Refresh/ensure session cookie is actively set
+    try {
+      cookieStore.set("userId", user.id, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7,
+      });
+    } catch (e) {}
 
     return NextResponse.json({
       loggedIn: true,
