@@ -44,7 +44,11 @@ export function Navbar() {
       }
 
       // 3. Auth
-      const authRes = await fetch("/api/auth/me", { cache: "no-store" });
+      const authRes = await fetch("/api/auth/me", { 
+        cache: "no-store", 
+        credentials: "include",
+        headers: { "Cache-Control": "no-cache" }
+      });
       if (authRes.ok) {
         const authData = await authRes.json();
         if (authData.loggedIn && authData.user) {
@@ -57,7 +61,11 @@ export function Navbar() {
       }
 
       // 4. Cart
-      const cartRes = await fetch("/api/cart", { cache: "no-store" });
+      const cartRes = await fetch("/api/cart", { 
+        cache: "no-store", 
+        credentials: "include",
+        headers: { "Cache-Control": "no-cache" }
+      });
       if (cartRes.ok) {
         const cartData = await cartRes.json();
         setCartCount(Array.isArray(cartData) ? cartData.length : 0);
