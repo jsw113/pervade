@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
+import { sendOrderNotification } from "@/lib/notification";
 
 export const dynamic = "force-dynamic";
 
@@ -59,8 +60,9 @@ export async function POST(request: Request) {
       }
     }
 
-    let ordersCreated = [];
+    let ordersCreated: any[] = [];
     let orderGrandTotal = 0;
+    let notificationItems: Array<{ name: string; option?: string; quantity: number; price: number }> = [];
 
     if (fromCart) {
       // 1. Get all cart items
@@ -91,6 +93,13 @@ export async function POST(request: Request) {
           }
         });
         ordersCreated.push(order);
+
+        notificationItems.push({
+          name: item.product.name,
+          option: item.optionSelected || undefined,
+          quantity: item.quantity,
+          price: item.product.price + extraCost,
+        });
 
         // Deduct inventory & record log
         const updatedProduct = await prisma.product.update({
@@ -138,6 +147,13 @@ export async function POST(request: Request) {
       });
       ordersCreated.push(order);
 
+      notificationItems.push({
+        name: product?.name || "PERVADE 프리미엄 상품",
+        option: optionSelected || undefined,
+        quantity: 1,
+        price: grand,
+      });
+
       // Deduct inventory & record log
       if (product) {
         const updatedProduct = await prisma.product.update({
@@ -164,6 +180,28 @@ export async function POST(request: Request) {
         totalPurchases: { increment: orderGrandTotal }
       }
     });
+
+    // 5. Send Email / Alimtalk Notification & Record CRM MessageLog
+    const mainOrderId = ordersCreated[0]?.id || `ORD-${Date.now()}`;
+    const earnedPoints = Math.round(orderGrandTotal * 0.05);
+
+    try {
+      await sendOrderNotification(user.id, {
+        orderNumber: mainOrderId,
+        customerName: user.name,
+        customerEmail: user.email,
+        customerPhone: user.phone,
+        items: notificationItems,
+        totalAmount: orderGrandTotal,
+        paymentMethod: paymentMethod || "신용/체크카드",
+        shippingAddress: shippingAddress || user.address || "기본 등록 배송지",
+        deliveryMemo: deliveryMemo || "문 앞에 놓아주세요",
+        earnedPoints,
+        orderDate: new Date().toLocaleString("ko-KR", { timeZone: "Asia/Seoul" }),
+      });
+    } catch (notifErr) {
+      console.error("Order notification error:", notifErr);
+    }
 
     return NextResponse.json({ 
       success: true, 
