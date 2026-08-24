@@ -133,25 +133,18 @@ export function Navbar() {
             <div className="flex items-center gap-4">
               {user ? (
                 <div className="flex items-center gap-3">
-                  <span className="text-zinc-200 font-semibold">
-                    <strong className="text-white">{user.name}</strong>님
-                  </span>
-                  {user.realNameVerified && (
-                    <span className="bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded text-[9px] font-bold">
-                      인증완료
-                    </span>
-                  )}
                   <Link 
                     href="/mypage" 
-                    className="text-zinc-300 hover:text-white transition-colors font-medium"
+                    className="text-zinc-300 hover:text-white transition-colors font-semibold"
                   >
-                    마이페이지
+                    마이페이지 ({user.name}님)
                   </Link>
+                  <span className="text-zinc-700">|</span>
                   <button 
                     onClick={handleLogout} 
-                    className="text-rose-400 hover:text-rose-300 flex items-center gap-1 font-bold cursor-pointer"
+                    className="text-rose-400 hover:text-rose-300 font-bold cursor-pointer transition-colors"
                   >
-                    <LogOut className="w-3 h-3" /> 로그오프
+                    로그오프
                   </button>
                 </div>
               ) : (
@@ -207,8 +200,8 @@ export function Navbar() {
             </nav>
           </div>
 
-          <div className="flex items-center gap-4">
-            {/* Search Trigger Button */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Search Button */}
             <button 
               type="button" 
               onClick={() => setIsSearchOpen(true)}
@@ -217,6 +210,18 @@ export function Navbar() {
             >
               <Search className="w-5 h-5 text-zinc-700" />
             </button>
+
+            {/* User Icon (Clean single icon: MyPage if logged in, Login if logged out) */}
+            <Link 
+              href={user ? "/mypage" : "/login"} 
+              className="p-2 hover:bg-zinc-100 rounded-full transition-colors relative" 
+              title={user ? `마이페이지 (${user.name}님)` : "로그인"}
+            >
+              <UserIcon className={`w-5 h-5 ${user ? "text-zinc-950 font-bold" : "text-zinc-700"}`} />
+              {user && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-500 rounded-full ring-2 ring-white" />
+              )}
+            </Link>
 
             {/* Cart with live count badge */}
             <Link href="/cart" className="p-2 hover:bg-zinc-100 rounded-full transition-colors relative" title="장바구니">
@@ -228,42 +233,10 @@ export function Navbar() {
               )}
             </Link>
 
-            {/* User Auth Capsule & Dynamic Logout Toggle */}
-            {user ? (
-              <div className="flex items-center gap-1.5">
-                <Link 
-                  href="/mypage" 
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 rounded-full text-xs font-bold transition-colors border border-zinc-200"
-                  title="마이페이지 바로가기"
-                >
-                  <UserIcon className="w-3.5 h-3.5 text-zinc-700" />
-                  <span className="max-w-[80px] truncate">{user.name}님</span>
-                </Link>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-full text-xs font-bold transition-all cursor-pointer border border-rose-200"
-                  title="로그오프"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                  <span>로그오프</span>
-                </button>
-              </div>
-            ) : (
-              <Link 
-                href="/login" 
-                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-zinc-950 text-white hover:bg-zinc-800 rounded-full text-xs font-bold transition-colors shadow-2xs"
-                title="로그인"
-              >
-                <UserIcon className="w-3.5 h-3.5" />
-                <span>로그인</span>
-              </Link>
-            )}
-
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 hover:bg-muted rounded-md"
+              className="md:hidden p-2 hover:bg-muted rounded-md ml-1"
             >
               <Menu className="h-6 w-6" />
             </button>
