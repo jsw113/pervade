@@ -85,6 +85,13 @@ export default async function Home() {
     orderBy: { createdAt: "desc" }
   });
 
+  // Fetch Featured Cleaning Guides (up to 3)
+  const featuredGuides = await prisma.guidePost.findMany({
+    where: { published: true },
+    take: 3,
+    orderBy: { createdAt: "desc" }
+  });
+
   // Fetch Brand Story Post (if any)
   const brandStoryPost = await prisma.post.findFirst({
     where: { type: "ABOUT", published: true },
@@ -443,76 +450,138 @@ export default async function Home() {
 
       case "journal":
         return (
-          <section key="journal" className="py-24 bg-white border-t">
+          <section key="journal" className="py-24 bg-white border-t space-y-16">
             <div className="container mx-auto px-4 max-w-5xl">
-              {/* Centered Section Header */}
-              <div className="text-center mb-14 space-y-2">
-                <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest inline-flex items-center justify-center gap-1.5">
-                  <BookOpen className="w-3.5 h-3.5 text-zinc-500" />
-                  Living Journal
-                </span>
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-950">퍼베이드 저널 & 라이프스타일</h2>
-                <p className="text-zinc-500 text-sm max-w-md mx-auto">
-                  공간의 가치를 높이는 감각적인 클리닝 팁과 영감의 이야기
-                </p>
-              </div>
+              {/* 1. Cleaning Guides Feed */}
+              <div className="space-y-8">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b pb-6">
+                  <div>
+                    <span className="text-xs font-bold text-amber-600 uppercase tracking-widest inline-flex items-center gap-1.5 mb-1">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Cleaning Pro Tips
+                    </span>
+                    <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-950">공간별 3분 세정 가이드</h2>
+                    <p className="text-zinc-500 text-xs mt-1">
+                      인덕션 기름때부터 욕실 물때까지, 일상의 얼룩을 완벽하게 지우는 전문가 팁
+                    </p>
+                  </div>
+                  <Link
+                    href="/guide"
+                    className="text-xs font-bold text-zinc-900 hover:text-amber-700 transition-colors shrink-0 flex items-center gap-1"
+                  >
+                    가이드 전체보기 &gt;
+                  </Link>
+                </div>
 
-              {/* Centered Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                {journalPosts.length === 0 ? (
-                  <>
-                    <div className="p-8 border rounded-3xl bg-zinc-50 space-y-3 text-center sm:text-left">
-                      <span className="text-[11px] font-bold text-zinc-400">2026. 08. 17</span>
-                      <h3 className="font-bold text-base text-zinc-900">미니멀 라이프를 위한 단 하나의 세정 솔루션</h3>
-                      <p className="text-xs text-zinc-500 leading-relaxed">
-                        복잡한 청소용품을 비우고, 자연 유래 다목적 세정제 하나로 주방과 욕실, 거실을 관리하는 건강한 라이프스타일 노하우.
-                      </p>
-                      <Link href="/journal" className="inline-block text-xs font-bold underline text-zinc-900 mt-1">
-                        자세히 읽기 &gt;
-                      </Link>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {featuredGuides.length === 0 ? (
+                    <div className="col-span-3 p-8 border rounded-3xl bg-zinc-50 text-center text-xs text-zinc-500">
+                      등록된 가이드 콘텐츠를 준비 중입니다.
                     </div>
-
-                    <div className="p-8 border rounded-3xl bg-zinc-50 space-y-3 text-center sm:text-left">
-                      <span className="text-[11px] font-bold text-zinc-400">2026. 08. 16</span>
-                      <h3 className="font-bold text-base text-zinc-900">가족의 숨결이 닿는 공간, 안전한 성분의 선택</h3>
-                      <p className="text-xs text-zinc-500 leading-relaxed">
-                        화학 계면활성제 대신 자연 유래 성분으로 채운 퍼베이드의 안심 포뮬러 이야기와 일상 속 실천 팁.
-                      </p>
-                      <Link href="/journal" className="inline-block text-xs font-bold underline text-zinc-900 mt-1">
-                        자세히 읽기 &gt;
-                      </Link>
-                    </div>
-                  </>
-                ) : (
-                  journalPosts.map((post) => (
-                    <article key={post.id} className="p-8 border rounded-3xl bg-zinc-50 hover:bg-zinc-100/80 transition-colors space-y-3 text-center sm:text-left">
-                      <span className="text-[11px] font-bold text-zinc-400">
-                        {new Date(post.createdAt).toLocaleDateString()}
-                      </span>
-                      <h3 className="font-bold text-base text-zinc-900 line-clamp-1">{post.title}</h3>
-                      <p className="text-xs text-zinc-500 leading-relaxed line-clamp-2">
-                        {post.content.replace(/[#*`]/g, '')}
-                      </p>
-                      <Link 
-                        href={`/journal/${post.id}`} 
-                        className="inline-block text-xs font-bold underline text-zinc-900 mt-1"
+                  ) : (
+                    featuredGuides.map((guide) => (
+                      <Link
+                        key={guide.id}
+                        href={`/guide/${guide.id}`}
+                        className="group bg-white rounded-3xl border overflow-hidden hover:shadow-xl hover:border-zinc-950 transition-all flex flex-col justify-between"
                       >
-                        자세히 읽기 &gt;
+                        {guide.thumbnailUrl && (
+                          <div className="aspect-[16/10] bg-zinc-100 overflow-hidden relative">
+                            <img 
+                              src={guide.thumbnailUrl} 
+                              alt={guide.title} 
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                            />
+                            <span className="absolute top-3 left-3 px-2.5 py-1 bg-zinc-950/80 backdrop-blur-md text-white text-[10px] font-bold rounded-lg shadow-sm">
+                              {guide.category}
+                            </span>
+                          </div>
+                        )}
+                        <div className="p-6 flex-1 flex flex-col justify-between space-y-3">
+                          <div className="space-y-1.5">
+                            <h3 className="font-extrabold text-sm text-zinc-900 group-hover:text-amber-700 transition-colors line-clamp-1">
+                              {guide.title}
+                            </h3>
+                            <p className="text-xs text-zinc-500 line-clamp-2 leading-relaxed">
+                              {guide.summary || guide.content.substring(0, 80)}
+                            </p>
+                          </div>
+                          <span className="text-[11px] font-bold text-zinc-900 flex items-center gap-1 group-hover:translate-x-1 transition-transform pt-2 border-t">
+                            가이드 읽고 제품 보기 &gt;
+                          </span>
+                        </div>
                       </Link>
-                    </article>
-                  ))
-                )}
+                    ))
+                  )}
+                </div>
               </div>
 
-              {/* Centered Bottom Action */}
-              <div className="text-center mt-12">
-                <Link 
-                  href="/journal" 
-                  className="inline-flex items-center gap-2 px-8 py-3.5 bg-zinc-950 text-white rounded-full text-xs font-bold hover:bg-zinc-800 transition-colors shadow-sm"
-                >
-                  <BookOpen className="w-3.5 h-3.5" />
-                  저널 전체보기
-                </Link>
+              {/* 2. Lifestyle Journal Feed */}
+              <div className="space-y-8 pt-12 border-t">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                  <div>
+                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest inline-flex items-center gap-1.5 mb-1">
+                      <BookOpen className="w-3.5 h-3.5 text-zinc-500" />
+                      Living Journal
+                    </span>
+                    <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-950">퍼베이드 스토리 &amp; 저널</h2>
+                    <p className="text-zinc-500 text-xs mt-1">
+                      자연 유래 안심 포뮬러와 감각적인 클린 라이프스타일 이야기
+                    </p>
+                  </div>
+                  <Link
+                    href="/journal"
+                    className="text-xs font-bold text-zinc-900 hover:text-amber-700 transition-colors shrink-0 flex items-center gap-1"
+                  >
+                    저널 전체보기 &gt;
+                  </Link>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {journalPosts.length === 0 ? (
+                    <>
+                      <div className="p-8 border rounded-3xl bg-zinc-50 space-y-3">
+                        <span className="text-[11px] font-bold text-zinc-400">2026. 08. 17</span>
+                        <h3 className="font-bold text-base text-zinc-900">미니멀 라이프를 위한 단 하나의 세정 솔루션</h3>
+                        <p className="text-xs text-zinc-500 leading-relaxed">
+                          복잡한 청소용품을 비우고, 자연 유래 다목적 세정제 하나로 주방과 욕실, 거실을 관리하는 건강한 라이프스타일 노하우.
+                        </p>
+                        <Link href="/journal" className="inline-block text-xs font-bold underline text-zinc-900 mt-1">
+                          자세히 읽기 &gt;
+                        </Link>
+                      </div>
+
+                      <div className="p-8 border rounded-3xl bg-zinc-50 space-y-3">
+                        <span className="text-[11px] font-bold text-zinc-400">2026. 08. 16</span>
+                        <h3 className="font-bold text-base text-zinc-900">가족의 숨결이 닿는 공간, 안전한 성분의 선택</h3>
+                        <p className="text-xs text-zinc-500 leading-relaxed">
+                          화학 계면활성제 대신 자연 유래 성분으로 채운 퍼베이드의 안심 포뮬러 이야기와 일상 속 실천 팁.
+                        </p>
+                        <Link href="/journal" className="inline-block text-xs font-bold underline text-zinc-900 mt-1">
+                          자세히 읽기 &gt;
+                        </Link>
+                      </div>
+                    </>
+                  ) : (
+                    journalPosts.map((post) => (
+                      <article key={post.id} className="p-8 border rounded-3xl bg-zinc-50 hover:bg-zinc-100/80 transition-colors space-y-3">
+                        <span className="text-[11px] font-bold text-zinc-400">
+                          {new Date(post.createdAt).toLocaleDateString()}
+                        </span>
+                        <h3 className="font-bold text-base text-zinc-900 line-clamp-1">{post.title}</h3>
+                        <p className="text-xs text-zinc-500 leading-relaxed line-clamp-2">
+                          {post.content.replace(/[#*`]/g, '')}
+                        </p>
+                        <Link 
+                          href={`/journal/${post.id}`} 
+                          className="inline-block text-xs font-bold underline text-zinc-900 mt-1"
+                        >
+                          자세히 읽기 &gt;
+                        </Link>
+                      </article>
+                    ))
+                  )}
+                </div>
               </div>
             </div>
           </section>

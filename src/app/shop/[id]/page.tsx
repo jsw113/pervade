@@ -1,12 +1,43 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { ArrowLeft, MessageCircle, Star, Sparkles, ShieldCheck, FileText, Info, ChevronRight, Tag } from "lucide-react";
+import type { Metadata } from "next";
+import { ArrowLeft, MessageCircle, Star, Sparkles, ShieldCheck, FileText, Info, ChevronRight, Tag, BookOpen, ArrowRight } from "lucide-react";
 import { ProductPurchasePanel } from "@/components/shop/ProductPurchasePanel";
 import { ReviewSection } from "@/components/shop/ReviewSection";
 import { ProductGallery } from "@/components/shop/ProductGallery";
 import { ShareButtons } from "@/components/common/ShareButtons";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const product = await prisma.product.findUnique({ where: { id } }).catch(() => null);
+  if (!product) return { title: "상품 상세 | PERVADE" };
+
+  const title = `${product.name} | PERVADE`;
+  const description = product.description || "퍼베이드 프리미엄 다목적 세정제 & 공간 케어 솔루션";
+  const image = product.imageUrl || "https://www.pervade.co.kr/og-image.jpg";
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `https://www.pervade.co.kr/shop/${id}`,
+      siteName: "PERVADE (퍼베이드)",
+      images: [{ url: image, width: 800, height: 800, alt: product.name }],
+      locale: "ko_KR",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+  };
+}
 
 export default async function ProductDetailPage({
   params
@@ -36,6 +67,19 @@ export default async function ProductDetailPage({
     );
   }
 
+  // Fetch Related Cleaning Guides
+  const relatedGuides = await prisma.guidePost.findMany({
+    where: {
+      published: true,
+      OR: [
+        { productId: product.id },
+        { category: product.category || "주방" }
+      ]
+    },
+    take: 2,
+    orderBy: { createdAt: "desc" }
+  });
+
   // Parse multi images array
   let galleryImages: string[] = [];
   try {
@@ -59,144 +103,71 @@ export default async function ProductDetailPage({
     detailImages = [];
   }
 
-  // Calculate average rating
-  const avgRating = product.reviews.length > 0 
-    ? (product.reviews.reduce((sum, r) => sum + r.rating, 0) / product.reviews.length).toFixed(1)
+  // Fetch live shipping policy
+  const policies = await prisma.policy.findMany();
+  const shippingNotice = policies.find(p => p.key === "SHIPPING_NOTICE")?.value || 
+    "· 배송 방법: CJ대한통운 (주문 후 1~2일 내 출고)\n· 배송비: 3,000원 (30,000원 이상 구매 시 무료배송)\n· 제주/도서산간 지역은 추가 배송비 3,000원이 부과됩니다.\n· 교환 및 반품은 수령 후 7일 이내 고객센터를 통해 신청 가능합니다.";
+
+  const reviewCount = product.reviews.length;
+  const avgRating = reviewCount > 0 
+    ? (product.reviews.reduce((acc, r) => acc + r.rating, 0) / reviewCount).toFixed(1) 
     : "5.0";
 
-  // Fetch Common Policy
-  const shippingPolicy = await prisma.policy.findUnique({
-    where: { key: "SHIPPING_INFO" }
-  });
-
-  const shippingNotice = shippingPolicy?.value || `
-- 기본 배송비: ${product.shippingFee === 0 ? "무료배송" : `${product.shippingFee.toLocaleString()}원`} (제주/도서산간 3,000원 추가)
-- 출고 마감: 평일 오후 2시 이전 결제 완료 건 당일 발송
-- 택배사: CJ대한통운 (영업일 기준 1~3일 소요)
-- 교환/반품: 상품 수령 후 7일 이내 (단순 변심 시 왕복 배송비 6,000원 고객 부담)
-`;
-
   return (
-    <div className="container mx-auto px-4 py-10 max-w-6xl">
-      {/* 2-Depth Breadcrumb Navigation */}
-      <nav className="flex items-center gap-2 text-xs text-zinc-500 font-medium mb-8 overflow-x-auto whitespace-nowrap pb-1">
-        <Link href="/" className="hover:text-zinc-950 transition-colors">홈</Link>
-        <ChevronRight className="w-3 h-3 text-zinc-400 shrink-0" />
-        <Link href="/shop" className="hover:text-zinc-950 transition-colors">Shop</Link>
-        <ChevronRight className="w-3 h-3 text-zinc-400 shrink-0" />
-        <Link 
-          href={`/shop?category=${encodeURIComponent(product.category || "세정제류")}`} 
-          className="font-bold text-zinc-800 hover:text-amber-700 transition-colors"
-        >
-          {product.category || "세정제류"}
+    <div className="container mx-auto px-4 py-10 max-w-5xl space-y-12">
+      {/* Breadcrumbs & Back */}
+      <div className="flex items-center gap-2 text-xs text-zinc-500">
+        <Link href="/shop" className="hover:text-zinc-950 flex items-center gap-1 font-semibold transition-colors">
+          <ArrowLeft className="w-3.5 h-3.5" /> 스토어 전체
         </Link>
-        {product.subCategory && (
-          <>
-            <ChevronRight className="w-3 h-3 text-zinc-400 shrink-0" />
-            <Link 
-              href={`/shop?category=${encodeURIComponent(product.category || "세정제류")}&subCategory=${encodeURIComponent(product.subCategory)}`} 
-              className="text-amber-700 font-semibold hover:underline"
-            >
-              {product.subCategory}
-            </Link>
-          </>
-        )}
-        <ChevronRight className="w-3 h-3 text-zinc-400 shrink-0" />
+        <ChevronRight className="w-3 h-3 text-zinc-300" />
+        <span className="font-semibold text-zinc-800">{product.category || "다목적 세정제"}</span>
+        <ChevronRight className="w-3 h-3 text-zinc-300" />
         <span className="text-zinc-400 truncate max-w-[200px]">{product.name}</span>
-      </nav>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 items-start mb-16">
-        
-        {/* Left: Product Images Gallery with Thumbnails */}
-        <ProductGallery 
-          images={galleryImages} 
-          productName={product.name} 
-        />
-
-        {/* Right: Product Order Info */}
-        <div className="space-y-6">
-          <div className="space-y-3 border-b border-zinc-100 pb-6">
-            {/* 2-Depth Category Badges */}
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 bg-zinc-950 text-white rounded-md text-[10px] font-black tracking-wider uppercase">
-                {product.category || "세정제류"}
-              </span>
-              <span className="px-2 py-0.5 bg-amber-50 border border-amber-200 text-amber-800 rounded-md text-[10px] font-bold">
-                {product.subCategory || "다목적/올인원"}
-              </span>
-              <div className="flex items-center text-amber-500 text-xs gap-1 ml-auto">
-                <Star className="w-3.5 h-3.5 fill-current" />
-                <span className="font-bold text-zinc-800">{avgRating}</span>
-                <span className="text-zinc-400">({product.reviews.length}개 리뷰)</span>
-              </div>
-            </div>
-
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-950 tracking-tight">
-              {product.name}
-            </h1>
-            <p className="text-zinc-600 text-xs leading-relaxed">
-              {product.description}
-            </p>
-          </div>
-
-          <div className="space-y-1">
-            {product.originalPrice && product.originalPrice > product.price && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-zinc-400 line-through">
-                  ₩{product.originalPrice.toLocaleString()}
-                </span>
-                <span className="text-xs font-black text-red-500">
-                  {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% 할인
-                </span>
-              </div>
-            )}
-            <div className="text-3xl font-black text-zinc-950">
-              ₩{product.price.toLocaleString()}원
-            </div>
-          </div>
-
-          {/* Benefits Block */}
-          <div className="bg-zinc-50 rounded-2xl p-5 border text-xs space-y-3">
-            <div className="flex justify-between items-start">
-              <span className="font-semibold text-zinc-500 w-20">회원 혜택</span>
-              <div className="flex-1">
-                <span className="bg-black text-white text-[10px] font-bold px-1.5 py-0.5 rounded mr-1.5">실명인증</span>
-                <span className="font-bold text-zinc-950">결제 시 최대 {(product.price * 0.05).toLocaleString()}P 포인트 적립</span>
-              </div>
-            </div>
-            <div className="flex justify-between items-start">
-              <span className="font-semibold text-zinc-500 w-20">배송 안내</span>
-              <div className="flex-1 text-zinc-700">
-                <span className="font-bold">{product.shippingFee === 0 ? "무료배송" : `${product.shippingFee.toLocaleString()}원`}</span>
-                <span className="text-zinc-400 ml-1.5">(CJ대한통운 / 평일 14시 당일 출고)</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Purchase Client Interactive Component */}
-          <ProductPurchasePanel product={product} />
-
+      {/* Main Top Section: Gallery (Left) + Purchase Panel (Right) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-14 items-start">
+        {/* Left: Product Images Gallery */}
+        <div className="space-y-4">
+          <ProductGallery images={galleryImages} productName={product.name} />
+          
           {/* Social Share Buttons */}
           <div className="pt-2">
             <ShareButtons 
               title={product.name}
-              description={product.description}
+              description={product.description || `${product.name} - 프리미엄 세정제 퍼베이드`}
             />
           </div>
         </div>
+
+        {/* Right: Purchase & Options Panel */}
+        <div className="space-y-6">
+          <ProductPurchasePanel product={product} />
+        </div>
       </div>
 
-      {/* Detail Section Tabs & Content */}
-      <div className="border-t pt-12 space-y-12">
-        
-        {/* Navigation Anchor Bar */}
-        <div className="flex border-b text-sm font-bold justify-center gap-8 sticky top-16 bg-white/95 backdrop-blur-md z-30 py-3">
-          <a href="#details" className="text-zinc-950 border-b-2 border-zinc-950 pb-2">제품 상세설명</a>
-          <a href="#reviews" className="text-zinc-400 hover:text-zinc-950 transition-colors pb-2">상품 리뷰 ({product.reviews.length})</a>
-          <a href="#guide" className="text-zinc-400 hover:text-zinc-950 transition-colors pb-2">사용가이드</a>
-          <a href="#shipping" className="text-zinc-400 hover:text-zinc-950 transition-colors pb-2">배송/환불 안내</a>
+      {/* Sub Tabs Navigation */}
+      <div className="border-t pt-10">
+        <div className="flex border-b border-zinc-200 text-sm font-bold text-zinc-500 overflow-x-auto">
+          <a href="#details" className="px-6 py-3 border-b-2 border-zinc-950 text-zinc-950 whitespace-nowrap">
+            상세정보
+          </a>
+          <a href="#reviews" className="px-6 py-3 hover:text-zinc-950 transition-colors whitespace-nowrap">
+            구매후기 ({reviewCount})
+          </a>
+          <a href="#guide" className="px-6 py-3 hover:text-zinc-950 transition-colors whitespace-nowrap">
+            사용가이드
+          </a>
+          <a href="#shipping" className="px-6 py-3 hover:text-zinc-950 transition-colors whitespace-nowrap">
+            배송/교환/반품
+          </a>
         </div>
+      </div>
 
+      {/* Main Bottom Content Container */}
+      <div className="space-y-16">
+        
         {/* 1. Detail Content Area */}
         <div id="details" className="max-w-3xl mx-auto space-y-8">
           
@@ -219,7 +190,7 @@ export default async function ProductDetailPage({
             </div>
           )}
 
-          {/* Product Legal Disclosure Table (전자상거래 등에서의 상품정보제공고시 - 생활화학제품 기준) */}
+          {/* Product Legal Disclosure Table */}
           <div className="space-y-4 pt-6 border-t">
             <h3 className="text-base font-bold text-zinc-950 flex items-center gap-2">
               <FileText className="w-4 h-4 text-zinc-700" />
@@ -286,19 +257,58 @@ export default async function ProductDetailPage({
           <ReviewSection productId={product.id} />
         </div>
 
-        {/* 3. Guide Callout */}
-        <div id="guide" className="max-w-3xl mx-auto bg-amber-500/10 border border-amber-500/20 rounded-3xl p-8 text-center space-y-3">
-          <span className="text-[11px] font-bold text-amber-600 uppercase tracking-widest">Cleaning Pro Tips</span>
-          <h3 className="text-xl font-bold text-zinc-950">이 제품을 더 효과적으로 사용하는 방법</h3>
-          <p className="text-xs text-zinc-600 max-w-lg mx-auto leading-relaxed">
-            인덕션 기름때, 욕실 물때, 가구 얼룩 등 상황별 3분 클리닝 비법을 공식 가이드에서 확인하세요.
-          </p>
-          <Link
-            href="/guide"
-            className="inline-block px-6 py-2.5 bg-zinc-950 text-white rounded-full text-xs font-bold hover:bg-zinc-800 transition-colors shadow-sm"
-          >
-            공식 사용 가이드 보러가기 &gt;
-          </Link>
+        {/* 3. Related Cleaning Guides & Magazine Tips Feed */}
+        <div id="guide" className="max-w-3xl mx-auto space-y-6 pt-12 border-t">
+          <div className="flex justify-between items-end">
+            <div>
+              <span className="text-[11px] font-bold text-amber-600 uppercase tracking-widest flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5" />
+                Cleaning Master Guide
+              </span>
+              <h3 className="text-xl font-black text-zinc-950 mt-1">이 제품을 활용한 공간별 세정 꿀팁</h3>
+              <p className="text-xs text-zinc-500 mt-0.5">인덕션 기름때, 욕실 물때, 가구 얼룩 등 3분 클리닝 비법</p>
+            </div>
+            <Link
+              href="/guide"
+              className="text-xs font-bold text-zinc-700 hover:text-zinc-950 flex items-center gap-0.5"
+            >
+              가이드 전체보기 &gt;
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {relatedGuides.length > 0 ? (
+              relatedGuides.map((g) => (
+                <Link
+                  key={g.id}
+                  href={`/guide/${g.id}`}
+                  className="group bg-white p-4 rounded-2xl border hover:shadow-md hover:border-zinc-900 transition-all flex gap-3.5 items-center"
+                >
+                  {g.thumbnailUrl && (
+                    <div className="w-18 h-18 rounded-xl overflow-hidden shrink-0 bg-zinc-100 border">
+                      <img src={g.thumbnailUrl} alt={g.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                    </div>
+                  )}
+                  <div className="space-y-1 min-w-0 flex-1">
+                    <span className="px-2 py-0.5 bg-zinc-100 text-zinc-700 text-[10px] font-bold rounded-md">
+                      {g.category}
+                    </span>
+                    <h4 className="font-bold text-xs sm:text-sm text-zinc-950 group-hover:text-amber-700 transition-colors line-clamp-1">
+                      {g.title}
+                    </h4>
+                    <p className="text-[11px] text-zinc-400 line-clamp-1">{g.summary || g.content.substring(0, 50)}</p>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <div className="col-span-2 bg-amber-50/50 border border-amber-200/60 rounded-2xl p-6 text-center space-y-2">
+                <p className="text-xs text-zinc-600 font-medium">퍼베이드 공식 가이드에서 제품별 청소 비법을 만나보세요.</p>
+                <Link href="/guide" className="inline-block px-4 py-2 bg-zinc-950 text-white rounded-xl text-xs font-bold">
+                  공식 청소 가이드 허브 바로가기
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 4. Shipping & Returns Info */}

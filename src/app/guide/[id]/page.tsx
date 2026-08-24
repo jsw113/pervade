@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { ArrowLeft, BookOpen, Sparkles, ShieldCheck, Eye, ArrowRight, ShoppingCart } from "lucide-react";
 import { ShareButtons } from "@/components/common/ShareButtons";
+import { GuideProductQuickBuy } from "@/components/shop/GuideProductQuickBuy";
 
 export const dynamic = "force-dynamic";
 
@@ -156,34 +157,10 @@ export default async function GuideDetailPage({
         />
       </div>
 
-      {/* Connected Product Purchase Card */}
+      {/* Connected Product Interactive Quick Buy & Cart Card */}
       {guide.product && (
-        <div className="mt-8 bg-zinc-950 text-white rounded-3xl p-6 sm:p-8 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-5">
-            <div className="w-20 h-20 bg-white rounded-2xl overflow-hidden shrink-0 border border-zinc-800 p-1">
-              <img 
-                src={guide.product.imageUrl} 
-                alt={guide.product.name} 
-                className="w-full h-full object-cover rounded-xl"
-              />
-            </div>
-            <div className="space-y-1 text-center sm:text-left">
-              <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">이 가이드에 사용된 추천 제품</span>
-              <h3 className="font-bold text-lg text-white">{guide.product.name}</h3>
-              <p className="text-xs text-zinc-400">
-                ₩{guide.product.price.toLocaleString()}원
-              </p>
-            </div>
-          </div>
-
-          <Link
-            href={`/shop/${guide.product.id}`}
-            className="px-6 py-3.5 bg-white text-zinc-950 rounded-xl text-xs font-bold hover:bg-zinc-200 transition-colors flex items-center gap-2 shrink-0 shadow-md"
-          >
-            <ShoppingCart className="w-4 h-4" />
-            상품 바로 구매하기
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+        <div className="mt-8">
+          <GuideProductQuickBuy product={guide.product} />
         </div>
       )}
 
