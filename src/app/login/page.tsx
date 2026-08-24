@@ -47,6 +47,11 @@ export default function LoginPage() {
 
       if (response.ok) {
         const data = await response.json();
+        if (data.user) {
+          try {
+            localStorage.setItem("pervade_user", JSON.stringify(data.user));
+          } catch (e) {}
+        }
         alert("🎉 로그인되었습니다.");
         const destination = (data.user?.role === "ADMIN" || data.user?.role === "SUPER_ADMIN" || data.user?.role?.startsWith("MANAGER"))
           ? (redirectUrl || "/admin")
@@ -105,6 +110,11 @@ export default function LoginPage() {
 
       if (response.ok) {
         const data = await response.json();
+        if (data.user) {
+          try {
+            localStorage.setItem("pervade_user", JSON.stringify(data.user));
+          } catch (e) {}
+        }
         alert(`✅ ${provider} 간편 로그인 완료! (${data.user?.name || socialName}님 환영합니다)`);
         setSocialModalProvider(null);
         window.location.href = redirectUrl || "/mypage";

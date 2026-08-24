@@ -24,6 +24,16 @@ export function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
 
+  // 1. Instantly read user from localStorage on mount (Zero flicker)
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem("pervade_user");
+      if (cached) {
+        setUser(JSON.parse(cached));
+      }
+    } catch (e) {}
+  }, []);
+
   const checkAuthAndCart = async () => {
     try {
       // 1. Theme
@@ -53,11 +63,15 @@ export function Navbar() {
         const authData = await authRes.json();
         if (authData.loggedIn && authData.user) {
           setUser(authData.user);
+          try {
+            localStorage.setItem("pervade_user", JSON.stringify(authData.user));
+          } catch (e) {}
         } else {
           setUser(null);
+          try {
+            localStorage.removeItem("pervade_user");
+          } catch (e) {}
         }
-      } else {
-        setUser(null);
       }
 
       // 4. Cart
@@ -84,6 +98,9 @@ export function Navbar() {
     if (!confirm("로그아웃(로그오프) 하시겠습니까?")) return;
     try {
       await fetch("/api/auth/logout", { method: "POST" });
+      try {
+        localStorage.removeItem("pervade_user");
+      } catch (e) {}
       setUser(null);
       setCartCount(0);
       alert("로그아웃되었습니다.");
@@ -134,7 +151,10 @@ export function Navbar() {
                       인증완료
                     </span>
                   )}
-                  <Link href="/mypage" className="text-zinc-300 hover:text-white transition-colors font-medium">
+                  <Link 
+                    href={user.role === "ADMIN" || user.role === "SUPER_ADMIN" || user.role?.startsWith("MANAGER") ? "/admin" : "/mypage"} 
+                    className="text-zinc-300 hover:text-white transition-colors font-medium"
+                  >
                     마이페이지
                   </Link>
                   <button 
@@ -222,7 +242,7 @@ export function Navbar() {
             {user ? (
               <div className="flex items-center gap-1.5">
                 <Link 
-                  href="/mypage" 
+                  href={user.role === "ADMIN" || user.role === "SUPER_ADMIN" || user.role?.startsWith("MANAGER") ? "/admin" : "/mypage"} 
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 rounded-full text-xs font-bold transition-colors border border-zinc-200"
                   title="마이페이지 바로가기"
                 >
@@ -274,7 +294,11 @@ export function Navbar() {
             <div className="pt-4 border-t flex flex-col gap-2">
               {user ? (
                 <>
-                  <Link href="/mypage" onClick={() => setIsMenuOpen(false)} className="w-full text-center py-2.5 bg-zinc-100 rounded-xl text-xs font-bold">
+                  <Link 
+                    href={user.role === "ADMIN" || user.role === "SUPER_ADMIN" || user.role?.startsWith("MANAGER") ? "/admin" : "/mypage"} 
+                    onClick={() => setIsMenuOpen(false)} 
+                    className="w-full text-center py-2.5 bg-zinc-100 rounded-xl text-xs font-bold"
+                  >
                     마이페이지 ({user.name}님)
                   </Link>
                   <button onClick={handleLogout} className="w-full text-center py-2.5 bg-rose-50 border border-rose-200 rounded-xl text-xs font-bold text-rose-700 flex items-center justify-center gap-1">
