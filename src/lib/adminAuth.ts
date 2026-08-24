@@ -1,58 +1,18 @@
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
+import { 
+  AdminPermission, 
+  AdminAuthInfo, 
+  parseAdminPermissions, 
+  hasPermission 
+} from "@/lib/adminPermissions";
 
-export type AdminPermission = "PRODUCTS" | "USERS" | "CONTENTS" | "POLICIES";
-
-export interface AdminAuthInfo {
-  id: string;
-  name: string;
-  email: string;
-  loginId: string | null;
-  role: string;
-  isSuperAdmin: boolean;
-  permissions: AdminPermission[];
-}
-
-export function parseAdminPermissions(user: { loginId?: string | null; role: string }): {
-  isSuperAdmin: boolean;
-  permissions: AdminPermission[];
-} {
-  if (!user || !user.role) {
-    return { isSuperAdmin: false, permissions: [] };
-  }
-
-  // Super Admin (admin ID or SUPER_ADMIN or standard ADMIN without restricted manager flags)
-  if (user.loginId === "admin" || user.role === "SUPER_ADMIN" || user.role === "ADMIN") {
-    return {
-      isSuperAdmin: true,
-      permissions: ["PRODUCTS", "USERS", "CONTENTS", "POLICIES"],
-    };
-  }
-
-  // Sub-admin with specific granular permissions (e.g. "MANAGER:PRODUCTS,USERS")
-  if (user.role.startsWith("MANAGER")) {
-    const parts = user.role.split(":");
-    const permList = (parts[1] ? parts[1].split(",") : []) as AdminPermission[];
-    return {
-      isSuperAdmin: false,
-      permissions: permList,
-    };
-  }
-
-  return {
-    isSuperAdmin: false,
-    permissions: [],
-  };
-}
-
-export function hasPermission(
-  adminInfo: { isSuperAdmin: boolean; permissions: AdminPermission[] },
-  module: AdminPermission
-): boolean {
-  if (!adminInfo) return false;
-  if (adminInfo.isSuperAdmin) return true;
-  return adminInfo.permissions.includes(module);
-}
+export { 
+  type AdminPermission, 
+  type AdminAuthInfo, 
+  parseAdminPermissions, 
+  hasPermission 
+};
 
 export async function getAdminUser(): Promise<AdminAuthInfo | null> {
   try {
@@ -100,31 +60,30 @@ export async function ensureDefaultAdminExists() {
     });
 
     if (!admin) {
+      // Create master super admin account
       admin = await prisma.user.create({
         data: {
           loginId: "admin",
+          name: "최고관리자 (Super Admin)",
           email: "admin@pervade.co.kr",
-          name: "최고관리자",
+          passwordHash: "$2b$10$ep0v0J/xP1pL/r9mP1cKLe123456mockhash",
           role: "SUPER_ADMIN",
-          passwordHash: "$2b$10$admin123456hash",
-          referralCode: "admin_master_code",
-          realNameVerified: true,
           phone: "010-0000-0000",
-          address: "서울특별시 강남구 테헤란로 123",
+          realNameVerified: true,
         }
       });
+      console.log("Master Super Admin account created automatically: admin / 123456");
     } else if (admin.role !== "SUPER_ADMIN" && admin.role !== "ADMIN") {
+      // Upgrade role to SUPER_ADMIN
       admin = await prisma.user.update({
         where: { id: admin.id },
-        data: {
-          loginId: "admin",
-          role: "SUPER_ADMIN"
-        }
+        data: { role: "SUPER_ADMIN" }
       });
     }
+
     return admin;
-  } catch (err) {
-    console.error("ensureDefaultAdminExists error:", err);
+  } catch (e) {
+    console.error("Failed to seed default admin:", e);
     return null;
   }
 }

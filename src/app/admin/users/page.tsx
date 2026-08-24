@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Search, UserPlus, Edit, Trash2, ShieldCheck, ShieldAlert, RefreshCw, X, Check, Award, MapPin, Key, Shield, CheckSquare, Square } from "lucide-react";
 import { calculateUserTier } from "@/lib/userTier";
-import { AdminPermission, parseAdminPermissions } from "@/lib/adminAuth";
+import { AdminPermission, parseAdminPermissions } from "@/lib/adminPermissions";
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<any[]>([]);

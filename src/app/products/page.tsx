@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProductsIntroPage() {
   const posts = await prisma.post.findMany({
     where: { type: "PRODUCT", published: true },
