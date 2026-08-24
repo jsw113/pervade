@@ -53,7 +53,9 @@ function LoginForm() {
           } catch (e) {}
         }
         alert("🎉 로그인되었습니다.");
-        window.location.href = "/";
+        const isAdmin = data.user?.role === "ADMIN" || data.user?.role === "SUPER_ADMIN" || data.user?.role?.startsWith("MANAGER") || data.user?.loginId === "admin";
+        const destination = redirectUrl || (isAdmin ? "/admin" : "/");
+        window.location.href = destination;
       } else {
         const errorData = await response.json();
         alert(errorData.error || "로그인에 실패했습니다.");

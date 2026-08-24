@@ -17,7 +17,7 @@ export function Navbar() {
   const [topBannerEnabled, setTopBannerEnabled] = useState(true);
 
   // Auth & Cart State
-  const [user, setUser] = useState<{ id: string; name: string; email: string; role: string; realNameVerified: boolean } | null>(null);
+  const [user, setUser] = useState<{ id: string; name: string; email: string; role: string; realNameVerified: boolean; loginId?: string | null } | null>(null);
   const [cartCount, setCartCount] = useState<number>(0);
 
   // Search Modal State
@@ -157,6 +157,20 @@ export function Navbar() {
             <div className="flex items-center gap-4">
               {user ? (
                 <div className="flex items-center gap-3">
+                  {/* Show Backoffice link strictly for authenticated ADMIN / MANAGER */}
+                  {(user.role === "ADMIN" || user.role === "SUPER_ADMIN" || user.role?.startsWith("MANAGER") || user.loginId === "admin" || user.email === "admin@pervade.co.kr") && (
+                    <>
+                      <Link 
+                        href="/admin" 
+                        className="px-2.5 py-0.5 bg-amber-400 text-zinc-950 hover:bg-amber-300 rounded font-black transition-colors flex items-center gap-1 text-[10px] shadow-2xs"
+                        title="통합 백오피스 관리자 콘솔로 이동"
+                      >
+                        ⚙️ 백오피스(Admin)
+                      </Link>
+                      <span className="text-zinc-700">|</span>
+                    </>
+                  )}
+
                   <span className="text-zinc-300 font-medium">
                     <strong className="text-white font-bold">{user.name}</strong>님 환영합니다!
                   </span>
