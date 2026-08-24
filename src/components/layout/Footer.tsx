@@ -67,7 +67,6 @@ export function Footer() {
               <li><Link href="/qna" className="hover:text-white transition-colors">1:1 문의 게시판</Link></li>
               <li><Link href="/shipping" className="hover:text-white transition-colors">배송 / 교환 / 반품 안내</Link></li>
               <li><Link href="/contact" className="hover:text-white transition-colors">대량구매 & 제휴문의</Link></li>
-              <li><Link href="/admin" className="hover:text-amber-300 transition-colors font-bold text-amber-400 flex items-center gap-1 pt-1">⚙️ 관리자 백오피스</Link></li>
             </ul>
           </div>
           
