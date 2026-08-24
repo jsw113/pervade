@@ -131,18 +131,22 @@ export function Navbar() {
               )}
             </div>
             <div className="flex items-center gap-4">
-              {/* Direct Backoffice Link for Testing */}
-              <Link 
-                href="/admin" 
-                className="px-2.5 py-0.5 bg-amber-400/20 text-amber-300 hover:bg-amber-400/30 rounded font-bold transition-colors flex items-center gap-1 text-[10px]"
-                title="통합 백오피스 관리자 콘솔로 이동"
-              >
-                ⚙️ 백오피스(Admin)
-              </Link>
-              <span className="text-zinc-700">|</span>
-
               {user ? (
                 <div className="flex items-center gap-3">
+                  {/* Show Backoffice link ONLY when logged in as ADMIN / MANAGER */}
+                  {(user.role === "ADMIN" || user.role === "SUPER_ADMIN" || user.role?.startsWith("MANAGER")) && (
+                    <>
+                      <Link 
+                        href="/admin" 
+                        className="px-2.5 py-0.5 bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 rounded font-bold transition-colors flex items-center gap-1 text-[10px]"
+                        title="통합 백오피스 관리자 콘솔로 이동"
+                      >
+                        ⚙️ 백오피스
+                      </Link>
+                      <span className="text-zinc-700">|</span>
+                    </>
+                  )}
+
                   <span className="text-zinc-200 font-semibold">
                     <strong className="text-white">{user.name}</strong>님
                   </span>
@@ -152,7 +156,7 @@ export function Navbar() {
                     </span>
                   )}
                   <Link 
-                    href={user.role === "ADMIN" || user.role === "SUPER_ADMIN" || user.role?.startsWith("MANAGER") ? "/admin" : "/mypage"} 
+                    href="/mypage" 
                     className="text-zinc-300 hover:text-white transition-colors font-medium"
                   >
                     마이페이지
@@ -294,8 +298,17 @@ export function Navbar() {
             <div className="pt-4 border-t flex flex-col gap-2">
               {user ? (
                 <>
+                  {(user.role === "ADMIN" || user.role === "SUPER_ADMIN" || user.role?.startsWith("MANAGER")) && (
+                    <Link 
+                      href="/admin" 
+                      onClick={() => setIsMenuOpen(false)} 
+                      className="w-full text-center py-2.5 bg-purple-900 text-white rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5"
+                    >
+                      ⚙️ 통합 백오피스(Admin) 바로가기
+                    </Link>
+                  )}
                   <Link 
-                    href={user.role === "ADMIN" || user.role === "SUPER_ADMIN" || user.role?.startsWith("MANAGER") ? "/admin" : "/mypage"} 
+                    href="/mypage" 
                     onClick={() => setIsMenuOpen(false)} 
                     className="w-full text-center py-2.5 bg-zinc-100 rounded-xl text-xs font-bold"
                   >
