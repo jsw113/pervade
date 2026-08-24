@@ -1,4 +1,4 @@
-import { Gift, ShoppingBag, Trophy, Users, Heart, Clipboard, User as UserIcon, MapPin, Calendar, CheckCircle, ShieldAlert, Sparkles, Award } from "lucide-react";
+import { Gift, ShoppingBag, Trophy, Users, Heart, Clipboard, User as UserIcon, MapPin, Calendar, CheckCircle, ShieldAlert, Sparkles, Award, LogOut } from "lucide-react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
@@ -57,9 +57,18 @@ export default async function MyPage() {
 
   return (
     <div className="container mx-auto px-4 py-16 max-w-5xl space-y-10">
-      <div className="flex justify-between items-baseline">
-        <h1 className="text-3xl font-black tracking-tight text-zinc-950">마이페이지</h1>
-        <span className="text-xs text-zinc-400">회원 정보 및 배송지 / 주문 실적 관리</span>
+      <div className="flex justify-between items-center border-b pb-4">
+        <div>
+          <h1 className="text-3xl font-black tracking-tight text-zinc-950">마이페이지</h1>
+          <p className="text-xs text-zinc-400 mt-1">회원 정보 및 배송지 / 주문 실적 관리</p>
+        </div>
+        <Link
+          href="/api/auth/logout"
+          className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-2xs"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span>로그아웃</span>
+        </Link>
       </div>
       
       {/* 1. Profile & 4-Tier Membership Status */}

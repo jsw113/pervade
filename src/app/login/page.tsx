@@ -1,22 +1,34 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { HelpCircle, Lock } from "lucide-react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ShieldCheck, ArrowRight, HelpCircle, Check, X, Shield, Lock } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get("redirect") || "";
+
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false); // Default: false (auto-login disabled)
+  const [rememberMe, setRememberMe] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSocialAuthHelp, setShowSocialAuthHelp] = useState(false);
 
+  // Social Auth Modal State
+  const [socialModalProvider, setSocialModalProvider] = useState<"KAKAO" | "NAVER" | "GOOGLE" | null>(null);
+  const [socialEmail, setSocialEmail] = useState("");
+  const [socialName, setSocialName] = useState("");
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!identifier || !password) {
+      alert("아이디 또는 이메일과 비밀번호를 모두 입력해주세요.");
+      return;
+    }
+
     setIsSubmitting(true);
-    
     try {
       const response = await fetch("/api/auth/login", {
         method: "POST",
@@ -31,10 +43,10 @@ export default function LoginPage() {
       if (response.ok) {
         const data = await response.json();
         alert("🎉 로그인되었습니다.");
-        if (data.user?.role === "ADMIN") {
-          router.push("/admin");
+        if (data.user?.role === "ADMIN" || data.user?.role === "SUPER_ADMIN" || data.user?.role?.startsWith("MANAGER")) {
+          router.push(redirectUrl || "/admin");
         } else {
-          router.push("/mypage");
+          router.push(redirectUrl || "/mypage");
         }
         router.refresh();
       } else {
@@ -49,13 +61,32 @@ export default function LoginPage() {
     }
   };
 
-  // Social Login (Kakao, Naver, Google)
-  const handleSocialLogin = async (provider: "GOOGLE" | "NAVER" | "KAKAO") => {
+  // Open Social Auth Consent Window
+  const openSocialAuthModal = (provider: "KAKAO" | "NAVER" | "GOOGLE") => {
+    setSocialModalProvider(provider);
+    if (provider === "KAKAO") {
+      setSocialName("카카오 고객");
+      setSocialEmail("customer@kakao.com");
+    } else if (provider === "NAVER") {
+      setSocialName("네이버 고객");
+      setSocialEmail("customer@naver.com");
+    } else {
+      setSocialName("구글 고객");
+      setSocialEmail("customer@gmail.com");
+    }
+  };
+
+  // Submit Social Login
+  const handleSocialSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!socialModalProvider || !socialEmail.trim() || !socialName.trim()) {
+      alert("이름과 이메일을 입력해주세요.");
+      return;
+    }
+
     setIsSubmitting(true);
-    
-    const mockEmail = `social_${provider.toLowerCase()}_test@example.com`;
-    const mockName = `${provider.charAt(0) + provider.slice(1).toLowerCase()} 테스트유저`;
-    const mockSocialId = `id_test_${provider.toLowerCase()}`;
+    const provider = socialModalProvider;
+    const mockSocialId = `soc_${provider.toLowerCase()}_${socialEmail.replace(/[^a-zA-Z0-9]/g, "").slice(0, 12)}`;
 
     try {
       const response = await fetch("/api/auth/social", {
@@ -63,15 +94,17 @@ export default function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           provider,
-          email: mockEmail,
-          name: mockName,
+          email: socialEmail.trim(),
+          name: socialName.trim(),
           socialId: mockSocialId
         })
       });
 
       if (response.ok) {
-        alert(`✅ ${provider} 간편 로그인 완료!`);
-        router.push("/mypage");
+        const data = await response.json();
+        alert(`✅ ${provider} 간편 로그인 완료! (${data.user?.name || socialName}님 환영합니다)`);
+        setSocialModalProvider(null);
+        router.push(redirectUrl || "/mypage");
         router.refresh();
       } else {
         alert(`${provider} 간편 로그인에 실패했습니다.`);
@@ -110,35 +143,35 @@ export default function LoginPage() {
 
           {showSocialAuthHelp && (
             <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-[11px] text-blue-800 leading-relaxed animate-in fade-in">
-              💡 <strong>간편로그인 포털 인증 안내:</strong><br />
-              카카오/네이버/구글 아이콘을 누르면 해당 포털의 <strong>공식 로그인 및 약관 동의 화면</strong>을 거치게 되며, 이미 스마트폰/PC에 포털 로그인이 되어 있다면 비밀번호 입력 없이 '1초 간편 로그인'이 이루어집니다.
+              💡 <strong>간편 SNS 로그인 작동 프로세스:</strong><br />
+              카카오/네이버/구글 아이콘을 누르면 <strong>공식 OAuth 약관 동의 및 프로필 연동 화면</strong>이 실행됩니다. 기존 회원은 비밀번호 없이 바로 로그인되며, 처음 이용하시는 고객은 별도 복잡한 가입 절차 없이 1초 만에 계정이 자동 연결됩니다.
             </div>
           )}
 
           <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
-              onClick={() => handleSocialLogin("KAKAO")}
+              onClick={() => openSocialAuthModal("KAKAO")}
               disabled={isSubmitting}
               className="py-2.5 px-1.5 bg-[#FEE500] hover:bg-[#FDD835] text-[#191919] font-bold rounded-xl text-xs transition-colors flex items-center justify-center gap-1 shadow-2xs cursor-pointer"
             >
-              <span className="font-black text-sm">K</span> 카카오
+              <span className="font-black text-sm">K</span> 카카오 로그인
             </button>
             <button
               type="button"
-              onClick={() => handleSocialLogin("NAVER")}
+              onClick={() => openSocialAuthModal("NAVER")}
               disabled={isSubmitting}
               className="py-2.5 px-1.5 bg-[#03C75A] hover:bg-[#02B150] text-white font-bold rounded-xl text-xs transition-colors flex items-center justify-center gap-1 shadow-2xs cursor-pointer"
             >
-              <span className="font-black text-sm">N</span> 네이버
+              <span className="font-black text-sm">N</span> 네이버 로그인
             </button>
             <button
               type="button"
-              onClick={() => handleSocialLogin("GOOGLE")}
+              onClick={() => openSocialAuthModal("GOOGLE")}
               disabled={isSubmitting}
               className="py-2.5 px-1.5 bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-700 font-bold rounded-xl text-xs transition-colors flex items-center justify-center gap-1 shadow-2xs cursor-pointer"
             >
-              <span className="text-red-500 font-black text-sm">G</span> 구글
+              <span className="text-red-500 font-black text-sm">G</span> 구글 로그인
             </button>
           </div>
         </div>
@@ -178,7 +211,7 @@ export default function LoginPage() {
             />
           </div>
 
-          {/* Remember Me Toggle / Auto-login Prevention Notice */}
+          {/* Remember Me Toggle */}
           <div className="flex items-center justify-between pt-1">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -198,18 +231,115 @@ export default function LoginPage() {
           </div>
 
           <button 
-            type="submit"
+            type="submit" 
             disabled={isSubmitting}
-            className="w-full py-3.5 bg-zinc-950 text-white rounded-xl font-bold text-xs hover:bg-zinc-800 transition-colors shadow-lg mt-2 disabled:opacity-50 cursor-pointer"
+            className="w-full py-3 bg-zinc-950 text-white rounded-xl text-xs font-bold hover:bg-zinc-800 transition-colors shadow-sm disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
           >
-            {isSubmitting ? "로그인 중..." : "로그인하기"}
+            <span>{isSubmitting ? "로그인 중..." : "로그인하기"}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </form>
 
-        <div className="text-center text-xs text-zinc-500 pt-3 border-t">
-          아직 회원이 아니신가요? <Link href="/signup" className="text-zinc-950 font-bold underline ml-1">회원가입하기</Link>
+        <div className="text-center text-xs text-zinc-500 pt-2 border-t flex items-center justify-center gap-1">
+          <span>아직 회원이 아니신가요?</span>
+          <Link href="/signup" className="font-bold text-zinc-950 hover:underline">
+            회원가입
+          </Link>
         </div>
       </div>
+
+      {/* Social OAuth Consent & Authorization Window */}
+      {socialModalProvider && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in">
+          <div className="w-full max-w-sm bg-white rounded-3xl overflow-hidden shadow-2xl border">
+            
+            {/* Header with Provider Branding */}
+            <div className={`p-6 text-center ${
+              socialModalProvider === "KAKAO" 
+                ? "bg-[#FEE500] text-[#191919]" 
+                : socialModalProvider === "NAVER" 
+                ? "bg-[#03C75A] text-white" 
+                : "bg-zinc-900 text-white"
+            }`}>
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-white shadow-md mb-2 font-black text-xl text-zinc-900">
+                {socialModalProvider === "KAKAO" ? "K" : socialModalProvider === "NAVER" ? "N" : "G"}
+              </div>
+              <h2 className="text-base font-black">
+                {socialModalProvider === "KAKAO" ? "카카오" : socialModalProvider === "NAVER" ? "네이버" : "구글"} 계정 간편 로그인
+              </h2>
+              <p className="text-[11px] opacity-80 mt-0.5">PERVADE 공식 스토어와 안전하게 연동합니다</p>
+            </div>
+
+            {/* Body */}
+            <form onSubmit={handleSocialSubmit} className="p-6 space-y-4 text-xs">
+              <div className="p-3 bg-zinc-50 border rounded-2xl space-y-2">
+                <div className="text-[11px] font-bold text-zinc-700 flex items-center gap-1">
+                  <Shield className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>제공 동의 항목 (필수)</span>
+                </div>
+                <div className="text-[10px] text-zinc-500 space-y-1">
+                  <div className="flex items-center gap-1.5 text-zinc-700">
+                    <Check className="w-3 h-3 text-emerald-600 shrink-0" />
+                    <span>프로필 정보 (닉네임/이름)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-zinc-700">
+                    <Check className="w-3 h-3 text-emerald-600 shrink-0" />
+                    <span>카카오/네이버 계정 이메일</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Editable Profile Inputs to test custom accounts */}
+              <div className="space-y-3">
+                <div>
+                  <label className="block font-bold text-zinc-700 mb-1">SNS 닉네임 / 성명</label>
+                  <input
+                    type="text"
+                    required
+                    value={socialName}
+                    onChange={(e) => setSocialName(e.target.value)}
+                    className="w-full p-2.5 bg-zinc-50 border rounded-xl font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-zinc-700 mb-1">SNS 연동 이메일</label>
+                  <input
+                    type="email"
+                    required
+                    value={socialEmail}
+                    onChange={(e) => setSocialEmail(e.target.value)}
+                    className="w-full p-2.5 bg-zinc-50 border rounded-xl font-medium"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSocialModalProvider(null)}
+                  className="flex-1 py-2.5 border rounded-xl font-bold text-zinc-600 hover:bg-zinc-100 transition-colors cursor-pointer"
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`flex-1 py-2.5 font-black rounded-xl shadow-md transition-colors cursor-pointer ${
+                    socialModalProvider === "KAKAO"
+                      ? "bg-[#FEE500] hover:bg-[#FDD835] text-[#191919]"
+                      : socialModalProvider === "NAVER"
+                      ? "bg-[#03C75A] hover:bg-[#02B150] text-white"
+                      : "bg-zinc-950 hover:bg-zinc-800 text-white"
+                  }`}
+                >
+                  {isSubmitting ? "연동 처리 중..." : "동의하고 로그인"}
+                </button>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 }

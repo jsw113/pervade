@@ -206,10 +206,37 @@ export function Navbar() {
               )}
             </Link>
 
-            {/* User Icon */}
-            <Link href={user ? "/mypage" : "/login"} className="p-2 hover:bg-zinc-100 rounded-full transition-colors" title="마이페이지/로그인">
-              <UserIcon className="w-5 h-5 text-zinc-700" />
-            </Link>
+            {/* User Auth Capsule & Prominent Logout */}
+            {user ? (
+              <div className="flex items-center gap-1.5">
+                <Link 
+                  href="/mypage" 
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 rounded-full text-xs font-bold transition-colors border border-zinc-200"
+                  title="마이페이지 바로가기"
+                >
+                  <UserIcon className="w-3.5 h-3.5 text-zinc-700" />
+                  <span className="max-w-[80px] truncate">{user.name}님</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="flex items-center gap-1 px-2.5 py-1.5 text-zinc-500 hover:text-rose-600 hover:bg-rose-50 rounded-full text-xs font-bold transition-all cursor-pointer border border-transparent hover:border-rose-200"
+                  title="로그아웃"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">로그아웃</span>
+                </button>
+              </div>
+            ) : (
+              <Link 
+                href="/login" 
+                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-zinc-950 text-white hover:bg-zinc-800 rounded-full text-xs font-bold transition-colors shadow-2xs"
+                title="로그인"
+              >
+                <UserIcon className="w-3.5 h-3.5" />
+                <span>로그인</span>
+              </Link>
+            )}
 
             {/* Mobile Menu Button */}
             <button
