@@ -20,6 +20,30 @@ async function getAuthenticatedUser() {
   return await prisma.user.findFirst({ where: { id: userId } });
 }
 
+function parseAddresses(user: any): ShippingAddressItem[] {
+  if (!user || !user.address) return [];
+
+  const raw = user.address.trim();
+  if (raw.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    } catch (e) {}
+  }
+
+  // Plain string address
+  return [
+    {
+      id: "addr_default",
+      title: "기본 배송지",
+      recipient: user.name,
+      phone: user.phone || "",
+      address: raw,
+      isDefault: true,
+    },
+  ];
+}
+
 export async function GET() {
   try {
     const user = await getAuthenticatedUser();
@@ -27,32 +51,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Try parsing shippingAddresses or fallback to default address if empty
-    let addresses: ShippingAddressItem[] = [];
-    const raw = (user as any).shippingAddresses;
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) addresses = parsed;
-      } catch (e) {
-        console.warn("Failed to parse shippingAddresses:", e);
-      }
-    }
-
-    // If no addresses registered but user.address exists, auto-populate initial default address
-    if (addresses.length === 0 && user.address) {
-      addresses = [
-        {
-          id: "addr_default",
-          title: "기본 배송지",
-          recipient: user.name,
-          phone: user.phone || "",
-          address: user.address,
-          isDefault: true,
-        },
-      ];
-    }
-
+    const addresses = parseAddresses(user);
     return NextResponse.json(addresses);
   } catch (error) {
     console.error("Fetch shipping addresses error:", error);
@@ -74,14 +73,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "수령인, 연락처, 배송 주소는 필수입니다." }, { status: 400 });
     }
 
-    let addresses: ShippingAddressItem[] = [];
-    const raw = (user as any).shippingAddresses;
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) addresses = parsed;
-      } catch (e) {}
-    }
+    let addresses = parseAddresses(user);
 
     if (id) {
       // Edit existing
@@ -99,7 +91,7 @@ export async function POST(request: Request) {
         return isDefault ? { ...a, isDefault: false } : a;
       });
     } else {
-      // Add new (Check MAX 3 constraint)
+      // Add new (Check MAX 3 limit)
       if (addresses.length >= 3) {
         return NextResponse.json({ 
           error: "배송지는 최대 3개까지만 등록할 수 있습니다. 기존 배송지를 수정하거나 삭제해주세요." 
@@ -123,15 +115,11 @@ export async function POST(request: Request) {
       });
     }
 
-    // Save to user shippingAddresses
-    await (prisma.user.update as any)({
+    // Save JSON array in user.address
+    await prisma.user.update({
       where: { id: user.id },
       data: {
-        shippingAddresses: JSON.stringify(addresses),
-        // If a default address is set, sync with user.address as well
-        ...(addresses.find((a) => a.isDefault)
-          ? { address: addresses.find((a) => a.isDefault)?.address }
-          : {}),
+        address: JSON.stringify(addresses),
       },
     });
 
@@ -156,29 +144,17 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Address ID required" }, { status: 400 });
     }
 
-    let addresses: ShippingAddressItem[] = [];
-    const raw = (user as any).shippingAddresses;
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) addresses = parsed;
-      } catch (e) {}
-    }
-
+    let addresses = parseAddresses(user);
     addresses = addresses.filter((a) => a.id !== id);
 
-    // If we deleted the default and there are remaining addresses, set the first one as default
     if (addresses.length > 0 && !addresses.some((a) => a.isDefault)) {
       addresses[0].isDefault = true;
     }
 
-    await (prisma.user.update as any)({
+    await prisma.user.update({
       where: { id: user.id },
       data: {
-        shippingAddresses: JSON.stringify(addresses),
-        ...(addresses.find((a) => a.isDefault)
-          ? { address: addresses.find((a) => a.isDefault)?.address }
-          : {}),
+        address: addresses.length > 0 ? JSON.stringify(addresses) : "",
       },
     });
 
@@ -201,27 +177,16 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "defaultId required" }, { status: 400 });
     }
 
-    let addresses: ShippingAddressItem[] = [];
-    const raw = (user as any).shippingAddresses;
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) addresses = parsed;
-      } catch (e) {}
-    }
-
+    let addresses = parseAddresses(user);
     addresses = addresses.map((a) => ({
       ...a,
       isDefault: a.id === defaultId,
     }));
 
-    const defaultAddr = addresses.find((a) => a.id === defaultId);
-
-    await (prisma.user.update as any)({
+    await prisma.user.update({
       where: { id: user.id },
       data: {
-        shippingAddresses: JSON.stringify(addresses),
-        ...(defaultAddr ? { address: defaultAddr.address } : {}),
+        address: JSON.stringify(addresses),
       },
     });
 

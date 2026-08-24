@@ -23,8 +23,7 @@ model User {
 
   loginId          String?   @unique
   birthDate        String?   // Birthdate e.g., "1995-05-12"
-  address          String?   // User registered member address
-  shippingAddresses String?  // JSON array of up to 3 shipping addresses
+  address          String?   // User delivery / address
   realNameVerified Boolean   @default(false) // KCB / PASS verification state
   socialProvider   String?   // "GOOGLE", "NAVER", "KAKAO", null
   socialId         String?   // provider user id

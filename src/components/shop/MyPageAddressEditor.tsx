@@ -11,13 +11,24 @@ interface MyPageAddressEditorProps {
 
 export function MyPageAddressEditor({ currentAddress = "" }: MyPageAddressEditorProps) {
   const router = useRouter();
+
+  let displayAddress = currentAddress || "";
+  if (displayAddress.trim().startsWith("[")) {
+    try {
+      const parsed = JSON.parse(displayAddress);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        displayAddress = parsed.find((a: any) => a.isDefault)?.address || parsed[0]?.address || "";
+      }
+    } catch (e) {}
+  }
+
   const [isEditing, setIsEditing] = useState(false);
-  const [address, setAddress] = useState(currentAddress || "");
+  const [address, setAddress] = useState(displayAddress);
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = async () => {
     if (!address.trim()) {
-      alert("배송지 주소를 검색하여 입력해주세요.");
+      alert("회원 등록 주소를 검색하여 입력해주세요.");
       return;
     }
 
@@ -30,11 +41,11 @@ export function MyPageAddressEditor({ currentAddress = "" }: MyPageAddressEditor
       });
 
       if (res.ok) {
-        alert("기본 배송지가 성공적으로 저장되었습니다!");
+        alert("회원 기본 주소가 성공적으로 수정 및 저장되었습니다!");
         setIsEditing(false);
         router.refresh();
       } else {
-        alert("배송지 저장에 실패했습니다.");
+        alert("주소 저장에 실패했습니다.");
       }
     } catch (err) {
       console.error(err);
@@ -47,11 +58,11 @@ export function MyPageAddressEditor({ currentAddress = "" }: MyPageAddressEditor
   return (
     <div className="space-y-3">
       <div className="flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <span className="w-28 text-zinc-500 font-bold flex-shrink-0">기본 배송 주소</span>
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="w-28 text-zinc-400 font-bold flex-shrink-0">회원 등록 주소</span>
           {!isEditing && (
-            <span className="text-zinc-950 font-bold text-xs">
-              {currentAddress || "미등록 (주소 검색 후 등록해주세요)"}
+            <span className="text-zinc-950 font-bold text-xs truncate" title={displayAddress}>
+              {displayAddress || "미등록 (주소 검색 후 등록해주세요)"}
             </span>
           )}
         </div>
@@ -59,10 +70,10 @@ export function MyPageAddressEditor({ currentAddress = "" }: MyPageAddressEditor
         <button
           type="button"
           onClick={() => setIsEditing(!isEditing)}
-          className="text-xs font-bold text-zinc-900 hover:text-zinc-600 px-3 py-1 bg-zinc-100 hover:bg-zinc-200 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+          className="text-xs font-bold text-zinc-900 hover:text-zinc-600 px-3 py-1 bg-zinc-100 hover:bg-zinc-200 rounded-lg transition-colors flex items-center gap-1 cursor-pointer shrink-0 ml-2"
         >
           <Edit3 className="w-3.5 h-3.5" />
-          <span>{isEditing ? "취소" : currentAddress ? "배송지 변경" : "배송지 등록"}</span>
+          <span>{isEditing ? "취소" : displayAddress ? "주소 변경" : "주소 등록"}</span>
         </button>
       </div>
 
@@ -89,7 +100,7 @@ export function MyPageAddressEditor({ currentAddress = "" }: MyPageAddressEditor
               className="px-5 py-2 bg-zinc-950 text-white rounded-xl text-xs font-bold hover:bg-zinc-800 transition-colors shadow-2xs flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
             >
               <Check className="w-3.5 h-3.5" />
-              {isSaving ? "저장 중..." : "기본 배송지로 저장"}
+              {isSaving ? "저장 중..." : "회원 기본 주소로 저장"}
             </button>
           </div>
         </div>

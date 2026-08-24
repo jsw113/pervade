@@ -29,7 +29,6 @@ export async function GET() {
         loginId: user.loginId,
         birthDate: user.birthDate,
         address: user.address,
-        shippingAddresses: user.shippingAddresses,
         role: user.role,
         realNameVerified: user.realNameVerified,
         totalPurchases: user.totalPurchases,
