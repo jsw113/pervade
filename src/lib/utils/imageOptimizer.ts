@@ -177,3 +177,12 @@ export async function optimizeDataUrl(dataUrl: string, maxWidth = 860, quality =
 
 // Alias for backwards compatibility
 export const optimizeImage = optimizeImageFile;
+
+/**
+ * Ultra-HD Hero Banner Optimizer (Full HD/QHD 2560px width, 90% high quality)
+ * Prevents pixelation on 4K / wide desktop monitors
+ */
+export async function optimizeHeroBannerImage(file: File, maxWidth = 2560, maxHeight = 1440, quality = 0.90): Promise<string> {
+  return optimizeImageFile(file, maxWidth, maxHeight, quality);
+}
+

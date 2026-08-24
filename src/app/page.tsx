@@ -120,8 +120,16 @@ export default async function Home() {
               </video>
             ) : (
               <div 
-                className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-700"
-                style={{ backgroundImage: `url(${activeBgUrl})` }}
+                className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-700 will-change-transform"
+                style={{ 
+                  backgroundImage: `url(${activeBgUrl})`,
+                  backgroundPosition: "center center",
+                  backgroundRepeat: "no-repeat",
+                  backgroundSize: "cover",
+                  imageRendering: "auto",
+                  transform: "translate3d(0, 0, 0)",
+                  WebkitBackfaceVisibility: "hidden",
+                }}
               />
             )}
             

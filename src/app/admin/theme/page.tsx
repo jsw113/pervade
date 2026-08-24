@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { GripVertical, Eye, EyeOff, Save, RefreshCw, Upload, Image as ImageIcon, Video, CheckCircle2, AlertCircle, Sparkles, Wand2 } from "lucide-react";
-import { optimizeImageFile } from "@/lib/utils/imageOptimizer";
+import { optimizeImageFile, optimizeHeroBannerImage } from "@/lib/utils/imageOptimizer";
 
 type Section = {
   id: string;
@@ -128,10 +128,10 @@ export default function ThemeAdminPage() {
 
     setIsImageUploading(true);
     try {
-      // High-efficiency web compression: 1280x720, 80% quality (typically ~100KB)
-      const dataUrl = await optimizeImageFile(file, 1280, 720, 0.8);
+      // Ultra-HD QHD 2560x1440 resolution with 90% quality (Zero pixelation on large desktop monitors)
+      const dataUrl = await optimizeHeroBannerImage(file, 2560, 1440, 0.90);
       setHeroBgUrl(dataUrl);
-      alert("배경 이미지가 등록되었습니다. 상단 [전체 변경사항 저장]을 눌러 적용하세요.");
+      alert("배경 이미지가 QHD 초고화질(2560x1440)로 최적화 등록되었습니다. 상단 [전체 변경사항 저장]을 눌러 적용하세요.");
     } catch (err: any) {
       console.error(err);
       alert("이미지 처리 중 오류가 발생했습니다: " + (err?.message || ""));
@@ -568,7 +568,7 @@ export default function ThemeAdminPage() {
                       onChange={() => setImageSourceType("URL")}
                       className="text-zinc-900 focus:ring-zinc-900"
                     />
-                    외부 이미지 URL
+                    🌐 외부 고화질 원본 URL (무손실 100% 4K)
                   </label>
                   <label className="flex items-center gap-1.5 cursor-pointer font-semibold">
                     <input 
@@ -578,21 +578,24 @@ export default function ThemeAdminPage() {
                       onChange={() => setImageSourceType("FILE")}
                       className="text-zinc-900 focus:ring-zinc-900"
                     />
-                    일반 사진 직접 업로드 (자동 압축)
+                    📁 PC 파일 직접 업로드 (QHD 2560x1440 초고해상도)
                   </label>
                 </div>
 
                 {imageSourceType === "URL" ? (
                   <div className="space-y-2">
                     <div>
-                      <label className="block text-xs font-bold text-zinc-700 mb-1">이미지 주소 (URL)</label>
+                      <label className="block text-xs font-bold text-zinc-700 mb-1">초고화질 이미지 주소 (URL - 원본 무손실 100%)</label>
                       <input 
                         type="url" 
                         value={heroBgUrl}
                         onChange={e => setHeroBgUrl(e.target.value)}
-                        className="w-full p-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 text-xs"
-                        placeholder="https://images.unsplash.com/..."
+                        className="w-full p-2.5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900 text-xs font-mono"
+                        placeholder="https://images.unsplash.com/... 또는 https://i.ibb.co/..."
                       />
+                      <p className="text-[10px] text-zinc-500 mt-1">
+                        💡 <strong>TIP</strong>: 클라우드 스토리지(Supabase, AWS S3, ImgBB, Unsplash 등)에 올린 원본 링크를 넣으시면 <strong>압축이나 깨짐 없이 100% 무손실 4K 해상도</strong>로 선명하게 표시됩니다.
+                      </p>
                     </div>
                     {/* Preset Images */}
                     <div>
@@ -615,7 +618,7 @@ export default function ThemeAdminPage() {
                   <div className="p-4 border-2 border-dashed rounded-xl bg-zinc-50 flex flex-col items-center justify-center gap-2">
                     <label className="px-4 py-2.5 bg-zinc-950 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer hover:bg-zinc-800 transition-colors flex items-center gap-1.5">
                       <Upload className="w-3.5 h-3.5" />
-                      {isImageUploading ? "이미지 업로드 중..." : "JPG / PNG 파일 선택 및 초고속 압축 업로드"}
+                      {isImageUploading ? "초고해상도 최적화 중..." : "JPG / PNG 파일 선택 (QHD 2560x1440 자동 보정)"}
                       <input 
                         type="file" 
                         accept="image/*"
@@ -624,7 +627,9 @@ export default function ThemeAdminPage() {
                         className="hidden" 
                       />
                     </label>
-                    <p className="text-[10px] text-zinc-400">10MB 이상의 고화질 원본 사진도 웹 최적화 해상도로 자동 압축 변환됩니다.</p>
+                    <p className="text-[10px] text-zinc-500 text-center">
+                      와이드 모니터에서도 픽셀 깨짐이 없도록 <strong>QHD(2560px) 90% 고화질 렌더링</strong>으로 최적화됩니다.
+                    </p>
                   </div>
                 )}
 
