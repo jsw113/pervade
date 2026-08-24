@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, FileText, Users, Settings, Package, Palette, MessageSquare, HelpCircle, ExternalLink, BookOpen, Megaphone, Layers, ShieldCheck, LogOut, Award, Key } from "lucide-react";
+import { LayoutDashboard, FileText, Users, Settings, Package, Palette, MessageSquare, HelpCircle, ExternalLink, BookOpen, Megaphone, Layers, ShieldCheck, LogOut, Award, Key, BarChart3 } from "lucide-react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -137,6 +137,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 </li>
               </>
             )}
+
+            {/* 5. Traffic Analytics & Site Logs */}
+            <li className="pt-3 text-[10px] uppercase font-bold text-zinc-400 px-3">📊 통계 및 로그</li>
+            <li>
+              <Link href="/admin/analytics" className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-purple-50 hover:text-purple-900 text-zinc-700 transition-colors font-bold">
+                <BarChart3 className="w-4 h-4 text-purple-600" />
+                접속 로그 &amp; 트래픽 분석
+              </Link>
+            </li>
 
             <li className="pt-3 text-[10px] uppercase font-bold text-zinc-400 px-3">시스템 매뉴얼</li>
             <li>

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Package, Users, Megaphone, BookOpen, Settings, Palette, HelpCircle, ArrowRight, TrendingUp, Layers, FileText } from "lucide-react";
+import { Package, Users, Megaphone, BookOpen, Settings, Palette, HelpCircle, ArrowRight, TrendingUp, Layers, FileText, BarChart3, Eye, Compass, Smartphone, Activity } from "lucide-react";
 import { SeedButton } from "@/components/admin/SeedButton";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +16,22 @@ export default async function AdminDashboard() {
   });
   const totalRevenue = orders.reduce((sum, o) => sum + o.totalAmount, 0);
 
+  // Traffic & Site Log Stats
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const todayPageViews = await prisma.siteLog.count({
+    where: { createdAt: { gte: startOfToday } }
+  });
+  const recentLogs = await prisma.siteLog.findMany({
+    where: { createdAt: { gte: startOfToday } },
+    select: { ip: true, path: true, referrer: true, device: true, browser: true, createdAt: true },
+    orderBy: { createdAt: "desc" },
+    take: 100
+  });
+  const todayUniqueVisitors = new Set(recentLogs.map(l => l.ip)).size;
+
   const quickLinks = [
+    { title: "접속 로그 & 트래픽 분석", desc: "실시간 방문자 추이, 유입경로, 인기페이지 통계", href: "/admin/analytics", icon: BarChart3, count: `오늘 PV ${todayPageViews}회` },
     { title: "제품 관리", desc: "제품 등록, 다중 이미지 및 가격 설정", href: "/admin/products", icon: Package, count: `${productCount}개 등록` },
     { title: "카테고리 마스터 관리", desc: "2단계 대분류/용처별 분류 생성 및 편집", href: "/admin/categories", icon: Layers, count: "실시간 반영" },
     { title: "통합 재고 & ERP", desc: "네이버/쿠팡 주문, CJ택배, 세금계산서", href: "/admin/inventory", icon: Settings, count: "옴니채널 연동" },
@@ -33,11 +48,17 @@ export default async function AdminDashboard() {
       {/* Top Welcome Banner */}
       <div className="bg-zinc-950 text-white rounded-3xl p-8 shadow-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <div className="space-y-2">
-          <span className="text-[11px] font-bold text-amber-400 uppercase tracking-widest px-3 py-1 bg-amber-400/10 rounded-full border border-amber-400/20">
-            PERVADE ADMIN CONSOLE
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-bold text-amber-400 uppercase tracking-widest px-3 py-1 bg-amber-400/10 rounded-full border border-amber-400/20">
+              PERVADE ADMIN CONSOLE
+            </span>
+            <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-400">
+              <span className="w-2 h-2 bg-emerald-400 rounded-full animate-ping" />
+              로그 분석 가동중
+            </span>
+          </div>
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight">퍼베이드 통합 관리자 백오피스</h2>
-          <p className="text-xs text-zinc-400">쇼핑몰 운영, 제품, 재고, 프로모션 및 회원을 통합 제어합니다.</p>
+          <p className="text-xs text-zinc-400">쇼핑몰 운영, 제품, 트래픽 로그 분석 및 회원을 통합 제어합니다.</p>
         </div>
         <div className="flex flex-col sm:flex-row items-center gap-3">
           <SeedButton />
@@ -51,8 +72,17 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
-      {/* Metrics Row */}
+      {/* Metrics Row: Including Traffic Analytics KPI */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
+        <Link href="/admin/analytics" className="bg-white p-6 rounded-2xl border shadow-xs hover:border-purple-500 transition-all space-y-1 block group">
+          <div className="flex justify-between items-center text-zinc-500">
+            <span className="text-xs font-bold text-purple-700">오늘의 방문자 (UV/PV)</span>
+            <BarChart3 className="w-4 h-4 text-purple-600 group-hover:scale-110 transition-transform" />
+          </div>
+          <p className="text-2xl font-black text-zinc-950">{todayUniqueVisitors}명 <span className="text-xs text-zinc-400 font-semibold">/ {todayPageViews}PV</span></p>
+          <span className="text-[10px] text-purple-600 font-bold flex items-center gap-0.5">상세 로그분석 바로가기 &gt;</span>
+        </Link>
+
         <div className="bg-white p-6 rounded-2xl border shadow-xs space-y-1">
           <span className="text-xs font-bold text-zinc-500">총 등록 회원수</span>
           <p className="text-2xl font-black text-zinc-950">{userCount}명</p>
@@ -63,12 +93,6 @@ export default async function AdminDashboard() {
           <span className="text-xs font-bold text-zinc-500">총 등록 상품</span>
           <p className="text-2xl font-black text-zinc-950">{productCount}개</p>
           <span className="text-[10px] text-zinc-400">판매 노출 관리중</span>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border shadow-xs space-y-1">
-          <span className="text-xs font-bold text-zinc-500">발행된 사용가이드</span>
-          <p className="text-2xl font-black text-zinc-950">{guideCount}편</p>
-          <span className="text-[10px] text-amber-600 font-bold">블로그 매거진 CMS</span>
         </div>
 
         <div className="bg-white p-6 rounded-2xl border shadow-xs space-y-1">

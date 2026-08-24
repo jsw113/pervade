@@ -300,3 +300,19 @@ model Wishlist {
 
   @@unique([userId, productId])
 }
+
+model SiteLog {
+  id        String   @id @default(uuid())
+  path      String   // e.g. "/", "/shop", "/products", "/guide"
+  referrer  String?  // e.g. "naver.com", "instagram.com", "google.com", "Direct"
+  device    String   @default("Desktop") // "Mobile", "Desktop", "Tablet"
+  browser   String   @default("Chrome") // "Chrome", "Safari", "Whale", "Edge", "Other"
+  ip        String?  // Anonymized IP hash
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([path])
+  @@index([referrer])
+}
+
