@@ -2,23 +2,27 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Trash2, ShoppingBag, Truck, ShieldAlert, ArrowRight, Plus, Minus, Check, MapPin } from "lucide-react";
+import { Trash2, ShoppingBag, Truck, ShieldAlert, ArrowRight, Plus, Minus, Check, MapPin, CreditCard } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { RealNameVerifier } from "@/components/shop/RealNameVerifier";
-import { ShippingAddressSelector } from "@/components/shop/ShippingAddressSelector";
+import { OrderPaymentModal } from "@/components/shop/OrderPaymentModal";
 
 export default function CartPage() {
   const router = useRouter();
   const [items, setItems] = useState<any[]>([]);
-  const [user, setUser] = useState<{ id: string; name: string; address?: string | null; realNameVerified: boolean } | null>(null);
+  const [user, setUser] = useState<{ 
+    id: string; 
+    name: string; 
+    email: string;
+    phone?: string;
+    address?: string | null; 
+    referralPoints?: number;
+    realNameVerified: boolean 
+  } | null>(null);
   const [isVerifierOpen, setIsVerifierOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
-
-  // Shipping Address State
-  const [selectedAddress, setSelectedAddress] = useState("");
-  const [saveAsDefaultAddress, setSaveAsDefaultAddress] = useState(true);
 
   const fetchCartAndUser = async () => {
     try {
@@ -28,9 +32,6 @@ export default function CartPage() {
         const authData = await authRes.json();
         if (authData.loggedIn) {
           setUser(authData.user);
-          if (authData.user.address) {
-            setSelectedAddress(authData.user.address);
-          }
         } else {
           alert("로그인이 필요한 페이지입니다.");
           router.push("/login");
@@ -105,13 +106,8 @@ export default function CartPage() {
     }
   };
 
-  const handleCheckout = async () => {
+  const handleOpenCheckout = () => {
     if (items.length === 0) return;
-
-    if (!selectedAddress || selectedAddress.trim() === "") {
-      alert("상품을 수령하실 배송지 주소를 입력하거나 선택해주세요.");
-      return;
-    }
 
     // Real-name verification guard
     if (!user?.realNameVerified) {
@@ -121,31 +117,7 @@ export default function CartPage() {
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          fromCart: true,
-          shippingAddress: selectedAddress,
-          saveAsDefaultAddress
-        }),
-      });
-
-      if (response.ok) {
-        alert("🎉 장바구니 상품 주문 및 결제가 성공적으로 완료되었습니다!");
-        router.push("/mypage");
-        router.refresh();
-      } else {
-        alert("주문 처리에 실패했습니다.");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("오류가 발생했습니다.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    setIsPaymentModalOpen(true);
   };
 
   const getExtraPrice = (optString?: string) => {
@@ -165,6 +137,19 @@ export default function CartPage() {
   const shippingTotal = items.reduce((acc, item) => acc + (item.product.shippingFee || 0), 0);
   const grandTotal = productTotal + shippingTotal;
   const rewardPoints = Math.floor(productTotal * 0.05);
+
+  const checkoutItems = items.map((item) => {
+    const extraPrice = getExtraPrice(item.optionSelected);
+    return {
+      id: item.product.id,
+      name: item.product.name,
+      imageUrl: item.product.imageUrl,
+      optionSelected: item.optionSelected,
+      price: item.product.price + extraPrice,
+      quantity: item.quantity,
+      shippingFee: item.product.shippingFee || 0
+    };
+  });
 
   if (loading) {
     return (
@@ -212,86 +197,74 @@ export default function CartPage() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left: Cart Items & Shipping Address Selection */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Cart Item List */}
-          <div className="space-y-4">
-            <h2 className="text-sm font-bold text-zinc-700">주문 상품 내역</h2>
-            {items.map((item) => {
-              const extraPrice = getExtraPrice(item.optionSelected);
-              const unitPrice = item.product.price + extraPrice;
-              const itemTotalPrice = unitPrice * item.quantity;
+        {/* Left: Cart Items */}
+        <div className="lg:col-span-2 space-y-4">
+          <h2 className="text-sm font-bold text-zinc-700">장바구니 담긴 상품 ({items.length}개)</h2>
+          {items.map((item) => {
+            const extraPrice = getExtraPrice(item.optionSelected);
+            const unitPrice = item.product.price + extraPrice;
+            const itemTotalPrice = unitPrice * item.quantity;
 
-              return (
-                <div key={item.id} className="bg-white border rounded-2xl p-5 flex gap-4 items-center shadow-xs">
-                  <div className="w-20 h-20 bg-zinc-100 rounded-xl overflow-hidden shrink-0 border relative">
-                    <img 
-                      src={item.product.imageUrl} 
-                      alt={item.product.name} 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-sm truncate text-zinc-950">{item.product.name}</h3>
-                    <p className="text-xs text-zinc-500 mt-0.5">{item.optionSelected}</p>
-                    
-                    <div className="flex flex-wrap items-center gap-3 mt-3">
-                      {/* Quantity Stepper */}
-                      <div className="flex items-center border rounded-xl bg-zinc-50 overflow-hidden">
-                        <button
-                          type="button"
-                          onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
-                          disabled={updatingId === item.id}
-                          className="p-1.5 hover:bg-zinc-200 text-zinc-600 transition-colors disabled:opacity-50 cursor-pointer"
-                          title="수량 감소"
-                        >
-                          <Minus className="w-3.5 h-3.5" />
-                        </button>
-                        
-                        <span className="w-10 text-center text-xs font-bold text-zinc-900">
-                          {item.quantity}
-                        </span>
-
-                        <button
-                          type="button"
-                          onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
-                          disabled={updatingId === item.id}
-                          className="p-1.5 hover:bg-zinc-200 text-zinc-600 transition-colors disabled:opacity-50 cursor-pointer"
-                          title="수량 증가"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-
-                      <span className="text-xs text-zinc-400">개당 ₩{unitPrice.toLocaleString()}원</span>
-                    </div>
-
-                    <div className="text-base font-black text-zinc-950 mt-2">
-                      ₩{itemTotalPrice.toLocaleString()}원
-                    </div>
-                  </div>
-
-                  <button 
-                    onClick={() => handleDeleteItem(item.id)}
-                    className="p-2.5 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
-                    title="삭제"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+            return (
+              <div key={item.id} className="bg-white border rounded-2xl p-5 flex gap-4 items-center shadow-xs">
+                <div className="w-20 h-20 bg-zinc-100 rounded-xl overflow-hidden shrink-0 border relative">
+                  <img 
+                    src={item.product.imageUrl} 
+                    alt={item.product.name} 
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-              );
-            })}
-          </div>
+                
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-sm truncate text-zinc-950">{item.product.name}</h3>
+                  <p className="text-xs text-zinc-500 mt-0.5">{item.optionSelected}</p>
+                  
+                  <div className="flex flex-wrap items-center gap-3 mt-3">
+                    {/* Quantity Stepper */}
+                    <div className="flex items-center border rounded-xl bg-zinc-50 overflow-hidden">
+                      <button
+                        type="button"
+                        onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                        disabled={updatingId === item.id}
+                        className="p-1.5 hover:bg-zinc-200 text-zinc-600 transition-colors disabled:opacity-50 cursor-pointer"
+                        title="수량 감소"
+                      >
+                        <Minus className="w-3.5 h-3.5" />
+                      </button>
+                      
+                      <span className="w-10 text-center text-xs font-bold text-zinc-900">
+                        {item.quantity}
+                      </span>
 
-          {/* Shipping Address Selector Component */}
-          <ShippingAddressSelector
-            defaultAddress={user?.address}
-            onAddressChange={(addr, saveAsDef) => {
-              setSelectedAddress(addr);
-              setSaveAsDefaultAddress(saveAsDef);
-            }}
-          />
+                      <button
+                        type="button"
+                        onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                        disabled={updatingId === item.id}
+                        className="p-1.5 hover:bg-zinc-200 text-zinc-600 transition-colors disabled:opacity-50 cursor-pointer"
+                        title="수량 증가"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    <span className="text-xs text-zinc-400">개당 ₩{unitPrice.toLocaleString()}원</span>
+                  </div>
+
+                  <div className="text-base font-black text-zinc-950 mt-2">
+                    ₩{itemTotalPrice.toLocaleString()}원
+                  </div>
+                </div>
+
+                <button 
+                  onClick={() => handleDeleteItem(item.id)}
+                  className="p-2.5 text-zinc-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
+                  title="삭제"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            );
+          })}
         </div>
 
         {/* Right: Order Summary */}
@@ -324,36 +297,44 @@ export default function CartPage() {
             </div>
           </div>
 
-          {/* Selected Shipping Address Preview */}
-          <div className="p-3 bg-white border rounded-2xl text-[11px] space-y-1">
-            <span className="font-bold text-zinc-500 block">선택된 배송지:</span>
-            <p className="text-zinc-900 font-medium line-clamp-2">
-              {selectedAddress || "배송지를 선택하거나 검색해주세요."}
-            </p>
-          </div>
-
           <button
             type="button"
-            onClick={handleCheckout}
-            disabled={isSubmitting || !selectedAddress}
-            className="w-full py-4 bg-zinc-950 text-white rounded-2xl font-bold text-xs hover:bg-zinc-800 transition-colors shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+            onClick={handleOpenCheckout}
+            className="w-full py-4 bg-zinc-950 text-white rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors shadow-lg flex items-center justify-center gap-2 cursor-pointer"
           >
-            {isSubmitting ? "주문 처리 중..." : "주문 및 결제 진행하기"}
+            <CreditCard className="w-4 h-4 text-emerald-400" />
+            <span>주문서 작성 및 결제하기</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </div>
 
       {/* Real-Name Verification Modal */}
-      <RealNameVerifier
-        isOpenControlled={isVerifierOpen}
-        onCloseControlled={() => setIsVerifierOpen(false)}
-        showButton={false}
-        onVerified={() => {
-          setIsVerifierOpen(false);
-          fetchCartAndUser();
-        }}
-      />
+      {user && (
+        <RealNameVerifier
+          isOpenControlled={isVerifierOpen}
+          onCloseControlled={() => setIsVerifierOpen(false)}
+          showButton={false}
+          onVerified={() => {
+            setIsVerifierOpen(false);
+            fetchCartAndUser();
+          }}
+        />
+      )}
+
+      {/* Full Order & Payment Checkout Modal */}
+      {isPaymentModalOpen && (
+        <OrderPaymentModal
+          isOpen={isPaymentModalOpen}
+          onClose={() => setIsPaymentModalOpen(false)}
+          items={checkoutItems}
+          user={user}
+          fromCart={true}
+          onOrderCompleted={() => {
+            fetchCartAndUser();
+          }}
+        />
+      )}
     </div>
   );
 }

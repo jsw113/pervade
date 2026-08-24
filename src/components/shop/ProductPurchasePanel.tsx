@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Heart, ShoppingCart, MessageCircle, Truck, ShieldCheck, ShieldAlert, Check, MapPin, ChevronDown, ChevronUp } from "lucide-react";
+import { Heart, ShoppingCart, MessageCircle, Truck, ShieldCheck, ShieldAlert, Check, MapPin, ChevronDown, ChevronUp, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { RealNameVerifier } from "./RealNameVerifier";
-import { ShippingAddressSelector } from "./ShippingAddressSelector";
+import { OrderPaymentModal } from "./OrderPaymentModal";
 
 interface ProductOption {
   id: string;
@@ -20,6 +20,7 @@ interface Product {
   price: number;
   originalPrice?: number | null;
   shippingFee: number;
+  imageUrl?: string;
   options?: string | null;
 }
 
@@ -50,13 +51,19 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // User auth & verification
-  const [user, setUser] = useState<{ id: string; name: string; address?: string | null; realNameVerified: boolean } | null>(null);
+  const [user, setUser] = useState<{ 
+    id: string; 
+    name: string; 
+    email: string;
+    phone?: string;
+    address?: string | null; 
+    referralPoints?: number;
+    realNameVerified: boolean 
+  } | null>(null);
   const [isVerifierOpen, setIsVerifierOpen] = useState(false);
 
-  // Address state for direct purchase
-  const [showAddressPicker, setShowAddressPicker] = useState(false);
-  const [selectedAddress, setSelectedAddress] = useState("");
-  const [saveAsDefaultAddress, setSaveAsDefaultAddress] = useState(true);
+  // Order & Payment Checkout Modal State
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   const hasOptions = availableOptions.length > 0;
   const currentOption = hasOptions 
@@ -70,9 +77,6 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
         const authData = await authRes.json();
         if (authData.loggedIn) {
           setUser(authData.user);
-          if (authData.user.address) {
-            setSelectedAddress(authData.user.address);
-          }
           
           // Wishlist check
           const wishRes = await fetch("/api/wishlist");
@@ -136,7 +140,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
 
     setIsSubmitting(true);
     try {
-      let formattedOptionName = "단품";
+      let formattedOptionName = "기본 패키지 단품";
       if (currentOption) {
         formattedOptionName = currentOption.extraPrice !== 0
           ? `${currentOption.name} (${currentOption.extraPrice > 0 ? `+${currentOption.extraPrice.toLocaleString()}원` : `-${Math.abs(currentOption.extraPrice).toLocaleString()}원`})`
@@ -169,7 +173,8 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
     }
   };
 
-  const handleCheckout = async () => {
+  // Click "바로 결제하기" -> Opens the Order & Payment Modal
+  const handleOpenCheckoutModal = () => {
     if (!checkAuthOrRedirect()) return;
 
     if (currentOption && currentOption.isSoldOut) {
@@ -177,65 +182,39 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
       return;
     }
 
-    // If user has no address selected, show address picker first
-    if (!selectedAddress) {
-      setShowAddressPicker(true);
-      alert("상품을 수령하실 배송지를 입력하거나 선택해주세요.");
-      return;
-    }
-
-    // Real-name verification check requirement
+    // Real-name verification requirement check
     if (!user?.realNameVerified) {
-      if (confirm("안전한 전자상거래 및 주문 혜택 적용을 위해 휴대폰 실명인증이 필요합니다.\n지금 바로 본인인증(실명인증)을 진행하시겠습니까?")) {
+      if (confirm("안전한 전자상거래 및 결제 혜택(5% 적립)을 위해 본인인증(실명인증)이 필요합니다.\n지금 바로 본인인증을 진행하시겠습니까?")) {
         setIsVerifierOpen(true);
       }
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      let formattedOptionName = "단품";
-      if (currentOption) {
-        formattedOptionName = currentOption.extraPrice !== 0
-          ? `${currentOption.name} (${currentOption.extraPrice > 0 ? `+${currentOption.extraPrice.toLocaleString()}원` : `-${Math.abs(currentOption.extraPrice).toLocaleString()}원`})`
-          : currentOption.name;
-      }
-      
-      const extraCost = currentOption ? (currentOption.extraPrice || 0) : 0;
-      const totalAmount = (product.price + extraCost) * quantity + product.shippingFee;
-
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          productId: product.id,
-          optionSelected: formattedOptionName,
-          shippingMethod,
-          shippingFee: product.shippingFee,
-          totalAmount,
-          shippingAddress: selectedAddress,
-          saveAsDefaultAddress
-        }),
-      });
-
-      if (response.ok) {
-        alert("🎉 주문 및 결제가 성공적으로 완료되었습니다!");
-        router.push("/mypage");
-        router.refresh();
-      } else {
-        alert("주문 처리에 실패했습니다.");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("오류가 발생했습니다.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    setIsPaymentModalOpen(true);
   };
 
   const extraCost = currentOption ? (currentOption.extraPrice || 0) : 0;
   const unitPrice = product.price + extraCost;
   const totalPrice = unitPrice * quantity;
+
+  let formattedOptionName = "기본 패키지 단품";
+  if (currentOption) {
+    formattedOptionName = currentOption.extraPrice !== 0
+      ? `${currentOption.name} (${currentOption.extraPrice > 0 ? `+${currentOption.extraPrice.toLocaleString()}원` : `-${Math.abs(currentOption.extraPrice).toLocaleString()}원`})`
+      : currentOption.name;
+  }
+
+  const checkoutItems = [
+    {
+      id: product.id,
+      name: product.name,
+      imageUrl: product.imageUrl,
+      optionSelected: formattedOptionName,
+      price: unitPrice,
+      quantity,
+      shippingFee: product.shippingFee
+    }
+  ];
 
   return (
     <div className="space-y-6 pt-4">
@@ -329,37 +308,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
         </div>
       )}
 
-      {/* 4. Shipping Address Selector (Collapsible / Modal) */}
-      <div className="border rounded-2xl p-4 bg-zinc-50/50 space-y-3">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-800">
-            <MapPin className="w-4 h-4 text-zinc-500" />
-            <span>배송지: {selectedAddress ? selectedAddress.substring(0, 30) + "..." : "배송지 설정 필요"}</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowAddressPicker(!showAddressPicker)}
-            className="text-[11px] font-bold text-blue-600 hover:underline flex items-center gap-0.5 cursor-pointer"
-          >
-            <span>{showAddressPicker ? "닫기" : "배송지 변경/검색"}</span>
-            {showAddressPicker ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-          </button>
-        </div>
-
-        {showAddressPicker && (
-          <div className="pt-2">
-            <ShippingAddressSelector
-              defaultAddress={user?.address}
-              onAddressChange={(addr, saveAsDef) => {
-                setSelectedAddress(addr);
-                setSaveAsDefaultAddress(saveAsDef);
-              }}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* 5. Summary Total */}
+      {/* 4. Summary Total */}
       <div className="space-y-1 text-xs text-zinc-500 pt-2 border-t">
         <div className="flex justify-between">
           <span>상품 금액</span>
@@ -407,15 +356,14 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
 
         <button 
           type="button"
-          onClick={handleCheckout}
+          onClick={handleOpenCheckoutModal}
           disabled={isSubmitting || (!!currentOption && currentOption.isSoldOut)}
           className="w-full py-4 bg-zinc-950 hover:bg-zinc-800 text-white rounded-xl font-bold text-base shadow-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
         >
-          {isSubmitting 
-            ? "결제 처리 중..." 
-            : currentOption && currentOption.isSoldOut 
-            ? "품절된 옵션입니다" 
-            : "바로 결제하기"}
+          <CreditCard className="w-5 h-5 text-emerald-400" />
+          <span>
+            {currentOption && currentOption.isSoldOut ? "품절된 옵션입니다" : "주문서 작성 및 결제하기"}
+          </span>
         </button>
       </div>
 
@@ -440,6 +388,20 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
             fetchAuth();
           }}
           showButton={false}
+        />
+      )}
+
+      {/* Full Order & Payment Modal */}
+      {isPaymentModalOpen && (
+        <OrderPaymentModal
+          isOpen={isPaymentModalOpen}
+          onClose={() => setIsPaymentModalOpen(false)}
+          items={checkoutItems}
+          user={user}
+          fromCart={false}
+          onOrderCompleted={() => {
+            fetchAuth();
+          }}
         />
       )}
     </div>

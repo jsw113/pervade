@@ -34,7 +34,10 @@ export async function POST(request: Request) {
       totalAmount, 
       fromCart,
       shippingAddress,
-      saveAsDefaultAddress
+      saveAsDefaultAddress,
+      deliveryMemo,
+      paymentMethod,
+      usedPoints
     } = body;
 
     // Auto-update user default address if toggled or user address was empty
@@ -43,6 +46,17 @@ export async function POST(request: Request) {
         where: { id: user.id },
         data: { address: shippingAddress }
       });
+    }
+
+    // Deduct used points if any
+    if (usedPoints && typeof usedPoints === "number" && usedPoints > 0) {
+      const validPoints = Math.min(usedPoints, user.referralPoints || 0);
+      if (validPoints > 0) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { referralPoints: { decrement: validPoints } }
+        });
+      }
     }
 
     let ordersCreated = [];
@@ -90,7 +104,7 @@ export async function POST(request: Request) {
             type: "OUT",
             quantity: item.quantity,
             balance: updatedProduct.stock,
-            reason: `자사몰 주문 출고 (주문번호: ${order.id.slice(0, 8)})`
+            reason: `자사몰 주문 출고 (주문번호: ${order.id.slice(0, 8)}, 결제수단: ${paymentMethod || "신용카드"})`
           }
         });
       }
@@ -137,7 +151,7 @@ export async function POST(request: Request) {
             type: "OUT",
             quantity: 1,
             balance: updatedProduct.stock,
-            reason: `자사몰 바로결제 출고 (주문번호: ${order.id.slice(0, 8)})`
+            reason: `자사몰 바로결제 출고 (주문번호: ${order.id.slice(0, 8)}, 결제수단: ${paymentMethod || "신용카드"})`
           }
         });
       }
@@ -151,7 +165,13 @@ export async function POST(request: Request) {
       }
     });
 
-    return NextResponse.json({ success: true, orders: ordersCreated });
+    return NextResponse.json({ 
+      success: true, 
+      orders: ordersCreated,
+      paymentMethod: paymentMethod || "신용/체크카드",
+      deliveryMemo: deliveryMemo || "문 앞에 놓아주세요",
+      shippingAddress: shippingAddress || user.address
+    });
   } catch (error) {
     console.error("Failed to checkout:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
