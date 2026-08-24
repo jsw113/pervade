@@ -114,6 +114,27 @@ export function ShareButtons({ title, description = "", url, className = "" }: S
             네이버
           </button>
 
+          {/* Instagram Share */}
+          <button
+            type="button"
+            onClick={() => {
+              handleCopyLink();
+              if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+                // Open Instagram App on Mobile
+                window.location.href = "instagram://app";
+                setTimeout(() => {
+                  window.open("https://www.instagram.com", "_blank");
+                }, 1000);
+              } else {
+                window.open("https://www.instagram.com", "_blank");
+              }
+            }}
+            className="px-3 py-1.5 bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#FCB045] hover:opacity-90 text-white rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1"
+            title="인스타그램 스토리 / 피드 / DM 공유"
+          >
+            <span className="text-[11px] font-bold">📸 인스타그램</span>
+          </button>
+
           {/* X / Twitter Share */}
           <button
             type="button"

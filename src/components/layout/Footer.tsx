@@ -50,13 +50,24 @@ export function Footer() {
             </div>
           </div>
           
-          <div>
-            <h4 className="font-bold text-white mb-3 text-xs uppercase tracking-wider">Shop & Guide</h4>
+            <div>
+            <h4 className="font-bold text-white mb-3 text-xs uppercase tracking-wider">Shop &amp; Guide</h4>
             <ul className="space-y-2 text-zinc-400">
               <li><Link href="/shop" className="hover:text-white transition-colors">전체 상품 라인업</Link></li>
               <li><Link href="/guide" className="hover:text-white transition-colors font-semibold text-amber-300">공식 사용 가이드 (블로그)</Link></li>
               <li><Link href="/about" className="hover:text-white transition-colors">브랜드 스토리</Link></li>
               <li><Link href="/journal" className="hover:text-white transition-colors">리빙 저널</Link></li>
+              <li>
+                <a 
+                  href="https://www.instagram.com" 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="hover:text-amber-400 transition-colors inline-flex items-center gap-1 font-semibold text-zinc-300 pt-1"
+                >
+                  <span>📸 공식 인스타그램</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </li>
             </ul>
           </div>
           
