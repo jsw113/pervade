@@ -9,6 +9,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const identifier = (body.email || body.loginId || "").trim();
     const password = body.password;
+    const rememberMe = !!body.rememberMe;
 
     if (!identifier || !password) {
       return NextResponse.json({ error: "아이디 또는 이메일과 비밀번호를 입력해주세요." }, { status: 400 });
@@ -28,14 +29,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "가입되지 않은 아이디 또는 이메일 계정입니다." }, { status: 401 });
     }
 
-    // Set cookie
+    // Set cookie: If rememberMe is checked, keep for 7 days; otherwise session cookie (expires on browser close)
     const cookieStore = await cookies();
-    cookieStore.set("userId", user.id, {
+    const cookieOptions: any = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 1 week
-    });
+    };
+
+    if (rememberMe) {
+      cookieOptions.maxAge = 60 * 60 * 24 * 7; // 1 week
+    }
+
+    cookieStore.set("userId", user.id, cookieOptions);
 
     return NextResponse.json({ 
       success: true, 

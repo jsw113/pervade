@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { cookies } from "next/headers";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
@@ -27,7 +28,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "이미 존재하는 사용자 아이디입니다." }, { status: 400 });
     }
 
-    // Create user in DB
+    // Create user in DB (No automatic session cookie / No auto-login)
     const user = await prisma.user.create({
       data: {
         loginId,
@@ -37,20 +38,18 @@ export async function POST(request: Request) {
         birthDate: birthDate || "",
         address: address || "",
         marketingConsent: !!consent,
-        passwordHash: "$2b$10$dummyhashvalue", // mock hash
+        passwordHash: "$2b$10$dummyhashvalue",
       },
     });
 
-    // Set cookie
-    const cookieStore = await cookies();
-    cookieStore.set("userId", user.id, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 1 week
-    });
+    // NOTE: Auto-login is DISABLED upon signup.
+    // User must manually log in with their ID/Password.
 
-    return NextResponse.json({ success: true, user: { id: user.id, email: user.email, name: user.name } });
+    return NextResponse.json({ 
+      success: true, 
+      message: "회원가입이 성공적으로 완료되었습니다. 로그인해 주세요.",
+      user: { id: user.id, email: user.email, name: user.name, loginId: user.loginId } 
+    });
   } catch (error) {
     console.error("Signup error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, Lock } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false); // Default: false (auto-login disabled)
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSocialAuthHelp, setShowSocialAuthHelp] = useState(false);
 
@@ -20,7 +21,11 @@ export default function LoginPage() {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: identifier, password }),
+        body: JSON.stringify({ 
+          email: identifier, 
+          password,
+          rememberMe 
+        }),
       });
 
       if (response.ok) {
@@ -166,6 +171,25 @@ export default function LoginPage() {
               className="w-full px-3.5 py-2.5 bg-zinc-50 rounded-xl border text-xs focus:outline-none focus:ring-2 focus:ring-zinc-900" 
               placeholder="••••••••"
             />
+          </div>
+
+          {/* Remember Me Toggle / Auto-login Prevention Notice */}
+          <div className="flex items-center justify-between pt-1">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={e => setRememberMe(e.target.checked)}
+                className="w-4 h-4 text-zinc-950 rounded border-zinc-300 focus:ring-zinc-900"
+              />
+              <span className="text-xs font-medium text-zinc-600">
+                로그인 상태 유지 (자동 로그인)
+              </span>
+            </label>
+
+            <span className="text-[10px] text-zinc-400">
+              {rememberMe ? "7일간 로그인 유지" : "브라우저 종료 시 자동 로그아웃"}
+            </span>
           </div>
 
           <button 

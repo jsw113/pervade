@@ -159,9 +159,8 @@ export default function SignupPage() {
 
       const data = await response.json();
       if (response.ok && !data.error) {
-        alert("🎉 퍼베이드 회원가입이 성공적으로 완료되었습니다!");
-        router.push("/mypage");
-        router.refresh();
+        alert("🎉 퍼베이드 회원가입이 성공적으로 완료되었습니다!\n로그인 페이지로 이동합니다. 등록하신 정보로 로그인해주세요.");
+        router.push("/login");
       } else {
         alert("회원가입 실패: " + (data.error || "알 수 없는 오류가 발생했습니다."));
       }
