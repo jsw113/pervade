@@ -7,9 +7,6 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
-    // Ensure default admin (admin / 123456) is initialized
-    await ensureDefaultAdminExists();
-
     const body = await request.json();
     const identifier = (body.email || body.loginId || "").trim();
     const password = (body.password || "").trim();
@@ -19,20 +16,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "아이디 또는 이메일과 비밀번호를 입력해주세요." }, { status: 400 });
     }
 
-    // Special validation for admin account
+    // Special validation for admin account (admin / 123456)
     if (identifier === "admin" || identifier === "admin@pervade.co.kr") {
       if (password !== "123456") {
         return NextResponse.json({ error: "관리자 비밀번호가 일치하지 않습니다." }, { status: 401 });
       }
 
-      const adminUser = await prisma.user.findFirst({
-        where: {
-          OR: [
-            { loginId: "admin" },
-            { email: "admin@pervade.co.kr" }
-          ]
-        }
-      });
+      const adminUser = await ensureDefaultAdminExists();
 
       if (adminUser) {
         const cookieStore = await cookies();
