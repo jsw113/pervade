@@ -48,12 +48,10 @@ export default function LoginPage() {
       if (response.ok) {
         const data = await response.json();
         alert("🎉 로그인되었습니다.");
-        if (data.user?.role === "ADMIN" || data.user?.role === "SUPER_ADMIN" || data.user?.role?.startsWith("MANAGER")) {
-          router.push(redirectUrl || "/admin");
-        } else {
-          router.push(redirectUrl || "/mypage");
-        }
-        router.refresh();
+        const destination = (data.user?.role === "ADMIN" || data.user?.role === "SUPER_ADMIN" || data.user?.role?.startsWith("MANAGER"))
+          ? (redirectUrl || "/admin")
+          : (redirectUrl || "/mypage");
+        window.location.href = destination;
       } else {
         const errorData = await response.json();
         alert(errorData.error || "로그인에 실패했습니다.");
@@ -109,8 +107,7 @@ export default function LoginPage() {
         const data = await response.json();
         alert(`✅ ${provider} 간편 로그인 완료! (${data.user?.name || socialName}님 환영합니다)`);
         setSocialModalProvider(null);
-        router.push(redirectUrl || "/mypage");
-        router.refresh();
+        window.location.href = redirectUrl || "/mypage";
       } else {
         alert(`${provider} 간편 로그인에 실패했습니다.`);
       }

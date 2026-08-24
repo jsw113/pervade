@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { ensureDefaultAdminExists } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function POST(request: Request) {
   try {
@@ -29,12 +30,10 @@ export async function POST(request: Request) {
         const cookieOptions: any = {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
           path: "/",
+          maxAge: rememberMe ? 60 * 60 * 24 * 7 : 60 * 60 * 24,
         };
-
-        if (rememberMe) {
-          cookieOptions.maxAge = 60 * 60 * 24 * 7; // 1 week
-        }
 
         cookieStore.set("userId", adminUser.id, cookieOptions);
 
@@ -70,12 +69,10 @@ export async function POST(request: Request) {
     const cookieOptions: any = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       path: "/",
+      maxAge: rememberMe ? 60 * 60 * 24 * 7 : 60 * 60 * 24,
     };
-
-    if (rememberMe) {
-      cookieOptions.maxAge = 60 * 60 * 24 * 7; // 1 week
-    }
 
     cookieStore.set("userId", user.id, cookieOptions);
 

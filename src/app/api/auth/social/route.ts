@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function POST(request: Request) {
   try {
     const { provider, email, name, socialId } = await request.json();
@@ -52,11 +55,20 @@ export async function POST(request: Request) {
     cookieStore.set("userId", user.id, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 1 week
     });
 
-    return NextResponse.json({ success: true, user: { id: user.id, email: user.email, name: user.name } });
+    return NextResponse.json({ 
+      success: true, 
+      user: { 
+        id: user.id, 
+        email: user.email, 
+        name: user.name,
+        role: user.role
+      } 
+    });
   } catch (error) {
     console.error("Social login error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

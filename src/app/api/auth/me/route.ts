@@ -2,13 +2,19 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const cookieStore = await cookies();
     const userId = cookieStore.get("userId")?.value;
 
     if (!userId) {
-      return NextResponse.json({ loggedIn: false }, { status: 401 });
+      return NextResponse.json({ loggedIn: false }, { 
+        status: 200,
+        headers: { "Cache-Control": "no-store, max-age=0" }
+      });
     }
 
     const user = await prisma.user.findFirst({
@@ -16,7 +22,10 @@ export async function GET() {
     });
 
     if (!user) {
-      return NextResponse.json({ loggedIn: false }, { status: 401 });
+      return NextResponse.json({ loggedIn: false }, { 
+        status: 200,
+        headers: { "Cache-Control": "no-store, max-age=0" }
+      });
     }
 
     return NextResponse.json({
@@ -36,6 +45,8 @@ export async function GET() {
         referralCode: user.referralCode,
         socialProvider: user.socialProvider,
       }
+    }, {
+      headers: { "Cache-Control": "no-store, max-age=0" }
     });
   } catch (error) {
     console.error("Auth me error:", error);
