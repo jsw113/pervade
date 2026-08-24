@@ -53,9 +53,7 @@ export default function LoginPage() {
           } catch (e) {}
         }
         alert("🎉 로그인되었습니다.");
-        const isAdmin = (data.user?.role === "ADMIN" || data.user?.role === "SUPER_ADMIN" || data.user?.role?.startsWith("MANAGER"));
-        const destination = redirectUrl || (isAdmin ? "/admin" : "/");
-        window.location.href = destination;
+        window.location.href = "/";
       } else {
         const errorData = await response.json();
         alert(errorData.error || "로그인에 실패했습니다.");

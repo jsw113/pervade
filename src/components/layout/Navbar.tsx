@@ -104,7 +104,7 @@ export function Navbar() {
       setUser(null);
       setCartCount(0);
       alert("로그아웃되었습니다.");
-      window.location.href = "/login";
+      window.location.href = "/";
     } catch (e) {
       console.error(e);
     }
@@ -133,20 +133,6 @@ export function Navbar() {
             <div className="flex items-center gap-4">
               {user ? (
                 <div className="flex items-center gap-3">
-                  {/* Show Backoffice link ONLY when logged in as ADMIN / MANAGER */}
-                  {(user.role === "ADMIN" || user.role === "SUPER_ADMIN" || user.role?.startsWith("MANAGER")) && (
-                    <>
-                      <Link 
-                        href="/admin" 
-                        className="px-2.5 py-0.5 bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 rounded font-bold transition-colors flex items-center gap-1 text-[10px]"
-                        title="통합 백오피스 관리자 콘솔로 이동"
-                      >
-                        ⚙️ 백오피스
-                      </Link>
-                      <span className="text-zinc-700">|</span>
-                    </>
-                  )}
-
                   <span className="text-zinc-200 font-semibold">
                     <strong className="text-white">{user.name}</strong>님
                   </span>
@@ -246,7 +232,7 @@ export function Navbar() {
             {user ? (
               <div className="flex items-center gap-1.5">
                 <Link 
-                  href={user.role === "ADMIN" || user.role === "SUPER_ADMIN" || user.role?.startsWith("MANAGER") ? "/admin" : "/mypage"} 
+                  href="/mypage" 
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-900 rounded-full text-xs font-bold transition-colors border border-zinc-200"
                   title="마이페이지 바로가기"
                 >
@@ -298,15 +284,6 @@ export function Navbar() {
             <div className="pt-4 border-t flex flex-col gap-2">
               {user ? (
                 <>
-                  {(user.role === "ADMIN" || user.role === "SUPER_ADMIN" || user.role?.startsWith("MANAGER")) && (
-                    <Link 
-                      href="/admin" 
-                      onClick={() => setIsMenuOpen(false)} 
-                      className="w-full text-center py-2.5 bg-purple-900 text-white rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5"
-                    >
-                      ⚙️ 통합 백오피스(Admin) 바로가기
-                    </Link>
-                  )}
                   <Link 
                     href="/mypage" 
                     onClick={() => setIsMenuOpen(false)} 
