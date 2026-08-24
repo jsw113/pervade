@@ -3,32 +3,23 @@ import Link from "next/link";
 import { Package, Users, Megaphone, BookOpen, Settings, Palette, HelpCircle, ArrowRight, TrendingUp, Layers, FileText, BarChart3, Eye, Compass, Smartphone, Activity } from "lucide-react";
 import { SeedButton } from "@/components/admin/SeedButton";
 
+import { getSafeAnalyticsSummary } from "@/lib/siteAnalytics";
+
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
-  const userCount = await prisma.user.count();
-  const productCount = await prisma.product.count();
-  const guideCount = await prisma.guidePost.count();
-  const promoCount = await prisma.promotion.count({ where: { isActive: true } });
+  const userCount = await prisma.user.count().catch(() => 0);
+  const productCount = await prisma.product.count().catch(() => 0);
+  const guideCount = await prisma.guidePost.count().catch(() => 0);
+  const promoCount = await prisma.promotion.count({ where: { isActive: true } }).catch(() => 0);
   
   const orders = await prisma.order.findMany({
     select: { totalAmount: true }
-  });
+  }).catch(() => []);
   const totalRevenue = orders.reduce((sum, o) => sum + o.totalAmount, 0);
 
-  // Traffic & Site Log Stats
-  const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const todayPageViews = await prisma.siteLog.count({
-    where: { createdAt: { gte: startOfToday } }
-  });
-  const recentLogs = await prisma.siteLog.findMany({
-    where: { createdAt: { gte: startOfToday } },
-    select: { ip: true, path: true, referrer: true, device: true, browser: true, createdAt: true },
-    orderBy: { createdAt: "desc" },
-    take: 100
-  });
-  const todayUniqueVisitors = new Set(recentLogs.map(l => l.ip)).size;
+  // Safe Traffic & Site Log Stats
+  const { todayPageViews, todayUniqueVisitors } = await getSafeAnalyticsSummary();
 
   const quickLinks = [
     { title: "접속 로그 & 트래픽 분석", desc: "실시간 방문자 추이, 유입경로, 인기페이지 통계", href: "/admin/analytics", icon: BarChart3, count: `오늘 PV ${todayPageViews}회` },

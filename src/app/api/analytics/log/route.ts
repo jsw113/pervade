@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { ensureSiteLogTable } from "@/lib/siteAnalytics";
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +49,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, ignored: true });
     }
 
+    await ensureSiteLogTable().catch(() => {});
+
     await prisma.siteLog.create({
       data: {
         path,
@@ -57,7 +60,7 @@ export async function POST(request: Request) {
         ip: ip ? ip.replace(/\.\d+$/, ".***") : "Anonymous",
         userAgent,
       }
-    });
+    }).catch(() => {});
 
     return NextResponse.json({ success: true });
   } catch (error) {

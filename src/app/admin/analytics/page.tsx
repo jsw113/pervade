@@ -18,30 +18,19 @@ import {
   Calendar
 } from "lucide-react";
 
+import { getSafeAnalyticsSummary } from "@/lib/siteAnalytics";
+
 export const dynamic = "force-dynamic";
 
 export default async function AdminAnalyticsPage() {
-  const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const startOf7DaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-
-  // 1. Total & Today stats
-  const totalPageViews = await prisma.siteLog.count();
-  const todayPageViews = await prisma.siteLog.count({
-    where: { createdAt: { gte: startOfToday } }
-  });
-
-  // Recent 7 days logs
-  const recentLogs = await prisma.siteLog.findMany({
-    where: { createdAt: { gte: startOf7DaysAgo } },
-    orderBy: { createdAt: "desc" },
-    take: 1000
-  });
-
-  // Today's Unique Visitors (distinct IP count)
-  const todayLogs = recentLogs.filter(l => new Date(l.createdAt) >= startOfToday);
-  const todayUniqueVisitors = new Set(todayLogs.map(l => l.ip)).size;
-  const totalUniqueVisitors = new Set(recentLogs.map(l => l.ip)).size;
+  const {
+    totalPageViews,
+    todayPageViews,
+    todayUniqueVisitors,
+    totalUniqueVisitors,
+    todayLogs,
+    recentLogs,
+  } = await getSafeAnalyticsSummary();
 
   // 2. Hourly Distribution (Today)
   const hourlyCounts = Array(24).fill(0);
