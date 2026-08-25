@@ -4,9 +4,9 @@ import { getAdminUser } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const admin = await getAdminUser();
+    const admin = await getAdminUser(request);
     if (!admin) {
       return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 });
     }
@@ -28,7 +28,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const admin = await getAdminUser();
+    const admin = await getAdminUser(request);
     if (!admin) {
       return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 });
     }

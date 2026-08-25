@@ -38,7 +38,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const admin = await getAdminUser();
+    const admin = await getAdminUser(request);
     if (!admin) {
       return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 });
     }

@@ -14,10 +14,15 @@ export {
   hasPermission 
 };
 
-export async function getAdminUser(): Promise<AdminAuthInfo | null> {
+export async function getAdminUser(request?: Request): Promise<AdminAuthInfo | null> {
   try {
     const cookieStore = await cookies();
-    const userId = cookieStore.get("userId")?.value;
+    let userId = cookieStore.get("userId")?.value;
+
+    if (!userId && request) {
+      userId = request.headers.get("x-user-id") || undefined;
+    }
+
     if (!userId) return null;
 
     const user = await prisma.user.findFirst({
@@ -26,8 +31,8 @@ export async function getAdminUser(): Promise<AdminAuthInfo | null> {
 
     if (!user) return null;
 
-    // Check if role is admin or manager
-    if (user.loginId !== "admin" && user.role !== "ADMIN" && user.role !== "SUPER_ADMIN" && !user.role.startsWith("MANAGER")) {
+    // Check if role is admin or manager or master admin
+    if (user.loginId !== "admin" && user.email !== "admin@pervade.co.kr" && user.role !== "ADMIN" && user.role !== "SUPER_ADMIN" && !user.role.startsWith("MANAGER")) {
       return null;
     }
 

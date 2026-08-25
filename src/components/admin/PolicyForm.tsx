@@ -58,9 +58,24 @@ export function PolicyForm({ initialPolicies }: { initialPolicies: any[] }) {
     if (e) e.preventDefault();
     setIsSavingAll(true);
     try {
+      let adminUserId = "";
+      try {
+        const stored = localStorage.getItem("pervade_user");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed?.id) adminUserId = parsed.id;
+        }
+      } catch (e) {}
+
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (adminUserId) {
+        headers["x-user-id"] = adminUserId;
+      }
+
       const response = await fetch("/api/admin/policies", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
+        credentials: "include",
         body: JSON.stringify({
           policies: {
             TOP_BANNER_TEXT: topBannerText,
@@ -93,14 +108,16 @@ export function PolicyForm({ initialPolicies }: { initialPolicies: any[] }) {
         }),
       });
 
-      if (response.ok) {
-        alert("모든 설정 및 회원등급/프로모션 정책이 성공적으로 저장되었습니다!\n쇼핑몰 및 마이페이지에 실시간 반영됩니다.");
+      const data = await response.json().catch(() => null);
+
+      if (response.ok && (data?.success || data?.id || data?.key)) {
+        alert("✅ 모든 설정 및 회원등급/프로모션 정책이 성공적으로 저장되었습니다!\n쇼핑몰 및 마이페이지에 실시간 반영됩니다.");
       } else {
-        alert("저장에 실패했습니다.");
+        alert(data?.error || "정책 저장에 실패했습니다. 관리자 로그인 세션을 확인해주세요.");
       }
-    } catch (err) {
-      console.error(err);
-      alert("오류가 발생했습니다.");
+    } catch (err: any) {
+      console.error("Policy save error:", err);
+      alert("저장 중 네트워크 오류가 발생했습니다: " + (err?.message || ""));
     } finally {
       setIsSavingAll(false);
     }

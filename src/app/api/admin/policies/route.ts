@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAdminUser } from "@/lib/adminAuth";
 
+import { revalidatePath } from "next/cache";
+
 export const dynamic = "force-dynamic";
 
 export async function GET() {
@@ -20,7 +22,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const admin = await getAdminUser();
+    const admin = await getAdminUser(request);
     if (!admin) {
       return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 });
     }
@@ -29,14 +31,22 @@ export async function POST(request: Request) {
     
     // Support batch update: { policies: { KEY1: VAL1, KEY2: VAL2, ... } }
     if (body.policies && typeof body.policies === "object") {
-      const updates = Object.entries(body.policies).map(([key, value]) =>
-        prisma.policy.upsert({
-          where: { key },
-          update: { value: String(value) },
-          create: { key, value: String(value) },
-        })
-      );
-      await Promise.all(updates);
+      for (const [key, value] of Object.entries(body.policies)) {
+        if (key && value !== undefined) {
+          await prisma.policy.upsert({
+            where: { key },
+            update: { value: String(value) },
+            create: { key, value: String(value) },
+          });
+        }
+      }
+
+      try {
+        revalidatePath("/", "layout");
+        revalidatePath("/mypage");
+        revalidatePath("/shop");
+      } catch (e) {}
+
       return NextResponse.json({ success: true });
     }
 

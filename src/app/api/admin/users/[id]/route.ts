@@ -9,7 +9,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const admin = await getAdminUser();
+    const admin = await getAdminUser(request);
     if (!admin) {
       return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 });
     }
@@ -46,7 +46,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const admin = await getAdminUser();
+    const admin = await getAdminUser(request);
     if (!admin) {
       return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 });
     }
