@@ -70,13 +70,19 @@ function LoginForm() {
 
   // Open Social Auth Consent Window
   const openSocialAuthModal = (provider: "KAKAO" | "NAVER" | "GOOGLE") => {
+    if (provider === "NAVER") {
+      // Official Naver 1-second Instant OAuth Login
+      const state = Math.random().toString(36).substring(2, 15);
+      const redirectUri = encodeURIComponent("https://www.pervade.co.kr/api/auth/callback/naver");
+      const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=eXWsUTMyQs5043_PJBu5&redirect_uri=${redirectUri}&state=${state}`;
+      window.location.href = naverAuthUrl;
+      return;
+    }
+
     setSocialModalProvider(provider);
     if (provider === "KAKAO") {
       setSocialName("카카오 고객");
       setSocialEmail("customer@kakao.com");
-    } else if (provider === "NAVER") {
-      setSocialName("네이버 고객");
-      setSocialEmail("customer@naver.com");
     } else {
       setSocialName("구글 고객");
       setSocialEmail("customer@gmail.com");

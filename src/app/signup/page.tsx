@@ -179,6 +179,15 @@ export default function SignupPage() {
 
   // Social Signup Handler
   const handleSocialSignup = async (provider: "GOOGLE" | "NAVER" | "KAKAO") => {
+    if (provider === "NAVER") {
+      // Official Naver 1-second Instant OAuth Signup & Login
+      const state = Math.random().toString(36).substring(2, 15);
+      const redirectUri = encodeURIComponent("https://www.pervade.co.kr/api/auth/callback/naver");
+      const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=eXWsUTMyQs5043_PJBu5&redirect_uri=${redirectUri}&state=${state}`;
+      window.location.href = naverAuthUrl;
+      return;
+    }
+
     setIsSubmitting(true);
     
     // In production OAuth flow, this opens the portal's login / authorization screen
