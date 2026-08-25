@@ -27,6 +27,16 @@ export default async function Home() {
 
   const fallbackDefaultBg = "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?q=80&w=2000&auto=format&fit=crop";
   const activeBgUrl = heroBgUrl || fallbackDefaultBg;
+
+  // 'Why PERVADE?' (Features) Section Dynamic Policies
+  const whyTitle = getPolicy("WHY_TITLE", "왜 퍼베이드인가요?");
+  const whySubtitle = getPolicy("WHY_SUBTITLE", "단 하나의 세정제로 경험하는 프리미엄 공간의 변화");
+  const whyCard1Title = getPolicy("WHY_CARD1_TITLE", "강력한 오염 분해력");
+  const whyCard1Desc = getPolicy("WHY_CARD1_DESC", "주방의 찌든 기름때부터 욕실의 완고한 물때까지 표면 손상 없이 깊숙이 침투하여 즉각 분해합니다.");
+  const whyCard2Title = getPolicy("WHY_CARD2_TITLE", "안전한 성분 설계");
+  const whyCard2Desc = getPolicy("WHY_CARD2_DESC", "식물 유래 계면활성제와 자연 유래 추출물로 가족 모두가 머무는 공간에 자극 없이 안전합니다.");
+  const whyCard3Title = getPolicy("WHY_CARD3_TITLE", "지속되는 광택 & 향기");
+  const whyCard3Desc = getPolicy("WHY_CARD3_DESC", "세정 후 끈적임 없는 보호막을 형성하여 오염 재착색을 방지하고 은은한 잔향을 남깁니다.");
   
   const sectionsOrderRaw = getPolicy("HOME_SECTIONS_ORDER", JSON.stringify([
     { id: "hero", visible: true },
@@ -278,8 +288,8 @@ export default async function Home() {
               {/* Centered Section Header */}
               <div className="text-center mb-16 space-y-2">
                 <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Key Principles</span>
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-950">왜 퍼베이드인가요?</h2>
-                <p className="text-zinc-500 text-sm max-w-lg mx-auto">단 하나의 세정제로 경험하는 프리미엄 공간의 변화</p>
+                <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-950">{whyTitle}</h2>
+                <p className="text-zinc-500 text-sm max-w-lg mx-auto">{whySubtitle}</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -287,9 +297,9 @@ export default async function Home() {
                   <div className="w-14 h-14 bg-zinc-950 text-white rounded-2xl flex items-center justify-center mx-auto shadow-md">
                     <Droplets className="w-7 h-7" />
                   </div>
-                  <h3 className="text-lg font-bold text-zinc-900">강력한 오염 분해력</h3>
+                  <h3 className="text-lg font-bold text-zinc-900">{whyCard1Title}</h3>
                   <p className="text-zinc-600 text-xs leading-relaxed">
-                    주방의 찌든 기름때부터 욕실의 완고한 물때까지 표면 손상 없이 깊숙이 침투하여 즉각 분해합니다.
+                    {whyCard1Desc}
                   </p>
                 </div>
 
@@ -297,9 +307,9 @@ export default async function Home() {
                   <div className="w-14 h-14 bg-zinc-950 text-white rounded-2xl flex items-center justify-center mx-auto shadow-md">
                     <ShieldCheck className="w-7 h-7" />
                   </div>
-                  <h3 className="text-lg font-bold text-zinc-900">안전한 성분 설계</h3>
+                  <h3 className="text-lg font-bold text-zinc-900">{whyCard2Title}</h3>
                   <p className="text-zinc-600 text-xs leading-relaxed">
-                    식물 유래 계면활성제와 자연 유래 추출물로 가족 모두가 머무는 공간에 자극 없이 안전합니다.
+                    {whyCard2Desc}
                   </p>
                 </div>
 
@@ -307,9 +317,9 @@ export default async function Home() {
                   <div className="w-14 h-14 bg-zinc-950 text-white rounded-2xl flex items-center justify-center mx-auto shadow-md">
                     <Sparkles className="w-7 h-7" />
                   </div>
-                  <h3 className="text-lg font-bold text-zinc-900">지속되는 광택 & 향기</h3>
+                  <h3 className="text-lg font-bold text-zinc-900">{whyCard3Title}</h3>
                   <p className="text-zinc-600 text-xs leading-relaxed">
-                    세정 후 끈적임 없는 보호막을 형성하여 오염 재착색을 방지하고 은은한 잔향을 남깁니다.
+                    {whyCard3Desc}
                   </p>
                 </div>
               </div>

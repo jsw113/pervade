@@ -59,6 +59,16 @@ export default function ThemeAdminPage() {
   const [logoFont, setLogoFont] = useState("'Inter', sans-serif");
   const [logoSourceType, setLogoSourceType] = useState<"URL" | "FILE">("URL");
   const [isLogoUploading, setIsLogoUploading] = useState(false);
+
+  // 'Why PERVADE?' (Features) Section States
+  const [whyTitle, setWhyTitle] = useState("왜 퍼베이드인가요?");
+  const [whySubtitle, setWhySubtitle] = useState("단 하나의 세정제로 경험하는 프리미엄 공간의 변화");
+  const [whyCard1Title, setWhyCard1Title] = useState("강력한 오염 분해력");
+  const [whyCard1Desc, setWhyCard1Desc] = useState("주방의 찌든 기름때부터 욕실의 완고한 물때까지 표면 손상 없이 깊숙이 침투하여 즉각 분해합니다.");
+  const [whyCard2Title, setWhyCard2Title] = useState("안전한 성분 설계");
+  const [whyCard2Desc, setWhyCard2Desc] = useState("식물 유래 계면활성제와 자연 유래 추출물로 가족 모두가 머무는 공간에 자극 없이 안전합니다.");
+  const [whyCard3Title, setWhyCard3Title] = useState("지속되는 광택 & 향기");
+  const [whyCard3Desc, setWhyCard3Desc] = useState("세정 후 끈적임 없는 보호막을 형성하여 오염 재착색을 방지하고 은은한 잔향을 남깁니다.");
   
   const [sections, setSections] = useState<Section[]>(DEFAULT_SECTIONS);
   const [loading, setLoading] = useState(true);
@@ -176,6 +186,16 @@ export default function ThemeAdminPage() {
         
         setLogoFont(data.LOGO_FONT || "'Inter', sans-serif");
 
+        // Load 'Why PERVADE?' section data
+        if (data.WHY_TITLE) setWhyTitle(data.WHY_TITLE);
+        if (data.WHY_SUBTITLE) setWhySubtitle(data.WHY_SUBTITLE);
+        if (data.WHY_CARD1_TITLE) setWhyCard1Title(data.WHY_CARD1_TITLE);
+        if (data.WHY_CARD1_DESC) setWhyCard1Desc(data.WHY_CARD1_DESC);
+        if (data.WHY_CARD2_TITLE) setWhyCard2Title(data.WHY_CARD2_TITLE);
+        if (data.WHY_CARD2_DESC) setWhyCard2Desc(data.WHY_CARD2_DESC);
+        if (data.WHY_CARD3_TITLE) setWhyCard3Title(data.WHY_CARD3_TITLE);
+        if (data.WHY_CARD3_DESC) setWhyCard3Desc(data.WHY_CARD3_DESC);
+
         if (data.HOME_SECTIONS_ORDER) {
           try {
             const parsed = JSON.parse(data.HOME_SECTIONS_ORDER);
@@ -263,7 +283,15 @@ export default function ThemeAdminPage() {
         HERO_BG_URL: heroBgUrl || "",
         LOGO_URL: logoUrl || "",
         LOGO_FONT: logoFont || "'Inter', sans-serif",
-        HOME_SECTIONS_ORDER: JSON.stringify(orderToSave)
+        HOME_SECTIONS_ORDER: JSON.stringify(orderToSave),
+        WHY_TITLE: whyTitle,
+        WHY_SUBTITLE: whySubtitle,
+        WHY_CARD1_TITLE: whyCard1Title,
+        WHY_CARD1_DESC: whyCard1Desc,
+        WHY_CARD2_TITLE: whyCard2Title,
+        WHY_CARD2_DESC: whyCard2Desc,
+        WHY_CARD3_TITLE: whyCard3Title,
+        WHY_CARD3_DESC: whyCard3Desc,
       };
 
       const payloadStr = JSON.stringify(payload);
@@ -753,11 +781,137 @@ export default function ThemeAdminPage() {
 
       </div>
 
-      {/* 3. Section Reordering */}
+      {/* 3. 'Why PERVADE?' Features Customization */}
       <div className="bg-white rounded-2xl border p-6 space-y-6 shadow-xs">
         <div className="flex justify-between items-center border-b pb-4">
           <div>
-            <h2 className="text-base font-bold text-zinc-900">3. 메인페이지 섹션 순서 및 노출 관리</h2>
+            <h2 className="text-base font-bold text-zinc-900 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              3. &apos;왜 퍼베이드인가요?&apos; (3대 핵심 특장점) 문구 편집
+            </h2>
+            <p className="text-xs text-zinc-500 mt-0.5">
+              메인 홈페이지에 노출되는 대표 타이틀 및 3개 핵심 특장점 카드의 제목과 상세 문구를 원하는 내용으로 직접 수정합니다.
+            </p>
+          </div>
+        </div>
+
+        {/* Section Header Inputs */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-zinc-50 p-4 rounded-xl border">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-zinc-700">섹션 메인 타이틀</label>
+            <input
+              type="text"
+              value={whyTitle}
+              onChange={(e) => setWhyTitle(e.target.value)}
+              placeholder="왜 퍼베이드인가요?"
+              className="w-full px-3.5 py-2 bg-white rounded-lg border text-xs font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-zinc-700">섹션 서브 타이틀 (한 줄 설명)</label>
+            <input
+              type="text"
+              value={whySubtitle}
+              onChange={(e) => setWhySubtitle(e.target.value)}
+              placeholder="단 하나의 세정제로 경험하는 프리미엄 공간의 변화"
+              className="w-full px-3.5 py-2 bg-white rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            />
+          </div>
+        </div>
+
+        {/* 3 Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Card 1 */}
+          <div className="p-4 rounded-xl border bg-white space-y-3 shadow-2xs">
+            <div className="flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-zinc-950 text-white flex items-center justify-center text-[10px] font-bold">1</span>
+              <span className="font-bold text-xs text-zinc-800">특장점 카드 1 (오염 분해)</span>
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-medium text-zinc-500">카드 제목</label>
+              <input
+                type="text"
+                value={whyCard1Title}
+                onChange={(e) => setWhyCard1Title(e.target.value)}
+                placeholder="강력한 오염 분해력"
+                className="w-full px-3 py-1.5 bg-zinc-50 rounded-lg border text-xs font-bold focus:outline-none focus:ring-1 focus:ring-zinc-900"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-medium text-zinc-500">카드 설명 문구</label>
+              <textarea
+                rows={3}
+                value={whyCard1Desc}
+                onChange={(e) => setWhyCard1Desc(e.target.value)}
+                placeholder="주방의 찌든 기름때부터 욕실의 완고한 물때까지 표면 손상 없이 깊숙이 침투하여 즉각 분해합니다."
+                className="w-full px-3 py-1.5 bg-zinc-50 rounded-lg border text-xs leading-relaxed focus:outline-none focus:ring-1 focus:ring-zinc-900"
+              />
+            </div>
+          </div>
+
+          {/* Card 2 */}
+          <div className="p-4 rounded-xl border bg-white space-y-3 shadow-2xs">
+            <div className="flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-zinc-950 text-white flex items-center justify-center text-[10px] font-bold">2</span>
+              <span className="font-bold text-xs text-zinc-800">특장점 카드 2 (성분 안전)</span>
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-medium text-zinc-500">카드 제목</label>
+              <input
+                type="text"
+                value={whyCard2Title}
+                onChange={(e) => setWhyCard2Title(e.target.value)}
+                placeholder="안전한 성분 설계"
+                className="w-full px-3 py-1.5 bg-zinc-50 rounded-lg border text-xs font-bold focus:outline-none focus:ring-1 focus:ring-zinc-900"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-medium text-zinc-500">카드 설명 문구</label>
+              <textarea
+                rows={3}
+                value={whyCard2Desc}
+                onChange={(e) => setWhyCard2Desc(e.target.value)}
+                placeholder="식물 유래 계면활성제와 자연 유래 추출물로 가족 모두가 머무는 공간에 자극 없이 안전합니다."
+                className="w-full px-3 py-1.5 bg-zinc-50 rounded-lg border text-xs leading-relaxed focus:outline-none focus:ring-1 focus:ring-zinc-900"
+              />
+            </div>
+          </div>
+
+          {/* Card 3 */}
+          <div className="p-4 rounded-xl border bg-white space-y-3 shadow-2xs">
+            <div className="flex items-center gap-2">
+              <span className="w-6 h-6 rounded-full bg-zinc-950 text-white flex items-center justify-center text-[10px] font-bold">3</span>
+              <span className="font-bold text-xs text-zinc-800">특장점 카드 3 (광택 & 잔향)</span>
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-medium text-zinc-500">카드 제목</label>
+              <input
+                type="text"
+                value={whyCard3Title}
+                onChange={(e) => setWhyCard3Title(e.target.value)}
+                placeholder="지속되는 광택 & 향기"
+                className="w-full px-3 py-1.5 bg-zinc-50 rounded-lg border text-xs font-bold focus:outline-none focus:ring-1 focus:ring-zinc-900"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-medium text-zinc-500">카드 설명 문구</label>
+              <textarea
+                rows={3}
+                value={whyCard3Desc}
+                onChange={(e) => setWhyCard3Desc(e.target.value)}
+                placeholder="세정 후 끈적임 없는 보호막을 형성하여 오염 재착색을 방지하고 은은한 잔향을 남깁니다."
+                className="w-full px-3 py-1.5 bg-zinc-50 rounded-lg border text-xs leading-relaxed focus:outline-none focus:ring-1 focus:ring-zinc-900"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Section Reordering */}
+      <div className="bg-white rounded-2xl border p-6 space-y-6 shadow-xs">
+        <div className="flex justify-between items-center border-b pb-4">
+          <div>
+            <h2 className="text-base font-bold text-zinc-900">4. 메인페이지 섹션 순서 및 노출 관리</h2>
             <p className="text-xs text-zinc-500 mt-0.5">화살표 버튼을 클릭하여 순서를 조정하거나 노출/숨김 여부를 변경하세요.</p>
           </div>
         </div>

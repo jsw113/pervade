@@ -16,7 +16,15 @@ export async function GET() {
       "HERO_SHOW_CTA",
       "HOME_SECTIONS_ORDER",
       "LOGO_URL",
-      "LOGO_FONT"
+      "LOGO_FONT",
+      "WHY_TITLE",
+      "WHY_SUBTITLE",
+      "WHY_CARD1_TITLE",
+      "WHY_CARD1_DESC",
+      "WHY_CARD2_TITLE",
+      "WHY_CARD2_DESC",
+      "WHY_CARD3_TITLE",
+      "WHY_CARD3_DESC"
     ];
     const policies = await prisma.policy.findMany({
       where: { key: { in: keys } }
@@ -53,7 +61,15 @@ export async function POST(request: Request) {
       "HERO_SHOW_CTA",
       "HOME_SECTIONS_ORDER",
       "LOGO_URL",
-      "LOGO_FONT"
+      "LOGO_FONT",
+      "WHY_TITLE",
+      "WHY_SUBTITLE",
+      "WHY_CARD1_TITLE",
+      "WHY_CARD1_DESC",
+      "WHY_CARD2_TITLE",
+      "WHY_CARD2_DESC",
+      "WHY_CARD3_TITLE",
+      "WHY_CARD3_DESC"
     ];
 
     // Individual upserts for rock-solid reliability
