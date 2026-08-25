@@ -546,7 +546,7 @@ export default async function Home() {
                         <p className="text-xs text-zinc-500 leading-relaxed">
                           복잡한 청소용품을 비우고, 자연 유래 다목적 세정제 하나로 주방과 욕실, 거실을 관리하는 건강한 라이프스타일 노하우.
                         </p>
-                        <Link href="/journal" className="inline-block text-xs font-bold underline text-zinc-900 mt-1">
+                        <Link href="/journal/minimal-cleaning-solution" className="inline-block text-xs font-bold underline text-zinc-900 mt-1 hover:text-amber-700">
                           자세히 읽기 &gt;
                         </Link>
                       </div>
@@ -557,7 +557,7 @@ export default async function Home() {
                         <p className="text-xs text-zinc-500 leading-relaxed">
                           화학 계면활성제 대신 자연 유래 성분으로 채운 퍼베이드의 안심 포뮬러 이야기와 일상 속 실천 팁.
                         </p>
-                        <Link href="/journal" className="inline-block text-xs font-bold underline text-zinc-900 mt-1">
+                        <Link href="/journal/safe-ingredients-choice" className="inline-block text-xs font-bold underline text-zinc-900 mt-1 hover:text-amber-700">
                           자세히 읽기 &gt;
                         </Link>
                       </div>
