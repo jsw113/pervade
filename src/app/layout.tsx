@@ -80,6 +80,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { ThemeStyleInjector } from "@/components/common/ThemeStyleInjector";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   // Schema.org Structured Data
   const jsonLd = {
@@ -104,9 +106,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
     >
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Cormorant+Garamond:ital,wght@1,700&family=Italiana&family=Montserrat:wght@800&family=Playfair+Display:ital,wght@0,700;1,700&family=Syne:wght@800&family=Inter:wght@800&family=Noto+Sans+KR:wght@900&display=swap" rel="stylesheet" />
+        <ThemeStyleInjector />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

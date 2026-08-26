@@ -42,7 +42,93 @@ const PRESET_BG_VIDEOS = [
   { name: "자연 햇살 인테리어 (샘플)", url: "https://assets.mixkit.co/videos/preview/mixkit-sunlight-passing-through-the-leaves-of-a-plant-in-a-room-41537-large.mp4" }
 ];
 
+const BODY_FONTS = [
+  { id: "Pretendard", name: "Pretendard (기본 프리미엄 한글 고딕 - 강력 추천)" },
+  { id: "Noto_Sans_KR", name: "Noto Sans KR (안정적인 본문 고딕)" },
+  { id: "Nanum_Gothic", name: "Nanum Gothic (친근하고 부드러운 나눔고딕)" },
+  { id: "Inter", name: "Inter (글로벌 모던 산세리프)" },
+  { id: "MaruBuri", name: "MaruBuri / 명조 (단정하고 감성적인 세리프 명조)" },
+];
+
+const HEADING_FONTS = [
+  { id: "Pretendard", name: "Pretendard (모던 고딕 - 기본)" },
+  { id: "Cinzel", name: "Cinzel (클래식 로마 & 럭셔리 하이엔드)" },
+  { id: "Playfair_Display", name: "Playfair Display (우아하고 품격있는 세리프)" },
+  { id: "Montserrat", name: "Montserrat (볼드하고 기하학적인 타이틀)" },
+  { id: "Cormorant_Garamond", name: "Cormorant Garamond (예술적 오가닉 세리프)" },
+  { id: "Italiana", name: "Italiana (세련된 이탈리안 부티크)" },
+];
+
+const RADIUS_OPTIONS = [
+  { id: "0px", name: "클래식 모던 사각 (0px)", desc: "각진 직선의 미니멀 스타일" },
+  { id: "12px", name: "소프트 모던 (12px)", desc: "자연스러운 부드러운 모서리" },
+  { id: "16px", name: "시그니처 라운드 (16px - 기본)", desc: "퍼베이드 공식 추천 라운드" },
+  { id: "24px", name: "럭셔리 커브 (24px)", desc: "매끄럽고 트렌디한 곡선" },
+  { id: "9999px", name: "풀 필 / 알약 (Pill)", desc: "완전 둥근 캡슐형 버튼" },
+];
+
+const THEME_PRESETS = [
+  {
+    name: "🖤 미니멀 모던 블랙",
+    desc: "모던하고 깔끔한 블랙 앤 앰버 시그니처",
+    primary: "#09090b",
+    accent: "#d97706",
+    bg: "#ffffff",
+    bodyFont: "Pretendard",
+    headingFont: "Pretendard",
+    radius: "16px",
+  },
+  {
+    name: "🌿 내추럴 에코 포레스트",
+    desc: "친환경 자연 유래 감성의 딥그린 & 에메랄드",
+    primary: "#064e3b",
+    accent: "#059669",
+    bg: "#fafbf9",
+    bodyFont: "Pretendard",
+    headingFont: "Cormorant_Garamond",
+    radius: "20px",
+  },
+  {
+    name: "👑 럭셔리 살롱 골드",
+    desc: "호텔급 프리미엄 럭셔리 딥차콜 & 브라운 골드",
+    primary: "#18181b",
+    accent: "#b45309",
+    bg: "#faf8f5",
+    bodyFont: "Noto_Sans_KR",
+    headingFont: "Cinzel",
+    radius: "12px",
+  },
+  {
+    name: "☕ 웜 샌드 & 아이보리",
+    desc: "따뜻하고 편안한 웜톤 어스베이지 감성",
+    primary: "#292524",
+    accent: "#d97706",
+    bg: "#faf6f0",
+    bodyFont: "Pretendard",
+    headingFont: "Playfair_Display",
+    radius: "16px",
+  },
+  {
+    name: "🌊 클린 퓨어 오션",
+    desc: "신선하고 맑은 청량감의 딥네이비 & 스카이블루",
+    primary: "#0f172a",
+    accent: "#0284c7",
+    bg: "#f8fafc",
+    bodyFont: "Inter",
+    headingFont: "Montserrat",
+    radius: "9999px",
+  },
+];
+
 export default function ThemeAdminPage() {
+  // Global Theme Customizer States
+  const [themePrimaryColor, setThemePrimaryColor] = useState("#09090b");
+  const [themeAccentColor, setThemeAccentColor] = useState("#d97706");
+  const [themeBgColor, setThemeBgColor] = useState("#ffffff");
+  const [themeBodyFont, setThemeBodyFont] = useState("Pretendard");
+  const [themeHeadingFont, setThemeHeadingFont] = useState("Pretendard");
+  const [themeRadius, setThemeRadius] = useState("16px");
+
   const [heroVisible, setHeroVisible] = useState(true);
   const [heroShowText, setHeroShowText] = useState(true);
   const [heroShowCta, setHeroShowCta] = useState(true);
@@ -186,6 +272,14 @@ export default function ThemeAdminPage() {
         
         setLogoFont(data.LOGO_FONT || "'Inter', sans-serif");
 
+        // Load Global Theme Customizer data
+        if (data.THEME_PRIMARY_COLOR) setThemePrimaryColor(data.THEME_PRIMARY_COLOR);
+        if (data.THEME_ACCENT_COLOR) setThemeAccentColor(data.THEME_ACCENT_COLOR);
+        if (data.THEME_BG_COLOR) setThemeBgColor(data.THEME_BG_COLOR);
+        if (data.THEME_BODY_FONT) setThemeBodyFont(data.THEME_BODY_FONT);
+        if (data.THEME_HEADING_FONT) setThemeHeadingFont(data.THEME_HEADING_FONT);
+        if (data.THEME_RADIUS) setThemeRadius(data.THEME_RADIUS);
+
         // Load 'Why PERVADE?' section data
         if (data.WHY_TITLE) setWhyTitle(data.WHY_TITLE);
         if (data.WHY_SUBTITLE) setWhySubtitle(data.WHY_SUBTITLE);
@@ -264,6 +358,16 @@ export default function ThemeAdminPage() {
     setSections(newSections);
   };
 
+  const handleApplyPreset = (preset: typeof THEME_PRESETS[0]) => {
+    setThemePrimaryColor(preset.primary);
+    setThemeAccentColor(preset.accent);
+    setThemeBgColor(preset.bg);
+    setThemeBodyFont(preset.bodyFont);
+    setThemeHeadingFont(preset.headingFont);
+    setThemeRadius(preset.radius);
+    alert(`🎨 '${preset.name}' 테마 프리셋이 적용되었습니다!\n하단의 [전체 변경사항 저장]을 누르면 쇼핑몰에 최종 반영됩니다.`);
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     setSaveSuccess(false);
@@ -274,6 +378,12 @@ export default function ThemeAdminPage() {
       }));
       
       const payload = {
+        THEME_PRIMARY_COLOR: themePrimaryColor,
+        THEME_ACCENT_COLOR: themeAccentColor,
+        THEME_BG_COLOR: themeBgColor,
+        THEME_BODY_FONT: themeBodyFont,
+        THEME_HEADING_FONT: themeHeadingFont,
+        THEME_RADIUS: themeRadius,
         HERO_VISIBLE: heroVisible ? "true" : "false",
         HERO_SHOW_TEXT: heroShowText ? "true" : "false",
         HERO_SHOW_CTA: heroShowCta ? "true" : "false",
@@ -382,13 +492,238 @@ export default function ThemeAdminPage() {
         </div>
       </div>
 
+      {/* ======================================================== */}
+      {/* 1. Global Theme & Style Customizer (Typography & Colors) */}
+      {/* ======================================================== */}
+      <div className="bg-white rounded-2xl border p-6 space-y-6 shadow-xs">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b pb-4">
+          <div>
+            <h2 className="text-base font-bold text-zinc-900 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              1. 글로벌 테마 & 스타일 커스터마이저 (폰트 / 컬러 / 모서리 / 프리셋)
+            </h2>
+            <p className="text-xs text-zinc-500 mt-0.5">
+              쇼핑몰 전체의 대표 타이포그래피(폰트), 포인트 컬러, 버튼 모서리 둥글기를 원클릭으로 자유롭게 변경합니다.
+            </p>
+          </div>
+        </div>
+
+        {/* 1-1. One-Click Theme Presets */}
+        <div className="space-y-2">
+          <label className="block text-xs font-bold text-zinc-700">⚡ 1초 원클릭 완성형 테마 프리셋</label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            {THEME_PRESETS.map((preset) => (
+              <button
+                key={preset.name}
+                type="button"
+                onClick={() => handleApplyPreset(preset)}
+                className="p-3 rounded-xl border bg-zinc-50 hover:bg-white hover:border-zinc-900 hover:shadow-md transition-all text-left space-y-1.5 group cursor-pointer"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-zinc-900 group-hover:text-amber-600 transition-colors">
+                    {preset.name}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <span className="w-3 h-3 rounded-full border shadow-2xs" style={{ backgroundColor: preset.primary }} />
+                    <span className="w-3 h-3 rounded-full border shadow-2xs" style={{ backgroundColor: preset.accent }} />
+                  </div>
+                </div>
+                <p className="text-[11px] text-zinc-500 leading-tight">{preset.desc}</p>
+                <div className="text-[10px] text-zinc-400 font-mono">
+                  {preset.radius} • {preset.headingFont}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 1-2. Detailed Customizer 3-Column Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2 border-t">
+          {/* Typography Settings */}
+          <div className="space-y-4 p-4 rounded-xl bg-zinc-50 border">
+            <div className="flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-zinc-900 text-white flex items-center justify-center text-[10px] font-bold">A</span>
+              <h3 className="text-xs font-bold text-zinc-900">타이포그래피 (폰트 설정)</h3>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-medium text-zinc-600">본문 폰트 (Body Font)</label>
+              <select
+                value={themeBodyFont}
+                onChange={(e) => setThemeBodyFont(e.target.value)}
+                className="w-full px-3 py-2 bg-white rounded-lg border text-xs font-medium focus:outline-none focus:ring-1 focus:ring-zinc-900"
+              >
+                {BODY_FONTS.map((font) => (
+                  <option key={font.id} value={font.id}>
+                    {font.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-medium text-zinc-600">제목/영문 폰트 (Heading Font)</label>
+              <select
+                value={themeHeadingFont}
+                onChange={(e) => setThemeHeadingFont(e.target.value)}
+                className="w-full px-3 py-2 bg-white rounded-lg border text-xs font-medium focus:outline-none focus:ring-1 focus:ring-zinc-900"
+              >
+                {HEADING_FONTS.map((font) => (
+                  <option key={font.id} value={font.id}>
+                    {font.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Color Palette Settings */}
+          <div className="space-y-4 p-4 rounded-xl bg-zinc-50 border">
+            <div className="flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-zinc-900 text-white flex items-center justify-center text-[10px] font-bold">C</span>
+              <h3 className="text-xs font-bold text-zinc-900">컬러 팔레트 (Color Palette)</h3>
+            </div>
+
+            {/* Primary Color */}
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-medium text-zinc-600">메인 포인트 컬러 (Primary)</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={themePrimaryColor}
+                  onChange={(e) => setThemePrimaryColor(e.target.value)}
+                  className="w-8 h-8 rounded-lg border cursor-pointer p-0.5 bg-white"
+                />
+                <input
+                  type="text"
+                  value={themePrimaryColor}
+                  onChange={(e) => setThemePrimaryColor(e.target.value)}
+                  placeholder="#09090b"
+                  className="flex-1 px-3 py-1.5 bg-white rounded-lg border text-xs font-mono font-bold uppercase focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                />
+              </div>
+            </div>
+
+            {/* Accent Color */}
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-medium text-zinc-600">서브 액센트 컬러 (Accent)</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={themeAccentColor}
+                  onChange={(e) => setThemeAccentColor(e.target.value)}
+                  className="w-8 h-8 rounded-lg border cursor-pointer p-0.5 bg-white"
+                />
+                <input
+                  type="text"
+                  value={themeAccentColor}
+                  onChange={(e) => setThemeAccentColor(e.target.value)}
+                  placeholder="#d97706"
+                  className="flex-1 px-3 py-1.5 bg-white rounded-lg border text-xs font-mono font-bold uppercase focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                />
+              </div>
+            </div>
+
+            {/* Background Tone */}
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-medium text-zinc-600">배경 베이스 톤 (Background)</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={themeBgColor}
+                  onChange={(e) => setThemeBgColor(e.target.value)}
+                  className="w-8 h-8 rounded-lg border cursor-pointer p-0.5 bg-white"
+                />
+                <input
+                  type="text"
+                  value={themeBgColor}
+                  onChange={(e) => setThemeBgColor(e.target.value)}
+                  placeholder="#ffffff"
+                  className="flex-1 px-3 py-1.5 bg-white rounded-lg border text-xs font-mono font-bold uppercase focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Border Radius & Live Preview Box */}
+          <div className="space-y-4 p-4 rounded-xl bg-zinc-50 border flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-zinc-900 text-white flex items-center justify-center text-[10px] font-bold">R</span>
+                <h3 className="text-xs font-bold text-zinc-900">버튼/카드 모서리 둥글기 (Radius)</h3>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                {RADIUS_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setThemeRadius(opt.id)}
+                    className={`px-2.5 py-1.5 rounded-lg border text-[11px] font-bold transition-all ${
+                      themeRadius === opt.id
+                        ? "bg-zinc-950 text-white border-zinc-950 shadow-xs"
+                        : "bg-white text-zinc-700 hover:bg-zinc-100"
+                    }`}
+                  >
+                    {opt.id}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Live Interactive Preview Box */}
+            <div 
+              className="p-4 border rounded-xl shadow-2xs space-y-2.5 transition-all"
+              style={{ 
+                backgroundColor: themeBgColor,
+                borderRadius: themeRadius === "9999px" ? "20px" : themeRadius 
+              }}
+            >
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest block">
+                실시간 라이브 미리보기
+              </span>
+              <h4 
+                className="text-base font-bold tracking-tight"
+                style={{ 
+                  color: themePrimaryColor,
+                  fontFamily: themeHeadingFont === "Pretendard" ? "'Pretendard', sans-serif" : `'${themeHeadingFont}', serif`
+                }}
+              >
+                PERVADE Premium Clean
+              </h4>
+              <p className="text-xs text-zinc-500 leading-snug">
+                단 하나의 세정제로 완성하는 품격 있는 공간 케어
+              </p>
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  style={{ 
+                    backgroundColor: themePrimaryColor,
+                    borderRadius: themeRadius 
+                  }}
+                  className="px-3.5 py-1.5 text-white text-xs font-bold shadow-xs hover:opacity-90"
+                >
+                  구매하기
+                </button>
+                <span 
+                  style={{ color: themeAccentColor }}
+                  className="text-xs font-bold"
+                >
+                  ★ 4.9 (1,280 리뷰)
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         
-        {/* 1. Hero Banner Content */}
+        {/* 2. Hero Banner Content */}
         <div className={`bg-white rounded-2xl border p-6 space-y-6 shadow-xs transition-all ${!heroVisible ? "opacity-75 bg-zinc-50" : ""}`}>
           <div className="flex items-center justify-between border-b pb-3">
             <h2 className="text-base font-bold text-zinc-900 flex items-center gap-2">
-              <span>1. 메인 배너 (Hero) 텍스트 및 미디어</span>
+              <span>2. 메인 배너 (Hero) 텍스트 및 미디어</span>
             </h2>
             <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${heroVisible ? "bg-emerald-100 text-emerald-800 border border-emerald-200" : "bg-zinc-200 text-zinc-700"}`}>
               {heroVisible ? "🟢 화면 노출 중" : "⚪ 숨김 상태"}

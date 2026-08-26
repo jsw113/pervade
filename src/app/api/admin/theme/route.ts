@@ -24,7 +24,13 @@ export async function GET() {
       "WHY_CARD2_TITLE",
       "WHY_CARD2_DESC",
       "WHY_CARD3_TITLE",
-      "WHY_CARD3_DESC"
+      "WHY_CARD3_DESC",
+      "THEME_PRIMARY_COLOR",
+      "THEME_ACCENT_COLOR",
+      "THEME_BG_COLOR",
+      "THEME_BODY_FONT",
+      "THEME_HEADING_FONT",
+      "THEME_RADIUS"
     ];
     const policies = await prisma.policy.findMany({
       where: { key: { in: keys } }
@@ -69,7 +75,13 @@ export async function POST(request: Request) {
       "WHY_CARD2_TITLE",
       "WHY_CARD2_DESC",
       "WHY_CARD3_TITLE",
-      "WHY_CARD3_DESC"
+      "WHY_CARD3_DESC",
+      "THEME_PRIMARY_COLOR",
+      "THEME_ACCENT_COLOR",
+      "THEME_BG_COLOR",
+      "THEME_BODY_FONT",
+      "THEME_HEADING_FONT",
+      "THEME_RADIUS"
     ];
 
     // Individual upserts for rock-solid reliability
