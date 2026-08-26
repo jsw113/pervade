@@ -5,8 +5,8 @@ export const AUTH_CONFIG = {
     redirectUri: process.env.NEXT_PUBLIC_NAVER_REDIRECT_URI || "https://www.pervade.co.kr/api/auth/callback/naver",
   },
   kakao: {
-    clientId: process.env.KAKAO_CLIENT_ID || process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID || "",
-    clientSecret: process.env.KAKAO_CLIENT_SECRET || "",
+    clientId: process.env.KAKAO_CLIENT_ID || process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID || "969600098ed590f4f84f68fce837fe8a",
+    clientSecret: process.env.KAKAO_CLIENT_SECRET || "l7POyEd0xdVkSZHtiBtPtIrq50fNVuTw",
     redirectUri: process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI || "https://www.pervade.co.kr/api/auth/callback/kakao",
   },
   google: {

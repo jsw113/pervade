@@ -79,14 +79,17 @@ function LoginForm() {
       return;
     }
 
-    setSocialModalProvider(provider);
     if (provider === "KAKAO") {
-      setSocialName("카카오 고객");
-      setSocialEmail("customer@kakao.com");
-    } else {
-      setSocialName("구글 고객");
-      setSocialEmail("customer@gmail.com");
+      // Official Kakao 1-second Instant OAuth Login
+      const redirectUri = encodeURIComponent("https://www.pervade.co.kr/api/auth/callback/kakao");
+      const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=969600098ed590f4f84f68fce837fe8a&redirect_uri=${redirectUri}&response_type=code`;
+      window.location.href = kakaoAuthUrl;
+      return;
     }
+
+    setSocialModalProvider(provider);
+    setSocialName("구글 고객");
+    setSocialEmail("customer@gmail.com");
   };
 
   // Submit Social Login

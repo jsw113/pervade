@@ -188,6 +188,14 @@ export default function SignupPage() {
       return;
     }
 
+    if (provider === "KAKAO") {
+      // Official Kakao 1-second Instant OAuth Signup & Login
+      const redirectUri = encodeURIComponent("https://www.pervade.co.kr/api/auth/callback/kakao");
+      const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=969600098ed590f4f84f68fce837fe8a&redirect_uri=${redirectUri}&response_type=code`;
+      window.location.href = kakaoAuthUrl;
+      return;
+    }
+
     setIsSubmitting(true);
     
     // In production OAuth flow, this opens the portal's login / authorization screen
