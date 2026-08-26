@@ -197,7 +197,7 @@ export async function sendOrderNotification(userId: string, data: OrderNotificat
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          from: "PERVADE <orders@pervade.co.kr>",
+          from: process.env.RESEND_FROM_EMAIL || "PERVADE <orders@pervade.co.kr>",
           to: [data.customerEmail],
           subject,
           html
