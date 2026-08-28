@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
-import { hashPassword } from "@/lib/authCrypto";
+import { hashPassword, verifyPassword } from "@/lib/authCrypto";
 
 export const dynamic = "force-dynamic";
 
@@ -47,9 +47,47 @@ export async function PUT(request: NextRequest) {
       updateData.address = address ? String(address).trim() : "";
     }
 
-    // Password change (optional)
-    if (newPassword && typeof newPassword === "string" && newPassword.trim().length >= 4) {
-      updateData.passwordHash = hashPassword(newPassword.trim());
+    // Password change validation
+    if (newPassword && typeof newPassword === "string" && newPassword.trim().length > 0) {
+      const trimmedNewPass = newPassword.trim();
+
+      // Rule: 6 characters or more
+      if (trimmedNewPass.length < 6) {
+        return NextResponse.json(
+          { error: "새 비밀번호는 최소 6자 이상이어야 합니다." },
+          { status: 400 }
+        );
+      }
+
+      // Rule: English (case-sensitive) or Number requirement
+      const hasAlphaOrNum = /[a-zA-Z0-9]/.test(trimmedNewPass);
+      if (!hasAlphaOrNum) {
+        return NextResponse.json(
+          { error: "비밀번호는 6자 이상 영문(대소문자) 또는 숫자를 포함해야 합니다." },
+          { status: 400 }
+        );
+      }
+
+      // Verify current password if user already has a password set
+      if (user.passwordHash && user.passwordHash !== "$2b$10$dummyhashvalue") {
+        if (!currentPassword || typeof currentPassword !== "string") {
+          return NextResponse.json(
+            { error: "보안을 위해 기존(현재) 비밀번호를 입력해주세요." },
+            { status: 400 }
+          );
+        }
+
+        const isCurrentValid = verifyPassword(currentPassword.trim(), user.passwordHash);
+        if (!isCurrentValid) {
+          return NextResponse.json(
+            { error: "기존(현재) 비밀번호가 일치하지 않습니다. 다시 확인해주세요." },
+            { status: 400 }
+          );
+        }
+      }
+
+      // Update with secure hash
+      updateData.passwordHash = hashPassword(trimmedNewPass);
     }
 
     const updatedUser = await prisma.user.update({

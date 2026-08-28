@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, Phone, Calendar, Lock, Edit3, X, Check, Eye, EyeOff } from "lucide-react";
+import { User, Phone, Calendar, Lock, Edit3, X, Check, Eye, EyeOff, ShieldCheck, AlertCircle } from "lucide-react";
 
 interface ProfileEditorProps {
   user: {
@@ -22,6 +22,9 @@ export function ProfileEditor({ user }: ProfileEditorProps) {
   const [name, setName] = useState(user.name || "");
   const [phone, setPhone] = useState(user.phone || "");
   const [birthDate, setBirthDate] = useState(user.birthDate || "");
+  
+  // Password State
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -42,6 +45,12 @@ export function ProfileEditor({ user }: ProfileEditorProps) {
     }
   };
 
+  // Real-time password validations
+  const isPassLengthValid = newPassword.length >= 6;
+  const isPassAlphaNumValid = /[a-zA-Z0-9]/.test(newPassword);
+  const isPassMatch = newPassword.length > 0 && confirmPassword.length > 0 && newPassword === confirmPassword;
+  const isPassMismatch = confirmPassword.length > 0 && newPassword !== confirmPassword;
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -50,9 +59,18 @@ export function ProfileEditor({ user }: ProfileEditorProps) {
       return;
     }
 
-    if (newPassword) {
-      if (newPassword.length < 4) {
-        alert("비밀번호는 최소 4자리 이상이어야 합니다.");
+    // Password validation if user is trying to change password
+    if (newPassword.trim().length > 0) {
+      if (!currentPassword.trim()) {
+        alert("🔒 비밀번호 변경을 위해 기존(현재) 비밀번호를 입력해주세요.");
+        return;
+      }
+      if (!isPassLengthValid) {
+        alert("새 비밀번호는 최소 6자 이상이어야 합니다.");
+        return;
+      }
+      if (!isPassAlphaNumValid) {
+        alert("새 비밀번호는 영문(대소문자) 또는 숫자를 포함해야 합니다.");
         return;
       }
       if (newPassword !== confirmPassword) {
@@ -70,6 +88,7 @@ export function ProfileEditor({ user }: ProfileEditorProps) {
           name: name.trim(),
           phone: phone.trim() || null,
           birthDate: birthDate.trim() || null,
+          currentPassword: currentPassword ? currentPassword.trim() : undefined,
           newPassword: newPassword ? newPassword.trim() : undefined,
         }),
       });
@@ -91,6 +110,7 @@ export function ProfileEditor({ user }: ProfileEditorProps) {
         } catch (e) {}
 
         setIsOpen(false);
+        setCurrentPassword("");
         setNewPassword("");
         setConfirmPassword("");
         router.refresh();
@@ -117,8 +137,8 @@ export function ProfileEditor({ user }: ProfileEditorProps) {
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6 relative border border-zinc-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs animate-in fade-in overflow-y-auto">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6 relative border border-zinc-100 my-8">
             {/* Header */}
             <div className="flex justify-between items-center border-b pb-4">
               <div>
@@ -127,7 +147,7 @@ export function ProfileEditor({ user }: ProfileEditorProps) {
                   회원정보 수정
                 </h3>
                 <p className="text-xs text-zinc-500 mt-0.5">
-                  이름, 연락처, 생년월일 및 비밀번호를 변경할 수 있습니다.
+                  이름, 연락처, 생년월일 및 비밀번호를 안전하게 변경합니다.
                 </p>
               </div>
               <button
@@ -194,8 +214,8 @@ export function ProfileEditor({ user }: ProfileEditorProps) {
                 </div>
               </div>
 
-              {/* Password Change (Always visible for all users) */}
-              <div className="pt-3 border-t space-y-3 bg-zinc-50/70 p-3.5 rounded-2xl border border-zinc-200/80">
+              {/* Password Change Section */}
+              <div className="pt-3 border-t space-y-3 bg-zinc-50/80 p-4 rounded-2xl border border-zinc-200">
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-zinc-900 flex items-center gap-1.5 text-xs">
                     <Lock className="w-3.5 h-3.5 text-zinc-700" />
@@ -207,33 +227,71 @@ export function ProfileEditor({ user }: ProfileEditorProps) {
                     className="text-[11px] text-zinc-500 hover:text-zinc-900 flex items-center gap-1 cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                    <span>{showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}</span>
+                    <span>{showPassword ? "숨기기" : "비밀번호 보기"}</span>
                   </button>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2.5">
+                  {/* Current Password */}
                   <div>
-                    <label className="block text-[11px] font-bold text-zinc-600 mb-1">새 비밀번호 (4자리 이상)</label>
+                    <label className="block text-[11px] font-bold text-zinc-700 mb-1">
+                      기존(현재) 비밀번호 {newPassword.length > 0 && <span className="text-red-500">*필수</span>}
+                    </label>
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      placeholder="현재 사용 중인 기존 비밀번호"
+                      className="w-full px-3.5 py-2.5 bg-white rounded-xl border text-xs font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900 font-mono"
+                    />
+                  </div>
+
+                  {/* New Password */}
+                  <div>
+                    <label className="block text-[11px] font-bold text-zinc-700 mb-1">
+                      새 비밀번호 (6자 이상 영문/숫자 포함)
+                    </label>
                     <input
                       type={showPassword ? "text" : "password"}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="새로 사용할 비밀번호 입력"
+                      placeholder="새로 사용할 6자 이상 비밀번호"
                       className="w-full px-3.5 py-2.5 bg-white rounded-xl border text-xs font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900 font-mono"
                     />
                   </div>
+
+                  {/* Confirm New Password */}
                   <div>
-                    <label className="block text-[11px] font-bold text-zinc-600 mb-1">새 비밀번호 확인</label>
+                    <label className="block text-[11px] font-bold text-zinc-700 mb-1">
+                      새 비밀번호 확인
+                    </label>
                     <input
                       type={showPassword ? "text" : "password"}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="새 비밀번호 다시 한번 입력"
+                      placeholder="새 비밀번호 다시 입력"
                       className="w-full px-3.5 py-2.5 bg-white rounded-xl border text-xs font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900 font-mono"
                     />
                   </div>
-                  <p className="text-[10px] text-zinc-400 font-medium">
-                    * 기존 비밀번호를 유지하시려면 비밀번호 입력란을 비워두시면 됩니다.
+
+                  {/* Validation Guide Feedback */}
+                  {newPassword.length > 0 && (
+                    <div className="p-2.5 bg-white rounded-xl border border-zinc-200 text-[10.5px] space-y-1">
+                      <div className={`flex items-center gap-1.5 font-bold ${isPassLengthValid && isPassAlphaNumValid ? "text-emerald-600" : "text-zinc-500"}`}>
+                        {isPassLengthValid && isPassAlphaNumValid ? <Check className="w-3 h-3 text-emerald-500" /> : <span className="w-3 h-3 text-center">•</span>}
+                        <span>6자 이상 영문(대/소문자 구분) 또는 숫자 포함</span>
+                      </div>
+                      {confirmPassword.length > 0 && (
+                        <div className={`flex items-center gap-1.5 font-bold ${isPassMatch ? "text-emerald-600" : "text-rose-500"}`}>
+                          {isPassMatch ? <Check className="w-3 h-3 text-emerald-500" /> : <AlertCircle className="w-3 h-3 text-rose-500" />}
+                          <span>{isPassMatch ? "비밀번호가 일치합니다." : "비밀번호가 일치하지 않습니다."}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <p className="text-[10.5px] text-zinc-400 font-medium">
+                    * 기존 비밀번호를 계속 유지하시려면 위 비밀번호 항목을 비워두시면 됩니다.
                   </p>
                 </div>
               </div>

@@ -111,8 +111,9 @@ export default function SignupPage() {
     setEmailCheckStatus({ checked: false });
   }, [email]);
 
-  // Password matching & strength verification
-  const isPasswordLongEnough = password.length >= 8;
+  // Password matching & strength verification (6 chars or more)
+  const isPasswordLongEnough = password.length >= 6;
+  const isPasswordAlphaNum = /[a-zA-Z0-9]/.test(password);
   const isPasswordMatched = password.length > 0 && passwordConfirm.length > 0 && password === passwordConfirm;
   const isPasswordMismatch = passwordConfirm.length > 0 && password !== passwordConfirm;
 
@@ -131,7 +132,12 @@ export default function SignupPage() {
     }
 
     if (!isPasswordLongEnough) {
-      alert("비밀번호는 최소 8자 이상 입력해주세요.");
+      alert("비밀번호는 최소 6자 이상 입력해주세요.");
+      return;
+    }
+
+    if (!isPasswordAlphaNum) {
+      alert("비밀번호는 영문(대소문자 구분) 또는 숫자를 포함해야 합니다.");
       return;
     }
 
@@ -431,7 +437,7 @@ export default function SignupPage() {
               <div className="flex justify-between items-center mb-1">
                 <label className="block text-xs font-bold text-zinc-700">비밀번호 *</label>
                 <span className={`text-[10px] font-semibold ${isPasswordLongEnough ? "text-emerald-600" : "text-zinc-400"}`}>
-                  {isPasswordLongEnough ? "✓ 8자 이상 충족" : "8자 이상 입력 필요"}
+                  {isPasswordLongEnough ? "✓ 6자 이상 충족" : "6자 이상 입력 필요"}
                 </span>
               </div>
               <input 
@@ -440,7 +446,7 @@ export default function SignupPage() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 className="w-full px-3.5 py-2.5 bg-white rounded-xl border text-xs focus:outline-none focus:ring-2 focus:ring-zinc-900" 
-                placeholder="비밀번호 (영문, 숫자 포함 8자 이상)"
+                placeholder="비밀번호 (영문, 숫자 포함 6자 이상)"
               />
             </div>
 
