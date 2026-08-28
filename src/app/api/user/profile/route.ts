@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
+import { hashPassword } from "@/lib/authCrypto";
 
 export const dynamic = "force-dynamic";
 
@@ -48,8 +49,7 @@ export async function PUT(request: NextRequest) {
 
     // Password change (optional)
     if (newPassword && typeof newPassword === "string" && newPassword.trim().length >= 4) {
-      // In production, bcrypt hash is used; here we securely update the password
-      updateData.passwordHash = `$2b$10$updated_${Date.now()}_${newPassword.trim()}`;
+      updateData.passwordHash = hashPassword(newPassword.trim());
     }
 
     const updatedUser = await prisma.user.update({

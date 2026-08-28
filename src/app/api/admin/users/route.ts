@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAdminUser } from "@/lib/adminAuth";
+import { hashPassword } from "@/lib/authCrypto";
 
 export const dynamic = "force-dynamic";
 
@@ -56,7 +57,7 @@ export async function POST(request: Request) {
         email,
         phone: phone || "",
         loginId: loginId || `user_${Date.now().toString().slice(-6)}`,
-        passwordHash: "$2b$10$dummyhashadmincreated",
+        passwordHash: hashPassword(password || "pervade_user_2026!"),
         address: address || "",
         birthDate: birthDate || "",
         role: role || "USER",
