@@ -24,11 +24,13 @@ export function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
 
-  // 1. Instantly read user from localStorage on mount and on custom auth event (Zero flicker)
+  // 1. Instantly read user from sessionStorage on mount and on custom auth event (Zero flicker, session-only)
   useEffect(() => {
     const loadCachedUser = () => {
       try {
-        const cached = localStorage.getItem("pervade_user");
+        // Purge legacy persistent localStorage to prevent automatic resurrection
+        localStorage.removeItem("pervade_user");
+        const cached = sessionStorage.getItem("pervade_user");
         if (cached) {
           setUser(JSON.parse(cached));
         }
@@ -66,7 +68,7 @@ export function Navbar() {
       // 3. Auth
       let cachedUserId = "";
       try {
-        const cached = localStorage.getItem("pervade_user");
+        const cached = sessionStorage.getItem("pervade_user");
         if (cached) {
           const parsed = JSON.parse(cached);
           if (parsed && parsed.id) cachedUserId = parsed.id;
@@ -88,11 +90,12 @@ export function Navbar() {
         if (authData.loggedIn && authData.user) {
           setUser(authData.user);
           try {
-            localStorage.setItem("pervade_user", JSON.stringify(authData.user));
+            sessionStorage.setItem("pervade_user", JSON.stringify(authData.user));
           } catch (e) {}
-        } else if (!cachedUserId) {
+        } else {
           setUser(null);
           try {
+            sessionStorage.removeItem("pervade_user");
             localStorage.removeItem("pervade_user");
           } catch (e) {}
         }
@@ -123,6 +126,7 @@ export function Navbar() {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
       try {
+        sessionStorage.removeItem("pervade_user");
         localStorage.removeItem("pervade_user");
       } catch (e) {}
       setUser(null);

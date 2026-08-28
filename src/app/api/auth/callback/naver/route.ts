@@ -113,17 +113,16 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // 4. Set Session Cookie
+    // 4. Set Session Cookie (only lasts while browser is open)
     const cookieStore = await cookies();
     cookieStore.set("userId", user.id, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
     });
 
-    // 5. Return HTML to sync localStorage and redirect cleanly
+    // 5. Return HTML to sync sessionStorage and redirect cleanly
     const safeUserData = JSON.stringify({
       id: user.id,
       name: user.name,
@@ -149,7 +148,8 @@ export async function GET(request: NextRequest) {
           </div>
           <script>
             try {
-              localStorage.setItem("pervade_user", ${JSON.stringify(safeUserData)});
+              localStorage.removeItem("pervade_user");
+              sessionStorage.setItem("pervade_user", ${JSON.stringify(safeUserData)});
               window.dispatchEvent(new Event("pervade_auth_update"));
             } catch(e) {}
             setTimeout(function() {

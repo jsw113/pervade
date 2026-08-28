@@ -60,7 +60,7 @@ export function PolicyForm({ initialPolicies }: { initialPolicies: any[] }) {
     try {
       let adminUserId = "";
       try {
-        const stored = localStorage.getItem("pervade_user");
+        const stored = sessionStorage.getItem("pervade_user");
         if (stored) {
           const parsed = JSON.parse(stored);
           if (parsed?.id) adminUserId = parsed.id;

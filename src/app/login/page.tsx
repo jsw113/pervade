@@ -49,7 +49,8 @@ function LoginForm() {
         const data = await response.json();
         if (data.user) {
           try {
-            localStorage.setItem("pervade_user", JSON.stringify(data.user));
+            localStorage.removeItem("pervade_user");
+            sessionStorage.setItem("pervade_user", JSON.stringify(data.user));
           } catch (e) {}
         }
         alert("🎉 로그인되었습니다.");
@@ -120,7 +121,8 @@ function LoginForm() {
         const data = await response.json();
         if (data.user) {
           try {
-            localStorage.setItem("pervade_user", JSON.stringify(data.user));
+            localStorage.removeItem("pervade_user");
+            sessionStorage.setItem("pervade_user", JSON.stringify(data.user));
           } catch (e) {}
         }
         alert(`✅ ${provider} 간편 로그인 완료! (${data.user?.name || socialName}님 환영합니다)`);

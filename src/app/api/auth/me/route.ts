@@ -33,14 +33,13 @@ export async function GET(request: Request) {
       });
     }
 
-    // Refresh/ensure session cookie is actively set
+    // Refresh/ensure session cookie is actively set (session-only, no persistent maxAge)
     try {
       cookieStore.set("userId", user.id, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
-        maxAge: 60 * 60 * 24 * 7,
       });
     } catch (e) {}
 

@@ -161,7 +161,8 @@ export default function SignupPage() {
       if (response.ok && !data.error) {
         if (data.user) {
           try {
-            localStorage.setItem("pervade_user", JSON.stringify(data.user));
+            localStorage.removeItem("pervade_user");
+            sessionStorage.setItem("pervade_user", JSON.stringify(data.user));
           } catch (e) {}
         }
         alert("🎉 퍼베이드 회원가입이 완료되었습니다!\n가입 축하 적립금 3,000P가 지급되었습니다. 마이페이지로 이동합니다.");

@@ -32,8 +32,10 @@ export async function POST(request: Request) {
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",
           path: "/",
-          maxAge: rememberMe ? 60 * 60 * 24 * 7 : 60 * 60 * 24,
         };
+        if (rememberMe) {
+          cookieOptions.maxAge = 60 * 60 * 24 * 7;
+        }
 
         cookieStore.set("userId", adminUser.id, cookieOptions);
 
@@ -71,8 +73,10 @@ export async function POST(request: Request) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: rememberMe ? 60 * 60 * 24 * 7 : 60 * 60 * 24,
     };
+    if (rememberMe) {
+      cookieOptions.maxAge = 60 * 60 * 24 * 7;
+    }
 
     cookieStore.set("userId", user.id, cookieOptions);
 
