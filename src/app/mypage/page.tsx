@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { RealNameVerifier } from "@/components/shop/RealNameVerifier";
+import { ProfileEditor } from "@/components/shop/ProfileEditor";
 import { MyPageAddressEditor } from "@/components/shop/MyPageAddressEditor";
 import { ShippingAddressManager } from "@/components/shop/ShippingAddressManager";
 import { ClientSessionSync } from "@/components/shop/ClientSessionSync";
@@ -119,12 +120,12 @@ export default async function MyPage() {
 
       {/* 2. Detailed Member Profile Info (Registered Base Address) */}
       <div className="bg-white border rounded-3xl p-6 sm:p-8 shadow-xs space-y-6">
-        <div className="flex justify-between items-center border-b pb-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b pb-4">
           <h3 className="text-base font-black text-zinc-950 flex items-center gap-2">
             <UserIcon className="w-4 h-4 text-zinc-700" />
             나의 기본 회원 정보
           </h3>
-          <div>
+          <div className="flex items-center gap-3 flex-wrap">
             {dbUser.realNameVerified ? (
               <span className="bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 border border-emerald-200">
                 <CheckCircle className="w-3.5 h-3.5" /> 실명인증 완료
@@ -137,6 +138,16 @@ export default async function MyPage() {
                 <RealNameVerifier />
               </div>
             )}
+            <ProfileEditor
+              user={{
+                id: dbUser.id,
+                name: dbUser.name,
+                email: dbUser.email,
+                phone: dbUser.phone,
+                birthDate: dbUser.birthDate,
+                socialProvider: dbUser.socialProvider,
+              }}
+            />
           </div>
         </div>
 
