@@ -53,6 +53,8 @@ export async function getAdminUser(request?: Request): Promise<AdminAuthInfo | n
   }
 }
 
+import { hashPassword } from "@/lib/authCrypto";
+
 export async function ensureDefaultAdminExists() {
   try {
     let admin = await prisma.user.findFirst({
@@ -64,6 +66,8 @@ export async function ensureDefaultAdminExists() {
       }
     });
 
+    const defaultInitialPass = process.env.ADMIN_PASSWORD || "pervade_admin_2026!";
+
     if (!admin) {
       // Create master super admin account
       admin = await prisma.user.create({
@@ -71,13 +75,12 @@ export async function ensureDefaultAdminExists() {
           loginId: "admin",
           name: "최고관리자 (Super Admin)",
           email: "admin@pervade.co.kr",
-          passwordHash: "$2b$10$ep0v0J/xP1pL/r9mP1cKLe123456mockhash",
+          passwordHash: hashPassword(defaultInitialPass),
           role: "SUPER_ADMIN",
           phone: "010-0000-0000",
           realNameVerified: true,
         }
       });
-      console.log("Master Super Admin account created automatically: admin / 123456");
     } else if (admin.role !== "SUPER_ADMIN" && admin.role !== "ADMIN") {
       // Upgrade role to SUPER_ADMIN
       admin = await prisma.user.update({

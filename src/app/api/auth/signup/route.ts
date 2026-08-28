@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
+import { hashPassword } from "@/lib/authCrypto";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "이미 존재하는 사용자 아이디입니다." }, { status: 400 });
     }
 
-    // Create user in DB with 3,000 welcome points
+    // Create user in DB with 3,000 welcome points and secure hashed password
     const user = await prisma.user.create({
       data: {
         loginId,
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
         birthDate: birthDate || "",
         address: address || "",
         marketingConsent: !!consent,
-        passwordHash: "$2b$10$dummyhashvalue",
+        passwordHash: hashPassword(password),
         referralPoints: 3000, // 3,000 welcome points
         role: "USER"
       },
