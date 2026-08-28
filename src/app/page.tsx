@@ -9,7 +9,7 @@ export default async function Home() {
   const policies = await prisma.policy.findMany({
     where: {
       key: {
-        in: ["HERO_TITLE", "HERO_SUBTITLE", "HERO_BG_TYPE", "HERO_BG_URL", "HERO_VISIBLE", "HERO_SHOW_TEXT", "HERO_SHOW_CTA", "HOME_SECTIONS_ORDER"]
+        in: ["HERO_TITLE", "HERO_SUBTITLE", "HERO_BG_TYPE", "HERO_BG_URL", "HERO_VISIBLE", "HERO_SHOW_TEXT", "HERO_SHOW_CTA", "HOME_SECTIONS_ORDER", "HERO_OVERLAY_OPACITY"]
       }
     }
   });
@@ -24,6 +24,7 @@ export default async function Home() {
   const heroSubtitle = getPolicy("HERO_SUBTITLE", "퍼베이드 다목적 세정제는 강력한 세정력과 안전한 성분으로 집안 곳곳의 찌든 때를 말끔히 지워줍니다.");
   const heroBgType = getPolicy("HERO_BG_TYPE", "IMAGE");
   const heroBgUrl = getPolicy("HERO_BG_URL", "");
+  const heroOverlayOpacity = getPolicy("HERO_OVERLAY_OPACITY", "45");
 
   const fallbackDefaultBg = "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?q=80&w=2000&auto=format&fit=crop";
   const activeBgUrl = heroBgUrl || fallbackDefaultBg;
@@ -119,7 +120,10 @@ export default async function Home() {
         if (!heroVisible) return null;
         return (
           <section key="hero" className="relative w-full h-[85vh] min-h-[580px] flex flex-col items-center justify-center bg-zinc-950 overflow-hidden">
-            <div className="absolute inset-0 bg-black/45 z-10" />
+            <div 
+              className="absolute inset-0 bg-black z-10 transition-opacity duration-300 pointer-events-none" 
+              style={{ opacity: (Math.max(0, Math.min(100, Number(heroOverlayOpacity) || 45))) / 100 }} 
+            />
             
             {/* Dynamic Background: Video vs Image */}
             {heroBgType === "VIDEO" && heroBgUrl ? (

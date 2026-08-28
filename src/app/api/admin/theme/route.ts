@@ -30,7 +30,8 @@ export async function GET() {
       "THEME_BG_COLOR",
       "THEME_BODY_FONT",
       "THEME_HEADING_FONT",
-      "THEME_RADIUS"
+      "THEME_RADIUS",
+      "HERO_OVERLAY_OPACITY"
     ];
     const policies = await prisma.policy.findMany({
       where: { key: { in: keys } }
@@ -81,7 +82,8 @@ export async function POST(request: Request) {
       "THEME_BG_COLOR",
       "THEME_BODY_FONT",
       "THEME_HEADING_FONT",
-      "THEME_RADIUS"
+      "THEME_RADIUS",
+      "HERO_OVERLAY_OPACITY"
     ];
 
     // Individual upserts for rock-solid reliability

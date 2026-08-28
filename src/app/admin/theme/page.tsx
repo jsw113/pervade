@@ -136,6 +136,7 @@ export default function ThemeAdminPage() {
   const [heroSubtitle, setHeroSubtitle] = useState("");
   const [heroBgType, setHeroBgType] = useState<"IMAGE" | "VIDEO" | "COLOR">("IMAGE");
   const [heroBgUrl, setHeroBgUrl] = useState("");
+  const [heroOverlayOpacity, setHeroOverlayOpacity] = useState("45");
   const [imageSourceType, setImageSourceType] = useState<"URL" | "FILE">("URL");
   const [videoSourceType, setVideoSourceType] = useState<"URL" | "FILE">("URL");
   const [isUploading, setIsUploading] = useState(false);
@@ -253,6 +254,9 @@ export default function ThemeAdminPage() {
         setHeroBgType((data.HERO_BG_TYPE as any) || "IMAGE");
         const url = data.HERO_BG_URL || "";
         setHeroBgUrl(url);
+        if (data.HERO_OVERLAY_OPACITY !== undefined) {
+          setHeroOverlayOpacity(data.HERO_OVERLAY_OPACITY || "45");
+        }
         
         if (url.startsWith("/uploads/") || url.startsWith("data:")) {
           setVideoSourceType("FILE");
@@ -391,6 +395,7 @@ export default function ThemeAdminPage() {
         HERO_SUBTITLE: heroSubtitle || "",
         HERO_BG_TYPE: heroBgType || "IMAGE",
         HERO_BG_URL: heroBgUrl || "",
+        HERO_OVERLAY_OPACITY: heroOverlayOpacity,
         LOGO_URL: logoUrl || "",
         LOGO_FONT: logoFont || "'Inter', sans-serif",
         HOME_SECTIONS_ORDER: JSON.stringify(orderToSave),
@@ -1007,6 +1012,87 @@ export default function ThemeAdminPage() {
                 )}
               </div>
             )}
+
+            {/* Hero Banner Overlay Masking / Darkness Control */}
+            <div className="pt-4 border-t space-y-3 bg-zinc-50/80 p-4 rounded-xl border border-zinc-200">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <label className="block text-xs font-bold text-zinc-900 flex items-center gap-1.5">
+                    <span>배너 어둡기 (마스킹 / 오버레이) 조절</span>
+                    <span className="px-2 py-0.5 bg-zinc-900 text-white rounded-md text-[10px] font-mono font-bold">
+                      {heroOverlayOpacity}%
+                    </span>
+                  </label>
+                  <p className="text-[11px] text-zinc-500 mt-0.5">
+                    배너 위의 흰색 텍스트 가독성을 위해 배경을 어둡게 마스킹하는 강도를 조절합니다. (0% = 원본 선명하게 / 100% = 완전 어둡게)
+                  </p>
+                </div>
+
+                {/* Quick Presets */}
+                <div className="flex gap-1.5 flex-wrap">
+                  {[
+                    { label: "0% (마스킹 해제)", value: "0" },
+                    { label: "25% (밝게)", value: "25" },
+                    { label: "45% (기본 권장)", value: "45" },
+                    { label: "65% (어둡게)", value: "65" },
+                    { label: "85% (매우 어둡게)", value: "85" },
+                  ].map((preset) => (
+                    <button
+                      key={preset.value}
+                      type="button"
+                      onClick={() => setHeroOverlayOpacity(preset.value)}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                        heroOverlayOpacity === preset.value
+                          ? "bg-zinc-950 text-white shadow-xs"
+                          : "bg-white text-zinc-700 hover:bg-zinc-100 border border-zinc-200"
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Slider Control */}
+              <div className="flex items-center gap-4 pt-1">
+                <span className="text-[11px] font-bold text-zinc-500 w-16">0% (투명)</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="5"
+                  value={heroOverlayOpacity}
+                  onChange={(e) => setHeroOverlayOpacity(e.target.value)}
+                  className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-zinc-950"
+                />
+                <span className="text-[11px] font-bold text-zinc-500 w-16 text-right">100% (어두움)</span>
+              </div>
+
+              {/* Live Preview with Real-time Masking */}
+              {heroBgUrl && (
+                <div className="mt-3 border rounded-xl overflow-hidden shadow-xs aspect-video sm:aspect-21/9 relative bg-zinc-950">
+                  <div
+                    className="absolute inset-0 bg-black z-10 transition-opacity duration-300 pointer-events-none"
+                    style={{ opacity: (Math.max(0, Math.min(100, Number(heroOverlayOpacity) || 45))) / 100 }}
+                  />
+                  {heroBgType === "VIDEO" ? (
+                    <video autoPlay loop muted playsInline className="w-full h-full object-cover">
+                      <source src={heroBgUrl} />
+                    </video>
+                  ) : (
+                    <img src={heroBgUrl} alt="Preview" className="w-full h-full object-cover" />
+                  )}
+                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center p-4">
+                    <span className="text-[10px] font-bold tracking-widest uppercase px-3 py-1 bg-white/20 backdrop-blur-md rounded-full mb-2">
+                      실시간 마스킹 미리보기 ({heroOverlayOpacity}%)
+                    </span>
+                    <h3 className="text-lg sm:text-2xl font-black drop-shadow-md whitespace-pre-line">
+                      {heroTitle || "완벽한 깨끗함,\n당신의 공간을 깨우다"}
+                    </h3>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
