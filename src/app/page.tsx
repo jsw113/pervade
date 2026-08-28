@@ -120,10 +120,18 @@ export default async function Home() {
         if (!heroVisible) return null;
         return (
           <section key="hero" className="relative w-full h-[85vh] min-h-[580px] flex flex-col items-center justify-center bg-zinc-950 overflow-hidden">
-            <div 
-              className="absolute inset-0 bg-black z-10 transition-opacity duration-300 pointer-events-none" 
-              style={{ opacity: (Math.max(0, Math.min(100, Number(heroOverlayOpacity) || 45))) / 100 }} 
-            />
+            {/* Dynamic Overlay Masking (0% = totally transparent / no mask, 100% = solid black) */}
+            {(() => {
+              const num = Number(heroOverlayOpacity);
+              const opacityVal = isNaN(num) ? 0.45 : Math.max(0, Math.min(100, num)) / 100;
+              if (opacityVal <= 0) return null;
+              return (
+                <div 
+                  className="absolute inset-0 bg-black z-10 transition-opacity duration-300 pointer-events-none" 
+                  style={{ opacity: opacityVal }} 
+                />
+              );
+            })()}
             
             {/* Dynamic Background: Video vs Image */}
             {heroBgType === "VIDEO" && heroBgUrl ? (

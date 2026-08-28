@@ -1071,10 +1071,19 @@ export default function ThemeAdminPage() {
               {/* Live Preview with Real-time Masking */}
               {heroBgUrl && (
                 <div className="mt-3 border rounded-xl overflow-hidden shadow-xs aspect-video sm:aspect-21/9 relative bg-zinc-950">
-                  <div
-                    className="absolute inset-0 bg-black z-10 transition-opacity duration-300 pointer-events-none"
-                    style={{ opacity: (Math.max(0, Math.min(100, Number(heroOverlayOpacity) || 45))) / 100 }}
-                  />
+                  {/* Dynamic Masking Div */}
+                  {(() => {
+                    const num = Number(heroOverlayOpacity);
+                    const opacityVal = isNaN(num) ? 0.45 : Math.max(0, Math.min(100, num)) / 100;
+                    if (opacityVal <= 0) return null;
+                    return (
+                      <div
+                        className="absolute inset-0 bg-black z-10 transition-opacity duration-300 pointer-events-none"
+                        style={{ opacity: opacityVal }}
+                      />
+                    );
+                  })()}
+
                   {heroBgType === "VIDEO" ? (
                     <video autoPlay loop muted playsInline className="w-full h-full object-cover">
                       <source src={heroBgUrl} />
@@ -1082,14 +1091,35 @@ export default function ThemeAdminPage() {
                   ) : (
                     <img src={heroBgUrl} alt="Preview" className="w-full h-full object-cover" />
                   )}
-                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center p-4">
-                    <span className="text-[10px] font-bold tracking-widest uppercase px-3 py-1 bg-white/20 backdrop-blur-md rounded-full mb-2">
-                      실시간 마스킹 미리보기 ({heroOverlayOpacity}%)
+
+                  {/* Status Badge */}
+                  <div className="absolute top-3 left-3 z-30 flex items-center gap-1.5">
+                    <span className="text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 bg-black/60 backdrop-blur-md text-white rounded-full">
+                      마스킹 {heroOverlayOpacity}%
                     </span>
-                    <h3 className="text-lg sm:text-2xl font-black drop-shadow-md whitespace-pre-line">
-                      {heroTitle || "완벽한 깨끗함,\n당신의 공간을 깨우다"}
-                    </h3>
+                    {!heroShowText && (
+                      <span className="text-[10px] font-bold px-2.5 py-1 bg-zinc-900/80 backdrop-blur-md text-zinc-300 rounded-full">
+                        텍스트 미표시 모드
+                      </span>
+                    )}
                   </div>
+
+                  {/* Synchronized Headline Preview (only when heroShowText is enabled) */}
+                  {heroShowText && (
+                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center p-4">
+                      <span className="text-[10px] font-bold tracking-widest uppercase px-3 py-1 bg-white/20 backdrop-blur-md rounded-full mb-2">
+                        Pervade Premium Clean Living
+                      </span>
+                      <h3 className="text-base sm:text-xl md:text-2xl font-black drop-shadow-md whitespace-pre-line leading-tight mb-1 max-w-xl">
+                        {heroTitle || "완벽한 깨끗함,\n당신의 공간을 깨우다"}
+                      </h3>
+                      {heroSubtitle && (
+                        <p className="text-[11px] sm:text-xs text-white/90 max-w-md line-clamp-2 leading-relaxed drop-shadow-xs font-light">
+                          {heroSubtitle}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
