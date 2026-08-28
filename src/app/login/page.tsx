@@ -12,13 +12,21 @@ function LoginForm() {
 
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberId, setRememberId] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSocialAuthHelp, setShowSocialAuthHelp] = useState(false);
 
-  // Always reset password input on page load/mount to prevent auto-fill
+  // Load saved ID on mount and clear password
   useEffect(() => {
     setPassword("");
+    try {
+      const savedId = localStorage.getItem("pervade_saved_id");
+      if (savedId) {
+        setIdentifier(savedId);
+        setRememberId(true);
+      }
+    } catch (e) {}
   }, []);
 
   // Social Auth Modal State
@@ -51,6 +59,13 @@ function LoginForm() {
           try {
             localStorage.removeItem("pervade_user");
             sessionStorage.setItem("pervade_user", JSON.stringify(data.user));
+            
+            // Save or clear Remember ID
+            if (rememberId) {
+              localStorage.setItem("pervade_saved_id", identifier);
+            } else {
+              localStorage.removeItem("pervade_saved_id");
+            }
           } catch (e) {}
         }
         alert("🎉 로그인되었습니다.");
@@ -235,23 +250,31 @@ function LoginForm() {
             />
           </div>
 
-          {/* Remember Me Toggle */}
-          <div className="flex items-center justify-between pt-1">
-            <label className="flex items-center gap-2 cursor-pointer">
+          {/* Remember ID & Remember Me Toggles */}
+          <div className="flex items-center justify-between pt-1 text-xs">
+            <label className="flex items-center gap-1.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={rememberId}
+                onChange={e => setRememberId(e.target.checked)}
+                className="w-4 h-4 text-zinc-950 rounded border-zinc-300 focus:ring-zinc-900 cursor-pointer"
+              />
+              <span className="font-medium text-zinc-700">
+                아이디 저장
+              </span>
+            </label>
+
+            <label className="flex items-center gap-1.5 cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={rememberMe}
                 onChange={e => setRememberMe(e.target.checked)}
-                className="w-4 h-4 text-zinc-950 rounded border-zinc-300 focus:ring-zinc-900"
+                className="w-4 h-4 text-zinc-950 rounded border-zinc-300 focus:ring-zinc-900 cursor-pointer"
               />
-              <span className="text-xs font-medium text-zinc-600">
-                로그인 상태 유지 (자동 로그인)
+              <span className="text-zinc-500">
+                로그인 상태 유지
               </span>
             </label>
-
-            <span className="text-[10px] text-zinc-400">
-              {rememberMe ? "7일간 로그인 유지" : "브라우저 종료 시 자동 로그아웃"}
-            </span>
           </div>
 
           <button 
