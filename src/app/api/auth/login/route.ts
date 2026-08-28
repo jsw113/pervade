@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { ensureDefaultAdminExists } from "@/lib/adminAuth";
-import { verifyPassword } from "@/lib/authCrypto";
+import { verifyPassword, hashPassword } from "@/lib/authCrypto";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -45,6 +45,16 @@ export async function POST(request: Request) {
       if (!isPasswordValid) {
         return NextResponse.json({ error: "관리자 비밀번호가 일치하지 않습니다." }, { status: 401 });
       }
+
+      // Ensure passwordHash is updated to proper PBKDF2 hash
+      try {
+        if (!adminUser.passwordHash || !adminUser.passwordHash.includes(":")) {
+          await prisma.user.update({
+            where: { id: adminUser.id },
+            data: { passwordHash: hashPassword(password) }
+          });
+        }
+      } catch (e) {}
 
       const cookieStore = await cookies();
       const cookieOptions: any = {
