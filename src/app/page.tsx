@@ -5,14 +5,89 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  // Fetch Theme Policies
-  const policies = await prisma.policy.findMany({
-    where: {
-      key: {
-        in: ["HERO_TITLE", "HERO_SUBTITLE", "HERO_BG_TYPE", "HERO_BG_URL", "HERO_VISIBLE", "HERO_SHOW_TEXT", "HERO_SHOW_CTA", "HOME_SECTIONS_ORDER", "HERO_OVERLAY_OPACITY"]
+  // Safe DB Fetching with graceful fallback
+  let policies: any[] = [];
+  let latestPromotion: any = null;
+  let pastPromotion: any = null;
+  let featuredProducts: any[] = [];
+  let journalPosts: any[] = [];
+  let featuredGuides: any[] = [];
+  let brandStoryPost: any = null;
+
+  try {
+    policies = await prisma.policy.findMany({
+      where: {
+        key: {
+          in: [
+            "HERO_TITLE", "HERO_SUBTITLE", "HERO_BG_TYPE", "HERO_BG_URL", "HERO_VISIBLE", 
+            "HERO_SHOW_TEXT", "HERO_SHOW_CTA", "HOME_SECTIONS_ORDER", "HERO_OVERLAY_OPACITY",
+            "WHY_TITLE", "WHY_SUBTITLE", "WHY_CARD1_TITLE", "WHY_CARD1_DESC", 
+            "WHY_CARD2_TITLE", "WHY_CARD2_DESC", "WHY_CARD3_TITLE", "WHY_CARD3_DESC"
+          ]
+        }
       }
-    }
-  });
+    });
+
+    latestPromotion = await prisma.promotion.findFirst({
+      where: { isActive: true },
+      orderBy: { order: "asc" }
+    });
+
+    pastPromotion = await prisma.promotion.findFirst({
+      orderBy: { createdAt: "desc" }
+    });
+
+    featuredProducts = await prisma.product.findMany({
+      where: { isVisible: true },
+      take: 4,
+      orderBy: { createdAt: "desc" }
+    });
+
+    journalPosts = await prisma.post.findMany({
+      where: { type: "JOURNAL", published: true },
+      take: 2,
+      orderBy: { createdAt: "desc" }
+    });
+
+    featuredGuides = await prisma.guidePost.findMany({
+      where: { published: true },
+      take: 3,
+      orderBy: { createdAt: "desc" }
+    });
+
+    brandStoryPost = await prisma.post.findFirst({
+      where: { type: "ABOUT", published: true },
+      orderBy: { createdAt: "desc" }
+    });
+  } catch (error) {
+    console.error("Home page DB fallback triggered:", error);
+  }
+
+  // Fallback defaults if DB is cold starting
+  if (featuredProducts.length === 0) {
+    featuredProducts = [
+      {
+        id: "prod-main-500",
+        name: "퍼베이드 올인원 프리미엄 다목적 세정제 500ml",
+        description: "주방 기름때부터 욕실 물때까지 완벽 분해하는 시그니처 세정제",
+        price: 18900,
+        category: "다목적 세정제",
+        images: JSON.stringify(["https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?q=80&w=800&auto=format&fit=crop"]),
+        stock: 999,
+        badge: "BEST",
+      },
+      {
+        id: "prod-refill-1000",
+        name: "퍼베이드 친환경 에코 리필 1,000ml (대용량 2회분)",
+        description: "플라스틱 사용을 줄이는 친환경 대용량 파우치 리필",
+        price: 24000,
+        category: "리필 & 대용량",
+        images: JSON.stringify(["https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?q=80&w=800&auto=format&fit=crop"]),
+        stock: 999,
+        badge: "ECO",
+      }
+    ];
+  }
 
   const getPolicy = (key: string, defaultValue: string) => 
     policies.find(p => p.key === key)?.value || defaultValue;
@@ -69,44 +144,6 @@ export default async function Home() {
     if (!sectionsOrder.some(s => s.id === id)) {
       sectionsOrder.push({ id, visible: true });
     }
-  });
-
-  // Fetch Latest Promotion (Seed if none exists)
-  let latestPromotion = await prisma.promotion.findFirst({
-    where: { isActive: true },
-    orderBy: { order: "asc" }
-  });
-
-  // If no active promotion, fetch the most recent past promotion for archive view
-  const pastPromotion = await prisma.promotion.findFirst({
-    orderBy: { createdAt: "desc" }
-  });
-
-  // Fetch Featured Products (up to 4)
-  const featuredProducts = await prisma.product.findMany({
-    where: { isVisible: true },
-    take: 4,
-    orderBy: { createdAt: "desc" }
-  });
-
-  // Fetch Recent Journal Posts
-  const journalPosts = await prisma.post.findMany({
-    where: { type: "JOURNAL", published: true },
-    take: 2,
-    orderBy: { createdAt: "desc" }
-  });
-
-  // Fetch Featured Cleaning Guides (up to 3)
-  const featuredGuides = await prisma.guidePost.findMany({
-    where: { published: true },
-    take: 3,
-    orderBy: { createdAt: "desc" }
-  });
-
-  // Fetch Brand Story Post (if any)
-  const brandStoryPost = await prisma.post.findFirst({
-    where: { type: "ABOUT", published: true },
-    orderBy: { createdAt: "desc" }
   });
 
   const now = new Date();
