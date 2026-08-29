@@ -1,14 +1,16 @@
 import { PrismaClient } from "@prisma/client";
 
 function getCleanDatabaseUrl(): string | undefined {
+  const defaultLiveUrl =
+    "postgresql://neondb_owner:npg_zJSsy0OTRh7Y@ep-blue-smoke-au8vfowl.c-10.us-east-1.aws.neon.tech/neondb?sslmode=require";
+
   const rawUrl =
     process.env.POSTGRES_URL_NON_POOLING ||
     process.env.DATABASE_URL_UNPOOLED ||
     process.env.POSTGRES_PRISMA_URL ||
     process.env.DATABASE_URL ||
-    process.env.POSTGRES_URL;
-
-  if (!rawUrl) return undefined;
+    process.env.POSTGRES_URL ||
+    defaultLiveUrl;
 
   try {
     // Robust URL parsing & Direct Postgres Connection
