@@ -10,6 +10,7 @@ export async function GET() {
   try {
     const start = Date.now();
     const result = await prisma.$queryRaw`SELECT 1 as connected`;
+    const policies = await prisma.policy.findMany();
     const elapsed = Date.now() - start;
 
     return NextResponse.json({
@@ -18,6 +19,8 @@ export async function GET() {
       elapsedMs: elapsed,
       datasource: maskedUrl,
       result,
+      policyCount: policies.length,
+      policies: policies.map((p) => ({ key: p.key, value: p.value })),
     });
   } catch (error: any) {
     return NextResponse.json(
