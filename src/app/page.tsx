@@ -451,15 +451,23 @@ export default async function Home() {
                     >
                       {/* Compact Image */}
                       <div className="h-56 bg-zinc-100 relative overflow-hidden shrink-0 flex items-center justify-center p-4">
-                        {prod.imageUrl ? (
-                          <img 
-                            src={prod.imageUrl} 
-                            alt={prod.name} 
-                            className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-xs text-zinc-400">[이미지 준비중]</div>
-                        )}
+                        {(() => {
+                          let imgUrl = prod.imageUrl;
+                          if (!imgUrl && prod.images) {
+                            try {
+                              const parsed = JSON.parse(prod.images);
+                              if (Array.isArray(parsed) && parsed.length > 0) imgUrl = parsed[0];
+                            } catch (e) {}
+                          }
+                          if (!imgUrl) imgUrl = "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?q=80&w=800&auto=format&fit=crop";
+                          return (
+                            <img 
+                              src={imgUrl} 
+                              alt={prod.name} 
+                              className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
+                            />
+                          );
+                        })()}
                       </div>
                       
                       {/* Body */}
@@ -476,15 +484,15 @@ export default async function Home() {
                           <div>
                             {prod.originalPrice && prod.originalPrice > prod.price && (
                               <span className="text-[10px] text-zinc-400 line-through mr-1.5">
-                                ₩{prod.originalPrice.toLocaleString()}
+                                ₩{(prod.originalPrice || 0).toLocaleString()}
                               </span>
                             )}
                             <span className="font-black text-sm text-zinc-950">
-                              ₩{prod.price.toLocaleString()}원
+                              ₩{(prod.price || 0).toLocaleString()}원
                             </span>
                           </div>
                           <span className="text-[10px] text-zinc-400">
-                            {prod.shippingFee === 0 ? "무료배송" : `배송비 ${prod.shippingFee.toLocaleString()}원`}
+                            {!prod.shippingFee || prod.shippingFee === 0 ? "무료배송" : `배송비 ${(prod.shippingFee || 0).toLocaleString()}원`}
                           </span>
                         </div>
                       </div>
