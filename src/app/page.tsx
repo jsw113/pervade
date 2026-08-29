@@ -105,7 +105,7 @@ export default async function Home() {
   const heroBgUrl = getPolicy("HERO_BG_URL", "");
   const heroOverlayOpacity = getPolicy("HERO_OVERLAY_OPACITY", "0");
 
-  const fallbackDefaultBg = "/uploads/hero_bg_1786971435418.JPG";
+  const fallbackDefaultBg = "/uploads/hero_bg_1786971398395.JPG";
   const activeBgUrl = heroBgUrl || fallbackDefaultBg;
 
   // 'Why PERVADE?' (Features) Section Dynamic Policies
