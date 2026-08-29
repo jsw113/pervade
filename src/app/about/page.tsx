@@ -19,10 +19,15 @@ export const metadata: Metadata = {
 };
 
 export default async function AboutPage() {
-  const dbPosts = await prisma.post.findMany({
-    where: { type: "ABOUT", published: true },
-    orderBy: { createdAt: "desc" },
-  });
+  let dbPosts: any[] = [];
+  try {
+    dbPosts = await prisma.post.findMany({
+      where: { type: "ABOUT", published: true },
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (e) {
+    dbPosts = [];
+  }
 
   const posts = dbPosts.length > 0 ? dbPosts : [DEFAULT_BRAND_STORY];
 
