@@ -4,13 +4,18 @@ function getCleanDatabaseUrl(): string | undefined {
   const defaultLiveUrl =
     "postgresql://neondb_owner:npg_zJSsy0OTRh7Y@ep-blue-smoke-au8vfowl.c-10.us-east-1.aws.neon.tech/neondb?sslmode=require";
 
-  const rawUrl =
+  let rawUrl =
     process.env.POSTGRES_URL_NON_POOLING ||
     process.env.DATABASE_URL_UNPOOLED ||
     process.env.POSTGRES_PRISMA_URL ||
     process.env.DATABASE_URL ||
     process.env.POSTGRES_URL ||
     defaultLiveUrl;
+
+  // Auto-route legacy quota-exceeded DB to the new active Neon DB
+  if (rawUrl.includes("still-poetry") || !rawUrl) {
+    rawUrl = defaultLiveUrl;
+  }
 
   try {
     // Robust URL parsing & Direct Postgres Connection
@@ -27,7 +32,8 @@ function getCleanDatabaseUrl(): string | undefined {
     process.env.DATABASE_URL = cleaned;
     return cleaned;
   } catch (e) {
-    return rawUrl;
+    process.env.DATABASE_URL = defaultLiveUrl;
+    return defaultLiveUrl;
   }
 }
 
