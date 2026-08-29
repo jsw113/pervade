@@ -9,7 +9,7 @@ export function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [logoUrl, setLogoUrl] = useState<string | null>("/uploads/logo_1786948363468.JPG");
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoFont, setLogoFont] = useState<string>("'Inter', sans-serif");
   
   // Top Banner Promo State (from DB Policies)
@@ -52,8 +52,8 @@ export function Navbar() {
       const themeRes = await fetch("/api/admin/theme");
       if (themeRes.ok) {
         const data = await themeRes.json();
-        if (data.LOGO_URL) setLogoUrl(data.LOGO_URL);
-        else setLogoUrl("/uploads/logo_1786948363468.JPG");
+        if (data.LOGO_URL && data.LOGO_URL.trim() !== "") setLogoUrl(data.LOGO_URL);
+        else setLogoUrl(null);
         if (data.LOGO_FONT) setLogoFont(data.LOGO_FONT);
       }
 
