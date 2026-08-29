@@ -1,35 +1,30 @@
 import { PrismaClient } from "@prisma/client";
 
 function getCleanDatabaseUrl(): string | undefined {
-  let url =
+  const rawUrl =
     process.env.POSTGRES_PRISMA_URL ||
     process.env.DATABASE_URL ||
     process.env.POSTGRES_URL ||
     process.env.DATABASE_URL_UNPOOLED;
 
-  if (!url) return undefined;
+  if (!rawUrl) return undefined;
 
-  // Fix: Strip channel_binding=require which is unsupported by Prisma's Rust query engine
-  let cleaned = url
-    .replace(/[?&]channel_binding=require/g, "")
-    .replace(/\?&/g, "?")
-    .replace(/\?$/g, "");
-
-  if (cleaned.startsWith("postgres://") || cleaned.startsWith("postgresql://")) {
-    if (!cleaned.includes("sslmode=")) {
-      cleaned += (cleaned.includes("?") ? "&" : "?") + "sslmode=require";
+  try {
+    // Robust URL parsing
+    const parsed = new URL(rawUrl);
+    parsed.searchParams.delete("channel_binding");
+    if (!parsed.searchParams.has("sslmode")) {
+      parsed.searchParams.set("sslmode", "require");
     }
-    if (!cleaned.includes("connect_timeout=")) {
-      cleaned += "&connect_timeout=30";
+    if (!parsed.searchParams.has("connect_timeout")) {
+      parsed.searchParams.set("connect_timeout", "30");
     }
-    if (!cleaned.includes("pool_timeout=")) {
-      cleaned += "&pool_timeout=30";
-    }
+    const cleaned = parsed.toString();
+    process.env.DATABASE_URL = cleaned;
+    return cleaned;
+  } catch (e) {
+    return rawUrl;
   }
-
-  // Update process.env so Prisma schema also sees the cleaned string
-  process.env.DATABASE_URL = cleaned;
-  return cleaned;
 }
 
 const cleanedUrl = getCleanDatabaseUrl();
