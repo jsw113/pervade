@@ -2,16 +2,18 @@ import { PrismaClient } from "@prisma/client";
 
 function getCleanDatabaseUrl(): string | undefined {
   const rawUrl =
+    process.env.POSTGRES_URL_NON_POOLING ||
+    process.env.DATABASE_URL_UNPOOLED ||
     process.env.POSTGRES_PRISMA_URL ||
     process.env.DATABASE_URL ||
-    process.env.POSTGRES_URL ||
-    process.env.DATABASE_URL_UNPOOLED;
+    process.env.POSTGRES_URL;
 
   if (!rawUrl) return undefined;
 
   try {
-    // Robust URL parsing
+    // Robust URL parsing & Direct Postgres Connection
     const parsed = new URL(rawUrl);
+    parsed.hostname = parsed.hostname.replace("-pooler", "");
     parsed.searchParams.delete("channel_binding");
     if (!parsed.searchParams.has("sslmode")) {
       parsed.searchParams.set("sslmode", "require");
