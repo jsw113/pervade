@@ -80,7 +80,7 @@ export const metadata: Metadata = {
   },
   verification: {
     other: {
-      "naver-site-verification": [process.env.NAVER_SITE_VERIFICATION || ""].filter(Boolean),
+      "naver-site-verification": ["582f732ad98db9b357028c7d6e1047cc4326bcf5"],
     },
     google: process.env.GOOGLE_SITE_VERIFICATION || undefined,
   },
@@ -94,8 +94,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "PERVADE",
-    url: "https://pervade.vercel.app",
-    logo: "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?q=80&w=600&auto=format&fit=crop",
+    url: "https://www.pervade.co.kr",
+    logo: "https://www.pervade.co.kr/uploads/hero_bg_1786971398395.JPG",
     description: "프리미엄 다목적 가정용 세정제 퍼베이드 공식 스토어 및 라이프스타일 저널",
     contactPoint: {
       "@type": "ContactPoint",
@@ -112,6 +112,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
     >
       <head>
+        <meta name="naver-site-verification" content="582f732ad98db9b357028c7d6e1047cc4326bcf5" />
         <ThemeStyleInjector />
         <script
           type="application/ld+json"
