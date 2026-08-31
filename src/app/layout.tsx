@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.pervade.co.kr"),
   title: {
-    default: "PERVADE (퍼베이드) | 프리미엄 다목적 홈케어 세정제 & 라이프스타일",
+    default: "퍼베이드 (PERVADE) | 프리미엄 다목적 홈케어",
     template: "%s | PERVADE",
   },
   description: "일상의 공간을 완벽하게 케어하는 프리미엄 다목적 세정제 퍼베이드. 강력한 세정력과 안전한 성분, 감각적인 공간 케어 노하우를 만나보세요.",
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     locale: "ko_KR",
     url: "https://www.pervade.co.kr",
     siteName: "PERVADE (퍼베이드)",
-    title: "PERVADE | 프리미엄 다목적 홈케어 세정제 & 라이프스타일",
+    title: "퍼베이드 (PERVADE) | 프리미엄 다목적 홈케어",
     description: "일상의 공간을 완벽하게 케어하는 프리미엄 다목적 세정제 퍼베이드. 강력한 분해력과 감각적인 청소 노하우를 만나보세요.",
     images: [
       {
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "PERVADE (퍼베이드) | 프리미엄 다목적 홈케어",
+    title: "퍼베이드 (PERVADE) | 프리미엄 다목적 홈케어",
     description: "일상의 공간을 완벽하게 케어하는 프리미엄 다목적 세정제 퍼베이드",
     images: ["/uploads/hero_bg_1786971398395.JPG"],
   },
