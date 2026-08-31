@@ -82,7 +82,7 @@ export const metadata: Metadata = {
     other: {
       "naver-site-verification": ["582f732ad98db9b357028c7d6e1047cc4326bcf5"],
     },
-    google: process.env.GOOGLE_SITE_VERIFICATION || undefined,
+    google: "2hopz_VI0amSopbjK2ngbWeXA3lJ-OzXpVlOVZPtGCw",
   },
 };
 
@@ -113,6 +113,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <head>
         <meta name="naver-site-verification" content="582f732ad98db9b357028c7d6e1047cc4326bcf5" />
+        <meta name="google-site-verification" content="2hopz_VI0amSopbjK2ngbWeXA3lJ-OzXpVlOVZPtGCw" />
         <ThemeStyleInjector />
         <script
           type="application/ld+json"
