@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://pervade.vercel.app"),
+  metadataBase: new URL("https://www.pervade.co.kr"),
   title: {
     default: "PERVADE (퍼베이드) | 프리미엄 다목적 홈케어 세정제 & 라이프스타일",
     template: "%s | PERVADE",
@@ -53,13 +53,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "ko_KR",
-    url: "https://pervade.vercel.app",
+    url: "https://www.pervade.co.kr",
     siteName: "PERVADE (퍼베이드)",
     title: "PERVADE | 프리미엄 다목적 홈케어 세정제 & 라이프스타일",
     description: "일상의 공간을 완벽하게 케어하는 프리미엄 다목적 세정제 퍼베이드. 강력한 분해력과 감각적인 청소 노하우를 만나보세요.",
     images: [
       {
-        url: "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?q=80&w=1200&auto=format&fit=crop",
+        url: "/uploads/hero_bg_1786971398395.JPG",
         width: 1200,
         height: 630,
         alt: "PERVADE Premium Homecare",
@@ -70,13 +70,19 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "PERVADE (퍼베이드) | 프리미엄 다목적 홈케어",
     description: "일상의 공간을 완벽하게 케어하는 프리미엄 다목적 세정제 퍼베이드",
-    images: ["https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?q=80&w=1200&auto=format&fit=crop"],
+    images: ["/uploads/hero_bg_1786971398395.JPG"],
   },
   alternates: {
-    canonical: "https://pervade.vercel.app",
+    canonical: "https://www.pervade.co.kr",
     types: {
-      "application/rss+xml": "https://pervade.vercel.app/rss.xml",
+      "application/rss+xml": "https://www.pervade.co.kr/rss.xml",
     },
+  },
+  verification: {
+    other: {
+      "naver-site-verification": [process.env.NAVER_SITE_VERIFICATION || ""].filter(Boolean),
+    },
+    google: process.env.GOOGLE_SITE_VERIFICATION || undefined,
   },
 };
 
