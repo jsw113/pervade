@@ -87,6 +87,7 @@ export const metadata: Metadata = {
 };
 
 import { ThemeStyleInjector } from "@/components/common/ThemeStyleInjector";
+import { FloatingKakaoChat } from "@/components/common/FloatingKakaoChat";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   // Schema.org Structured Data
@@ -125,6 +126,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
+        <FloatingKakaoChat />
       </body>
     </html>
   );

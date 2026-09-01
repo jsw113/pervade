@@ -74,6 +74,17 @@ export function Footer() {
           <div>
             <h4 className="font-bold text-white mb-3 text-xs uppercase tracking-wider">Customer Care</h4>
             <ul className="space-y-2 text-zinc-400">
+              <li>
+                <a 
+                  href="https://pf.kakao.com/@pervade/chat" 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="hover:text-yellow-400 transition-colors inline-flex items-center gap-1 font-bold text-[#FEE500]"
+                >
+                  <span>💬 카카오톡 1:1 상담 (@pervade)</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </li>
               <li><Link href="/faq" className="hover:text-white transition-colors">자주 묻는 질문 (FAQ)</Link></li>
               <li><Link href="/qna" className="hover:text-white transition-colors">1:1 문의 게시판</Link></li>
               <li><Link href="/shipping" className="hover:text-white transition-colors">배송 / 교환 / 반품 안내</Link></li>
