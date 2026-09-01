@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { GripVertical, Eye, EyeOff, Save, RefreshCw, Upload, Image as ImageIcon, Video, CheckCircle2, AlertCircle, Sparkles, Wand2 } from "lucide-react";
-import { optimizeImageFile, optimizeHeroBannerImage } from "@/lib/utils/imageOptimizer";
+import { optimizeImageFile, optimizeHeroBannerImage, optimizeLogoImageFile } from "@/lib/utils/imageOptimizer";
 
 type Section = {
   id: string;
@@ -172,10 +172,10 @@ export default function ThemeAdminPage() {
 
     setIsLogoUploading(true);
     try {
-      // High-compression for logo: 400x400 max, 80% quality (typically ~20KB)
-      const dataUrl = await optimizeImageFile(file, 400, 400, 0.8);
+      // Clean transparent logo optimizer: keeps PNG alpha channel intact (no black background)
+      const dataUrl = await optimizeLogoImageFile(file, 800, 300);
       setLogoUrl(dataUrl);
-      alert("로고 이미지가 등록되었습니다. 상단 [전체 변경사항 저장]을 눌러 적용하세요.");
+      alert("로고 이미지가 등록되었습니다 (투명 배경 유지). 상단 [전체 변경사항 저장]을 눌러 적용하세요.");
     } catch (err: any) {
       console.error(err);
       alert("로고 처리 중 오류가 발생했습니다: " + (err?.message || ""));

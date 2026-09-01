@@ -3,11 +3,21 @@
  */
 
 /**
- * Standard product gallery & banner optimizer (proportional square / landscape)
+ * Transparent Logo Optimizer (Preserves PNG/SVG alpha transparency 100%, no black background)
  */
-export async function optimizeImageFile(file: File, maxWidth = 1000, maxHeight = 1000, quality = 0.80): Promise<string> {
+export async function optimizeLogoImageFile(file: File, maxWidth = 800, maxHeight = 300): Promise<string> {
   return new Promise((resolve, reject) => {
+    // If SVG or GIF, directly read data URL to preserve vectors and animations
     if (file.type === "image/svg+xml" || file.type === "image/gif") {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    // If file is already a small PNG (< 150KB), keep original to ensure lossless transparency
+    if (file.type === "image/png" && file.size < 150 * 1024) {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result as string);
       reader.onerror = reject;
@@ -42,11 +52,75 @@ export async function optimizeImageFile(file: File, maxWidth = 1000, maxHeight =
           return;
         }
 
+        // Clear canvas with transparent pixels
+        ctx.clearRect(0, 0, width, height);
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
         ctx.drawImage(img, 0, 0, width, height);
 
-        const dataUrl = canvas.toDataURL("image/jpeg", quality);
+        // MUST export as image/png or image/webp to preserve transparent alpha channel
+        const dataUrl = canvas.toDataURL("image/png");
+        resolve(dataUrl);
+      };
+      img.onerror = () => {
+        resolve(event.target?.result as string);
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
+ * Standard product gallery & banner optimizer (proportional square / landscape)
+ */
+export async function optimizeImageFile(file: File, maxWidth = 1000, maxHeight = 1000, quality = 0.80): Promise<string> {
+  return new Promise((resolve, reject) => {
+    if (file.type === "image/svg+xml" || file.type === "image/gif") {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    const isPng = file.type === "image/png" || file.name.toLowerCase().endsWith(".png");
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth || height > maxHeight) {
+          if (width / maxWidth > height / maxHeight) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(event.target?.result as string);
+          return;
+        }
+
+        ctx.clearRect(0, 0, width, height);
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // If PNG, export as PNG to prevent transparent background turning black
+        const dataUrl = isPng ? canvas.toDataURL("image/png") : canvas.toDataURL("image/jpeg", quality);
         resolve(dataUrl);
       };
       img.onerror = () => {
