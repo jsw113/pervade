@@ -103,9 +103,15 @@ function LoginForm() {
       return;
     }
 
+    if (provider === "GOOGLE") {
+      // Official Google 1-second Instant OAuth Login
+      window.location.href = "/api/auth/google";
+      return;
+    }
+
     setSocialModalProvider(provider);
-    setSocialName("구글 고객");
-    setSocialEmail("customer@gmail.com");
+    setSocialName("소셜 고객");
+    setSocialEmail("customer@example.com");
   };
 
   // Submit Social Login

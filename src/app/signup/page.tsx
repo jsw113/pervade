@@ -203,37 +203,10 @@ export default function SignupPage() {
       return;
     }
 
-    setIsSubmitting(true);
-    
-    // In production OAuth flow, this opens the portal's login / authorization screen
-    const mockEmail = `social_${provider.toLowerCase()}_${Math.floor(1000 + Math.random() * 9000)}@example.com`;
-    const mockName = `${provider.charAt(0) + provider.slice(1).toLowerCase()} 유저`;
-    const mockSocialId = `id_${Math.floor(1000000000 + Math.random() * 9000000000)}`;
-
-    try {
-      const response = await fetch("/api/auth/social", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          provider,
-          email: mockEmail,
-          name: mockName,
-          socialId: mockSocialId
-        })
-      });
-
-      if (response.ok) {
-        alert(`✅ ${provider} 간편 가입 및 로그인이 완료되었습니다!`);
-        router.push("/mypage");
-        router.refresh();
-      } else {
-        alert(`${provider} 간편 가입에 실패했습니다.`);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("네트워크 통신 중 오류가 발생했습니다.");
-    } finally {
-      setIsSubmitting(false);
+    if (provider === "GOOGLE") {
+      // Official Google 1-second Instant OAuth Signup & Login
+      window.location.href = "/api/auth/google";
+      return;
     }
   };
 
