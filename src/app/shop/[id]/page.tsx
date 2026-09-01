@@ -115,15 +115,26 @@ export default async function ProductDetailPage({
 
   return (
     <div className="container mx-auto px-4 py-10 max-w-5xl space-y-12">
-      {/* Breadcrumbs & Back */}
-      <div className="flex items-center gap-2 text-xs text-zinc-500">
-        <Link href="/shop" className="hover:text-zinc-950 flex items-center gap-1 font-semibold transition-colors">
-          <ArrowLeft className="w-3.5 h-3.5" /> 스토어 전체
+      {/* Breadcrumbs & Back Navigation */}
+      <div className="flex items-center flex-wrap gap-2.5 text-sm sm:text-base font-bold text-zinc-900 pb-1">
+        <Link 
+          href="/shop" 
+          className="text-zinc-950 hover:text-amber-700 flex items-center gap-1.5 transition-colors font-bold group"
+        >
+          <ArrowLeft className="w-4 h-4 stroke-[2.5] group-hover:-translate-x-0.5 transition-transform" /> 
+          <span>스토어 전체</span>
         </Link>
-        <ChevronRight className="w-3 h-3 text-zinc-300" />
-        <span className="font-semibold text-zinc-800">{product.category || "다목적 세정제"}</span>
-        <ChevronRight className="w-3 h-3 text-zinc-300" />
-        <span className="text-zinc-400 truncate max-w-[200px]">{product.name}</span>
+        <ChevronRight className="w-4 h-4 text-zinc-400 stroke-[2.5] shrink-0" />
+        <Link 
+          href={`/shop?category=${encodeURIComponent(product.category || "세정제류")}`} 
+          className="text-zinc-950 hover:text-amber-700 font-extrabold transition-colors underline-offset-4 hover:underline"
+        >
+          {product.category || "세정제류"}
+        </Link>
+        <ChevronRight className="w-4 h-4 text-zinc-400 stroke-[2.5] shrink-0" />
+        <span className="text-zinc-700 font-bold truncate max-w-[260px] sm:max-w-[450px]">
+          {product.name}
+        </span>
       </div>
 
       {/* Main Top Section: Gallery (Left) + Purchase Panel (Right) */}
