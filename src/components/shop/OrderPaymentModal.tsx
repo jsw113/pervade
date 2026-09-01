@@ -104,21 +104,79 @@ export function OrderPaymentModal({
 
     const memoText = deliveryMemo === "CUSTOM" ? customMemo : deliveryMemo;
 
-    // Transition to simulated PG payment processing
+    // Transition to payment processing
     setStep("PROCESSING");
 
+    const paymentMethodNames: Record<string, string> = {
+      CARD: "신용/체크카드 (안전 간편결제)",
+      KAKAO: "카카오페이 (KakaoPay)",
+      NAVER: "네이버페이 (NaverPay)",
+      TOSS: "토스페이 (TossPay)",
+      VBANK: "가상계좌 / 무통장입금",
+    };
+
     try {
-      // Simulate PG payment communication delay (1.2s)
-      await new Promise(res => setTimeout(res, 1200));
+      // 1. If paying with cash/card > 0, open Toss Payments window
+      if (finalPayAmount > 0) {
+        try {
+          const configRes = await fetch("/api/payments/toss/config");
+          const config = await configRes.json();
 
-      const paymentMethodNames: Record<string, string> = {
-        CARD: "신용/체크카드 (안전 간편결제)",
-        KAKAO: "카카오페이 (KakaoPay)",
-        NAVER: "네이버페이 (NaverPay)",
-        TOSS: "토스페이 (TossPay)",
-        VBANK: "가상계좌 / 무통장입금",
-      };
+          if (config?.enabled && config?.clientKey) {
+            const { loadTossPayments } = await import("@tosspayments/payment-sdk");
+            const toss = await loadTossPayments(config.clientKey);
 
+            const generatedOrderId = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+            const orderTitle = items.length === 1 
+              ? `${items[0].name}${items[0].optionSelected ? ` (${items[0].optionSelected})` : ""}`
+              : `${items[0].name} 외 ${items.length - 1}건`;
+
+            // Save temporary order context in sessionStorage for the success redirect
+            sessionStorage.setItem("pervade_toss_order_pending", JSON.stringify({
+              fromCart,
+              productId: items[0]?.id,
+              optionSelected: items[0]?.optionSelected,
+              shippingMethod: "일반택배",
+              shippingFee: shippingTotal,
+              totalAmount: finalPayAmount,
+              shippingAddress,
+              saveAsDefaultAddress,
+              deliveryMemo: memoText,
+              paymentMethod: paymentMethodNames[paymentMethod] || "신용/체크카드 (토스페이먼츠)",
+              usedPoints: actualPointsUsed
+            }));
+
+            const methodMap: Record<string, string> = {
+              CARD: "카드",
+              TOSS: "토스페이",
+              KAKAO: "카카오페이",
+              NAVER: "네이버페이",
+              VBANK: "가상계좌",
+            };
+
+            const selectedTossMethod = methodMap[paymentMethod] || "카드";
+
+            await toss.requestPayment(selectedTossMethod as any, {
+              amount: finalPayAmount,
+              orderId: generatedOrderId,
+              orderName: orderTitle,
+              customerName: user?.name || "고객",
+              customerEmail: user?.email || "customer@pervade.co.kr",
+              successUrl: `${window.location.origin}/payments/toss/success`,
+              failUrl: `${window.location.origin}/payments/toss/fail`,
+            });
+            return;
+          }
+        } catch (tossErr: any) {
+          console.warn("Toss Payments flow exception:", tossErr);
+          if (tossErr?.code === "USER_CANCEL" || tossErr?.message?.includes("취소")) {
+            setStep("FORM");
+            return;
+          }
+        }
+      }
+
+      // Direct fallback (e.g. 100% points used or simulated fallback)
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

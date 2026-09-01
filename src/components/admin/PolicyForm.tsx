@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Save, Building2, Truck, Gift, Megaphone, Award, Lock, Key } from "lucide-react";
+import { Save, Building2, Truck, Gift, Megaphone, Award, Lock, Key, CreditCard } from "lucide-react";
 
 export function PolicyForm({ initialPolicies }: { initialPolicies: any[] }) {
   const getPolicy = (key: string, defaultValue: string) =>
@@ -70,6 +70,13 @@ export function PolicyForm({ initialPolicies }: { initialPolicies: any[] }) {
   const [legalSafetyCertNo, setLegalSafetyCertNo] = useState(getPolicy("LEGAL_SAFETY_CERT_NO", "CB24-13-0521"));
   const [legalCsPhone, setLegalCsPhone] = useState(getPolicy("LEGAL_CS_PHONE", "070-7756-3668"));
 
+  // 6. Toss Payments PG State
+  const [tossPaymentEnabled, setTossPaymentEnabled] = useState(getPolicy("TOSS_PAYMENT_ENABLED", "true") === "true");
+  const [tossPgMode, setTossPgMode] = useState(getPolicy("TOSS_PG_MODE", "TEST"));
+  const [tossClientKey, setTossClientKey] = useState(getPolicy("TOSS_CLIENT_KEY", "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm"));
+  const [tossSecretKey, setTossSecretKey] = useState(getPolicy("TOSS_SECRET_KEY", "test_gsk_docs_OaPzBL5KdmQXkzRz3y47BMW6"));
+  const [tossMid, setTossMid] = useState(getPolicy("TOSS_MID", "개발 연동 체험 상점"));
+
   const [isSavingAll, setIsSavingAll] = useState(false);
 
   const saveAllPolicies = async (e?: React.FormEvent) => {
@@ -133,6 +140,11 @@ export function PolicyForm({ initialPolicies }: { initialPolicies: any[] }) {
             LEGAL_CAUTIONS: legalCautions,
             LEGAL_SAFETY_CERT_NO: legalSafetyCertNo,
             LEGAL_CS_PHONE: legalCsPhone,
+            TOSS_PAYMENT_ENABLED: tossPaymentEnabled ? "true" : "false",
+            TOSS_PG_MODE: tossPgMode,
+            TOSS_CLIENT_KEY: tossClientKey,
+            TOSS_SECRET_KEY: tossSecretKey,
+            TOSS_MID: tossMid,
           },
         }),
       });
@@ -571,14 +583,91 @@ export function PolicyForm({ initialPolicies }: { initialPolicies: any[] }) {
             </div>
           </div>
         </div>
+
+        {/* 6. Toss Payments PG Setting */}
+        <div className="bg-white border-2 border-blue-200 rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm">
+          <div className="flex items-center justify-between border-b border-blue-100 pb-4">
+            <div className="flex items-center gap-2.5">
+              <CreditCard className="w-5 h-5 text-blue-600" />
+              <div>
+                <h3 className="font-bold text-lg text-zinc-950">6. 💳 토스페이먼츠(Toss Payments) 전자결제(PG) 연동 설정</h3>
+                <p className="text-xs text-blue-700 font-medium">신용카드, 카카오페이, 네이버페이, 토스페이, 가상계좌 등 안전 결제창 연동 키입니다.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${tossPgMode === 'LIVE' ? 'bg-emerald-50 text-emerald-700 border-emerald-300' : 'bg-amber-50 text-amber-700 border-amber-300'}`}>
+                {tossPgMode === 'LIVE' ? '🟢 실결제 운영 (LIVE)' : '🟡 테스트 결제 (TEST)'}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-xs font-bold text-zinc-700 mb-1">연동 모드 (PG Mode)</label>
+              <select
+                value={tossPgMode}
+                onChange={(e) => setTossPgMode(e.target.value)}
+                className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-bold"
+              >
+                <option value="TEST">TEST (테스트 결제 모드 - 가상 결제/심사용)</option>
+                <option value="LIVE">LIVE (실결제 운영 모드 - 실제 고객 결제)</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-700 mb-1">토스페이먼츠 결제창 활성화</label>
+              <select
+                value={tossPaymentEnabled ? "true" : "false"}
+                onChange={(e) => setTossPaymentEnabled(e.target.value === "true")}
+                className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-bold"
+              >
+                <option value="true">활성화 (ON - 실제 토스페이먼츠 결제창 호출)</option>
+                <option value="false">비활성화 (OFF)</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-700 mb-1">클라이언트 키 (Client Key)</label>
+              <input
+                type="text"
+                value={tossClientKey}
+                onChange={(e) => setTossClientKey(e.target.value)}
+                placeholder="test_gck_..."
+                className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-mono font-bold"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-700 mb-1">시크릿 키 (Secret Key)</label>
+              <input
+                type="text"
+                value={tossSecretKey}
+                onChange={(e) => setTossSecretKey(e.target.value)}
+                placeholder="test_gsk_..."
+                className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-mono font-bold"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-bold text-zinc-700 mb-1">상점 식별자 (MID / 상점명)</label>
+              <input
+                type="text"
+                value={tossMid}
+                onChange={(e) => setTossMid(e.target.value)}
+                placeholder="개발 연동 체험 상점"
+                className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-medium"
+              />
+            </div>
+          </div>
+          
+          <div className="bg-blue-50/70 p-4 rounded-xl border border-blue-200 text-xs text-blue-900 leading-relaxed">
+            💡 <strong>토스페이먼츠 연동 안내</strong>: 현재 <strong>테스트 키</strong>가 기본 적용되어 결제 시 실제 대금이 청구되지 않고 안전하게 결제창 및 주문 프로세스를 테스트하실 수 있습니다. 토스페이먼츠 관리자센터에서 심사가 승인된 후 <strong>[라이브]</strong> 탭의 클라이언트 키 및 시크릿 키를 여기에 입력하고 모드를 <strong>LIVE</strong>로 변경하시면 즉시 실제 고객 카드결제가 시작됩니다.
+          </div>
+        </div>
       </form>
 
-      {/* 6. Admin Password Security */}
+      {/* 7. Admin Password Security */}
       <form onSubmit={handleAdminPasswordChange} className="bg-white border-2 border-red-200 rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm">
         <div className="flex items-center gap-2.5 border-b border-red-100 pb-4">
           <Lock className="w-5 h-5 text-red-600" />
           <div>
-            <h3 className="font-bold text-lg text-zinc-950">6. 🔐 최고관리자(Admin) 비밀번호 변경 및 보안 강화</h3>
+            <h3 className="font-bold text-lg text-zinc-950">7. 🔐 최고관리자(Admin) 비밀번호 변경 및 보안 강화</h3>
             <p className="text-xs text-red-600 font-medium">관리자 계정의 비밀번호를 안전하게 즉시 변경합니다. 기존 임시 비밀번호는 즉시 무효화됩니다.</p>
           </div>
         </div>
