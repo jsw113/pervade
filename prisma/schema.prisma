@@ -171,6 +171,7 @@ model Product {
   detailContent String?  // Detailed HTML / rich explanation
   detailImages  String?  // JSON array of detail image URLs
   options       String?  // JSON array of options: '[{"id": "...", "name": "기본 패키지 단품", "extraPrice": 0, "stock": 100}]'
+  legalInfo     String?  // JSON object of per-product legal disclosure fields (용도, 유통기한, 전성분, 주의사항 등)
   stock         Int      @default(100)
   safetyStock   Int      @default(10)
   isVisible     Boolean  @default(true)

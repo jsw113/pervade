@@ -191,111 +191,139 @@ export default async function ProductDetailPage({
           )}
 
           {/* Product Legal Disclosure Table (안전확인대상 생활화학제품 필수 표기 정보) */}
-          <div className="space-y-4 pt-10 border-t border-zinc-200">
-            <h3 className="text-sm sm:text-base font-black text-zinc-950 flex items-center gap-2">
-              <span>필수 표기 정보</span>
-            </h3>
-            
-            <div className="border border-zinc-200 rounded-xl overflow-hidden bg-white text-[11px] sm:text-xs">
-              <table className="w-full text-left border-collapse">
-                <tbody>
-                  {/* Row 1 */}
-                  <tr className="border-b border-zinc-200">
-                    <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 w-[18%] sm:w-[15%] border-r border-zinc-200 align-top">
-                      품목 및 제품명
-                    </th>
-                    <td className="p-3 sm:p-4 text-zinc-800 w-[32%] sm:w-[35%] border-r border-zinc-200 align-top leading-relaxed font-medium">
-                      {policies.find(p => p.key === "LEGAL_PRODUCT_NAME")?.value || product.name}
-                    </td>
-                    <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 w-[18%] sm:w-[18%] border-r border-zinc-200 align-top">
-                      용도(표백제의 경우 계열을 함께표시) 및 제형
-                    </th>
-                    <td className="p-3 sm:p-4 text-zinc-700 w-[32%] align-top leading-relaxed break-words">
-                      {policies.find(p => p.key === "LEGAL_USAGE_FORM")?.value || "예) 일반방향·탈취제품 > 탈취제 > 일반용 (물체용)방향·탈취제품 > 탈취제 > 자동차용(실내용) > 특수목적용·세정제품 > 세정제 > 일반용 (건물 바닥용)세정제품 > 세정제 > 일반용 (렌지후드용)세정제품 > 세정제 > 일반용 (변기용)세정제품 > 세정제 > 일반용 (오븐용)세정제품 > 세정제 > 일반용 (욕실용)용 (실내공간용), 자동차용 (실내용) / 액체형 (라벨 & 상세이미지와 동일하게 기재)"}
-                    </td>
-                  </tr>
+          {(() => {
+            let productLegal: any = {};
+            try {
+              if (product.legalInfo) {
+                productLegal = typeof product.legalInfo === "string" ? JSON.parse(product.legalInfo) : product.legalInfo;
+              }
+            } catch (e) {
+              productLegal = {};
+            }
 
-                  {/* Row 2 */}
-                  <tr className="border-b border-zinc-200">
-                    <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 border-r border-zinc-200 align-top">
-                      제조연월 및 유통기한<br />
-                      <span className="text-[10px] text-zinc-500 font-normal">(유통기한의 경우 해당 없는 제품은 생략 가능)</span>
-                    </th>
-                    <td className="p-3 sm:p-4 text-zinc-800 border-r border-zinc-200 align-top">
-                      {policies.find(p => p.key === "LEGAL_EXPIRY_DATE")?.value || "해당 없음"}
-                    </td>
-                    <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 border-r border-zinc-200 align-top">
-                      중량·용량·매수·크기
-                    </th>
-                    <td className="p-3 sm:p-4 text-zinc-800 align-top font-medium">
-                      {policies.find(p => p.key === "LEGAL_WEIGHT_CAPACITY")?.value || "500ml"}
-                    </td>
-                  </tr>
+            const companyName = policies.find(p => p.key === "COMPANY_NAME")?.value || "(주)퍼베이드";
+            const defaultCsPhone = policies.find(p => p.key === "CS_PHONE")?.value || "070-7756-3668";
 
-                  {/* Row 3 */}
-                  <tr className="border-b border-zinc-200">
-                    <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 border-r border-zinc-200 align-top">
-                      효과,효능<br />
-                      <span className="text-[10px] text-zinc-500 font-normal">(승인대상 제품에 한함)</span>
-                    </th>
-                    <td className="p-3 sm:p-4 text-zinc-800 border-r border-zinc-200 align-top">
-                      {policies.find(p => p.key === "LEGAL_EFFECT")?.value || "상품 상세페이지 참조"}
-                    </td>
-                    <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 border-r border-zinc-200 align-top">
-                      수입자(수입제품에 한함), 제조국 및 제조사
-                    </th>
-                    <td className="p-3 sm:p-4 text-zinc-800 align-top leading-relaxed">
-                      {policies.find(p => p.key === "LEGAL_MANUFACTURER_ORIGIN")?.value || "제조사 : 퍼베이드제조국 : 한국"}
-                    </td>
-                  </tr>
+            const legalProductName = productLegal.legalProductName || product.name;
+            const legalUsageForm = productLegal.legalUsageForm || policies.find(p => p.key === "LEGAL_USAGE_FORM")?.value || "예) 일반방향·탈취제품 > 탈취제 > 일반용 (물체용)방향·탈취제품 > 탈취제 > 자동차용(실내용) > 특수목적용·세정제품 > 세정제 > 일반용 (건물 바닥용)세정제품 > 세정제 > 일반용 (렌지후드용)세정제품 > 세정제 > 일반용 (변기용)세정제품 > 세정제 > 일반용 (오븐용)세정제품 > 세정제 > 일반용 (욕실용)용 (실내공간용), 자동차용 (실내용) / 액체형 (라벨 & 상세이미지와 동일하게 기재)";
+            const legalExpiryDate = productLegal.legalExpiryDate || policies.find(p => p.key === "LEGAL_EXPIRY_DATE")?.value || "해당 없음";
+            const legalWeightCapacity = productLegal.legalWeightCapacity || policies.find(p => p.key === "LEGAL_WEIGHT_CAPACITY")?.value || "500ml";
+            const legalEffect = productLegal.legalEffect || policies.find(p => p.key === "LEGAL_EFFECT")?.value || "상품 상세페이지 참조";
+            const legalManufacturerOrigin = productLegal.legalManufacturerOrigin || policies.find(p => p.key === "LEGAL_MANUFACTURER_ORIGIN")?.value || `제조사 : ${companyName} / 제조국 : 대한민국`;
+            const legalChildProtection = productLegal.legalChildProtection || policies.find(p => p.key === "LEGAL_CHILD_PROTECTION")?.value || "어린이보호포장 비대상";
+            const legalIngredients = productLegal.legalIngredients || policies.find(p => p.key === "LEGAL_INGREDIENTS")?.value || "에탄올, 정제수, 천연향료";
+            const legalCautions = productLegal.legalCautions || policies.find(p => p.key === "LEGAL_CAUTIONS")?.value || "밀폐된 공간에서 사용 시 환기를 충분히 하시오. 내용물을 마시거나, 내용물이 눈 또는 피부에 닿을 경우 인체에 심각한 손상을 입힐 수 있으니 주의하시오. 어린이 손에 닿지 않는 곳에 보관하시오. 사람 또는 동물에 직접 사용(분사)하지 마시오. 표시사항에 기재된 제품의 용도 외에는 사용하지 마시오. 다른 제품과 섞어 사용할 경우 인체에 치명적인 손상을 입힐 수 있으니 섞어 사용하지 마시오. 공기 소독(연무 소독, 고압분사용 소독장비 활용하는 경우 포함)의 용도 사용을 금지하오니, 물체 표면에만 사용하시오. 어린이보호포장이 적용되지 아니한 제품으로 어린이의 손이 닿지 않는 곳에 보관하시오. 화기를 가까이 하지 마시오. 직사광선을 피하여 보관하시오. 광택이 있는 물체 혹은 섬유에 사용 시 변색, 탈색 테스트 후 사용하십시오. 제품을 세워서 보관하십시오.";
+            const legalSafetyCertNo = productLegal.legalSafetyCertNo || policies.find(p => p.key === "LEGAL_SAFETY_CERT_NO")?.value || "CB24-13-0521";
+            const legalCsPhone = productLegal.legalCsPhone || policies.find(p => p.key === "LEGAL_CS_PHONE")?.value || defaultCsPhone;
 
-                  {/* Row 4 */}
-                  <tr className="border-b border-zinc-200">
-                    <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 border-r border-zinc-200 align-top">
-                      어린이보호포장 대상 제품 유무
-                    </th>
-                    <td className="p-3 sm:p-4 text-zinc-800 border-r border-zinc-200 align-top">
-                      {policies.find(p => p.key === "LEGAL_CHILD_PROTECTION")?.value || "어린이보호포장 비대상"}
-                    </td>
-                    <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 border-r border-zinc-200 align-top">
-                      제품에 사용된 화학물질 명칭<br />
-                      <span className="text-[10px] text-zinc-500 font-normal">(안전확인대상 생활화학제품 지정 및 안전·표시기준 [별표 6]에 따른 표시대상 화학물질로서 주요물질, 보존제, 알레르기 반응가능물질 등의 명칭)</span>
-                    </th>
-                    <td className="p-3 sm:p-4 text-zinc-800 align-top leading-relaxed">
-                      {policies.find(p => p.key === "LEGAL_INGREDIENTS")?.value || "에탄올, 정제수, 천연향료"}
-                    </td>
-                  </tr>
+            return (
+              <div className="space-y-4 pt-10 border-t border-zinc-200">
+                <h3 className="text-sm sm:text-base font-black text-zinc-950 flex items-center gap-2">
+                  <span>필수 표기 정보</span>
+                </h3>
+                
+                <div className="border border-zinc-200 rounded-xl overflow-hidden bg-white text-[11px] sm:text-xs">
+                  <table className="w-full text-left border-collapse">
+                    <tbody>
+                      {/* Row 1 */}
+                      <tr className="border-b border-zinc-200">
+                        <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 w-[18%] sm:w-[15%] border-r border-zinc-200 align-top">
+                          품목 및 제품명
+                        </th>
+                        <td className="p-3 sm:p-4 text-zinc-800 w-[32%] sm:w-[35%] border-r border-zinc-200 align-top leading-relaxed font-medium">
+                          {legalProductName}
+                        </td>
+                        <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 w-[18%] sm:w-[18%] border-r border-zinc-200 align-top">
+                          용도(표백제의 경우 계열을 함께표시) 및 제형
+                        </th>
+                        <td className="p-3 sm:p-4 text-zinc-700 w-[32%] align-top leading-relaxed break-words">
+                          {legalUsageForm}
+                        </td>
+                      </tr>
 
-                  {/* Row 5 */}
-                  <tr className="border-b border-zinc-200">
-                    <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 border-r border-zinc-200 align-top">
-                      사용상 주의사항
-                    </th>
-                    <td className="p-3 sm:p-4 text-zinc-700 border-r border-zinc-200 align-top leading-relaxed text-[11px]">
-                      {policies.find(p => p.key === "LEGAL_CAUTIONS")?.value || "밀폐된 공간에서 사용 시 환기를 충분히 하시오. 내용물을 마시거나, 내용물이 눈 또는 피부에 닿을 경우 인체에 심각한 손상을 입힐 수 있으니 주의하시오. 어린이 손에 닿지 않는 곳에 보관하시오. 사람 또는 동물에 직접 사용(분사)하지 마시오. 표시사항에 기재된 제품의 용도 외에는 사용하지 마시오. 다른 제품과 섞어 사용할 경우 인체에 치명적인 손상을 입힐 수 있으니 섞어 사용하지 마시오. 공기 소독(연무 소독, 고압분사용 소독장비 활용하는 경우 포함)의 용도 사용을 금지하오니, 물체 표면에만 사용하시오. 어린이보호포장이 적용되지 아니한 제품으로 어린이의 손이 닿지 않는 곳에 보관하시오. 화기를 가까이 하지 마시오. 직사광선을 피하여 보관하시오. 광택이 있는 물체 혹은 섬유에 사용 시 변색, 탈색 테스트 후 사용하십시오. 제품을 세워서 보관하십시오."}
-                    </td>
-                    <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 border-r border-zinc-200 align-top">
-                      안전기준적합확인신고번호 또는 안전확인대상생활화학제품승인번호<br />
-                      <span className="text-[10px] text-zinc-500 font-normal">(화학제품안전법 시행일(경과조치 기간 포함) 이전에 생산·수입된 위해우려제품의 경우 종전 법에 따른 자가검사번호를 표시)</span>
-                    </th>
-                    <td className="p-3 sm:p-4 text-zinc-900 font-mono font-bold align-top">
-                      {policies.find(p => p.key === "LEGAL_SAFETY_CERT_NO")?.value || "CB24-13-0521"}
-                    </td>
-                  </tr>
+                      {/* Row 2 */}
+                      <tr className="border-b border-zinc-200">
+                        <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 border-r border-zinc-200 align-top">
+                          제조연월 및 유통기한<br />
+                          <span className="text-[10px] text-zinc-500 font-normal">(유통기한의 경우 해당 없는 제품은 생략 가능)</span>
+                        </th>
+                        <td className="p-3 sm:p-4 text-zinc-800 border-r border-zinc-200 align-top">
+                          {legalExpiryDate}
+                        </td>
+                        <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 border-r border-zinc-200 align-top">
+                          중량·용량·매수·크기
+                        </th>
+                        <td className="p-3 sm:p-4 text-zinc-800 align-top font-medium">
+                          {legalWeightCapacity}
+                        </td>
+                      </tr>
 
-                  {/* Row 6 */}
-                  <tr>
-                    <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 border-r border-zinc-200 align-top">
-                      소비자상담 관련 전화번호
-                    </th>
-                    <td colSpan={3} className="p-3 sm:p-4 text-zinc-900 font-bold align-top">
-                      {policies.find(p => p.key === "LEGAL_CS_PHONE")?.value || policies.find(p => p.key === "CS_PHONE")?.value || "070-7756-3668"}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+                      {/* Row 3 */}
+                      <tr className="border-b border-zinc-200">
+                        <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 border-r border-zinc-200 align-top">
+                          효과,효능<br />
+                          <span className="text-[10px] text-zinc-500 font-normal">(승인대상 제품에 한함)</span>
+                        </th>
+                        <td className="p-3 sm:p-4 text-zinc-800 border-r border-zinc-200 align-top">
+                          {legalEffect}
+                        </td>
+                        <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 border-r border-zinc-200 align-top">
+                          수입자(수입제품에 한함), 제조국 및 제조사
+                        </th>
+                        <td className="p-3 sm:p-4 text-zinc-800 align-top leading-relaxed">
+                          {legalManufacturerOrigin}
+                        </td>
+                      </tr>
+
+                      {/* Row 4 */}
+                      <tr className="border-b border-zinc-200">
+                        <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 border-r border-zinc-200 align-top">
+                          어린이보호포장 대상 제품 유무
+                        </th>
+                        <td className="p-3 sm:p-4 text-zinc-800 border-r border-zinc-200 align-top">
+                          {legalChildProtection}
+                        </td>
+                        <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 border-r border-zinc-200 align-top">
+                          제품에 사용된 화학물질 명칭<br />
+                          <span className="text-[10px] text-zinc-500 font-normal">(안전확인대상 생활화학제품 지정 및 안전·표시기준 [별표 6]에 따른 표시대상 화학물질로서 주요물질, 보존제, 알레르기 반응가능물질 등의 명칭)</span>
+                        </th>
+                        <td className="p-3 sm:p-4 text-zinc-800 align-top leading-relaxed">
+                          {legalIngredients}
+                        </td>
+                      </tr>
+
+                      {/* Row 5 */}
+                      <tr className="border-b border-zinc-200">
+                        <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 border-r border-zinc-200 align-top">
+                          사용상 주의사항
+                        </th>
+                        <td className="p-3 sm:p-4 text-zinc-700 border-r border-zinc-200 align-top leading-relaxed text-[11px]">
+                          {legalCautions}
+                        </td>
+                        <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 border-r border-zinc-200 align-top">
+                          안전기준적합확인신고번호 또는 안전확인대상생활화학제품승인번호<br />
+                          <span className="text-[10px] text-zinc-500 font-normal">(화학제품안전법 시행일(경과조치 기간 포함) 이전에 생산·수입된 위해우려제품의 경우 종전 법에 따른 자가검사번호를 표시)</span>
+                        </th>
+                        <td className="p-3 sm:p-4 text-zinc-900 font-mono font-bold align-top">
+                          {legalSafetyCertNo}
+                        </td>
+                      </tr>
+
+                      {/* Row 6 */}
+                      <tr>
+                        <th className="p-3 sm:p-4 bg-zinc-50 font-bold text-zinc-800 border-r border-zinc-200 align-top">
+                          소비자상담 관련 전화번호
+                        </th>
+                        <td colSpan={3} className="p-3 sm:p-4 text-zinc-900 font-bold align-top">
+                          {legalCsPhone}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
+          })()}
           
           <div className="bg-zinc-50 p-6 rounded-2xl border space-y-2">
             <h4 className="font-bold text-xs text-zinc-900 flex items-center gap-1.5">

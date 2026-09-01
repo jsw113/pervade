@@ -57,6 +57,7 @@ export async function POST(request: Request) {
       detailContent, 
       detailImages, 
       options,
+      legalInfo,
       stock, 
       safetyStock, 
       isVisible 
@@ -85,6 +86,7 @@ export async function POST(request: Request) {
         detailContent: detailContent || "",
         detailImages: detailImages ? (typeof detailImages === "string" ? detailImages : JSON.stringify(detailImages)) : null,
         options: options ? (typeof options === "string" ? options : JSON.stringify(options)) : null,
+        legalInfo: legalInfo ? (typeof legalInfo === "string" ? legalInfo : JSON.stringify(legalInfo)) : null,
         stock: parsedStock,
         safetyStock: parsedSafetyStock,
         isVisible: isVisible !== undefined ? !!isVisible : true,

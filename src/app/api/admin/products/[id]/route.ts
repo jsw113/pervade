@@ -24,6 +24,7 @@ export async function PATCH(
       detailContent, 
       detailImages, 
       options,
+      legalInfo,
       stock, 
       safetyStock, 
       isVisible 
@@ -52,6 +53,7 @@ export async function PATCH(
         ...(detailContent !== undefined && { detailContent }),
         ...(detailImages !== undefined && { detailImages: Array.isArray(detailImages) ? JSON.stringify(detailImages) : detailImages }),
         ...(options !== undefined && { options: Array.isArray(options) ? JSON.stringify(options) : options }),
+        ...(legalInfo !== undefined && { legalInfo: typeof legalInfo === "string" ? legalInfo : JSON.stringify(legalInfo) }),
         ...(stock !== undefined && { stock: newStock }),
         ...(safetyStock !== undefined && { safetyStock: parseInt(safetyStock) }),
         ...(isVisible !== undefined && { isVisible: !!isVisible }),
