@@ -57,6 +57,19 @@ export function PolicyForm({ initialPolicies }: { initialPolicies: any[] }) {
   const [reviewReward, setReviewReward] = useState(getPolicy("REVIEW_REWARD_PERCENTAGE", "1.0"));
   const [photoReviewReward, setPhotoReviewReward] = useState(getPolicy("PHOTO_REVIEW_REWARD_PERCENTAGE", "2.0"));
 
+  // 5. Legal Product Disclosure State (안전확인대상 생활화학제품 필수 표기 정보)
+  const [legalProductName, setLegalProductName] = useState(getPolicy("LEGAL_PRODUCT_NAME", "퍼베이드 레몬 에센셜 다목적 스프레이"));
+  const [legalUsageForm, setLegalUsageForm] = useState(getPolicy("LEGAL_USAGE_FORM", "예) 일반방향·탈취제품 > 탈취제 > 일반용 (물체용)방향·탈취제품 > 탈취제 > 자동차용(실내용) > 특수목적용·세정제품 > 세정제 > 일반용 (건물 바닥용)세정제품 > 세정제 > 일반용 (렌지후드용)세정제품 > 세정제 > 일반용 (변기용)세정제품 > 세정제 > 일반용 (오븐용)세정제품 > 세정제 > 일반용 (욕실용)용 (실내공간용), 자동차용 (실내용) / 액체형 (라벨 & 상세이미지와 동일하게 기재)"));
+  const [legalExpiryDate, setLegalExpiryDate] = useState(getPolicy("LEGAL_EXPIRY_DATE", "해당 없음"));
+  const [legalWeightCapacity, setLegalWeightCapacity] = useState(getPolicy("LEGAL_WEIGHT_CAPACITY", "500ml"));
+  const [legalEffect, setLegalEffect] = useState(getPolicy("LEGAL_EFFECT", "상품 상세페이지 참조"));
+  const [legalManufacturerOrigin, setLegalManufacturerOrigin] = useState(getPolicy("LEGAL_MANUFACTURER_ORIGIN", "제조사 : 퍼베이드제조국 : 한국"));
+  const [legalChildProtection, setLegalChildProtection] = useState(getPolicy("LEGAL_CHILD_PROTECTION", "어린이보호포장 비대상"));
+  const [legalIngredients, setLegalIngredients] = useState(getPolicy("LEGAL_INGREDIENTS", "에탄올, 정제수, 천연향료"));
+  const [legalCautions, setLegalCautions] = useState(getPolicy("LEGAL_CAUTIONS", "밀폐된 공간에서 사용 시 환기를 충분히 하시오. 내용물을 마시거나, 내용물이 눈 또는 피부에 닿을 경우 인체에 심각한 손상을 입힐 수 있으니 주의하시오. 어린이 손에 닿지 않는 곳에 보관하시오. 사람 또는 동물에 직접 사용(분사)하지 마시오. 표시사항에 기재된 제품의 용도 외에는 사용하지 마시오. 다른 제품과 섞어 사용할 경우 인체에 치명적인 손상을 입힐 수 있으니 섞어 사용하지 마시오. 공기 소독(연무 소독, 고압분사용 소독장비 활용하는 경우 포함)의 용도 사용을 금지하오니, 물체 표면에만 사용하시오. 어린이보호포장이 적용되지 아니한 제품으로 어린이의 손이 닿지 않는 곳에 보관하시오. 화기를 가까이 하지 마시오. 직사광선을 피하여 보관하시오. 광택이 있는 물체 혹은 섬유에 사용 시 변색, 탈색 테스트 후 사용하십시오. 제품을 세워서 보관하십시오."));
+  const [legalSafetyCertNo, setLegalSafetyCertNo] = useState(getPolicy("LEGAL_SAFETY_CERT_NO", "CB24-13-0521"));
+  const [legalCsPhone, setLegalCsPhone] = useState(getPolicy("LEGAL_CS_PHONE", "070-7756-3668"));
+
   const [isSavingAll, setIsSavingAll] = useState(false);
 
   const saveAllPolicies = async (e?: React.FormEvent) => {
@@ -109,6 +122,17 @@ export function PolicyForm({ initialPolicies }: { initialPolicies: any[] }) {
             REVIEW_REWARD_ENABLED: reviewRewardEnabled ? "true" : "false",
             REVIEW_REWARD_PERCENTAGE: reviewReward,
             PHOTO_REVIEW_REWARD_PERCENTAGE: photoReviewReward,
+            LEGAL_PRODUCT_NAME: legalProductName,
+            LEGAL_USAGE_FORM: legalUsageForm,
+            LEGAL_EXPIRY_DATE: legalExpiryDate,
+            LEGAL_WEIGHT_CAPACITY: legalWeightCapacity,
+            LEGAL_EFFECT: legalEffect,
+            LEGAL_MANUFACTURER_ORIGIN: legalManufacturerOrigin,
+            LEGAL_CHILD_PROTECTION: legalChildProtection,
+            LEGAL_INGREDIENTS: legalIngredients,
+            LEGAL_CAUTIONS: legalCautions,
+            LEGAL_SAFETY_CERT_NO: legalSafetyCertNo,
+            LEGAL_CS_PHONE: legalCsPhone,
           },
         }),
       });
@@ -434,14 +458,127 @@ export function PolicyForm({ initialPolicies }: { initialPolicies: any[] }) {
             </div>
           </div>
         </div>
+
+        {/* 5. Legal Product Disclosure (안전확인대상 생활화학제품 필수 표기 정보) */}
+        <div className="bg-white border rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm">
+          <div className="flex items-center gap-2.5 border-b pb-4">
+            <Building2 className="w-5 h-5 text-zinc-700" />
+            <div>
+              <h3 className="font-bold text-lg text-zinc-950">5. 📜 상품 필수 표기 정보 (생활화학제품 법정 고시사항)</h3>
+              <p className="text-xs text-zinc-500">모든 상품 상세설명 하단에 2x2 테이블 규격으로 항상 자동 노출됩니다.</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-xs font-bold text-zinc-700 mb-1">품목 및 제품명</label>
+              <input
+                type="text"
+                value={legalProductName}
+                onChange={(e) => setLegalProductName(e.target.value)}
+                className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-medium"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-700 mb-1">중량·용량·매수·크기</label>
+              <input
+                type="text"
+                value={legalWeightCapacity}
+                onChange={(e) => setLegalWeightCapacity(e.target.value)}
+                className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-medium"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-700 mb-1">제조연월 및 유통기한</label>
+              <input
+                type="text"
+                value={legalExpiryDate}
+                onChange={(e) => setLegalExpiryDate(e.target.value)}
+                className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-medium"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-700 mb-1">효과, 효능 (승인대상 제품에 한함)</label>
+              <input
+                type="text"
+                value={legalEffect}
+                onChange={(e) => setLegalEffect(e.target.value)}
+                className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-medium"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-700 mb-1">수입자, 제조국 및 제조사</label>
+              <input
+                type="text"
+                value={legalManufacturerOrigin}
+                onChange={(e) => setLegalManufacturerOrigin(e.target.value)}
+                className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-medium"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-700 mb-1">어린이보호포장 대상 제품 유무</label>
+              <input
+                type="text"
+                value={legalChildProtection}
+                onChange={(e) => setLegalChildProtection(e.target.value)}
+                className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-medium"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-bold text-zinc-700 mb-1">용도(표백제의 경우 계열을 함께표시) 및 제형</label>
+              <textarea
+                rows={2}
+                value={legalUsageForm}
+                onChange={(e) => setLegalUsageForm(e.target.value)}
+                className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-medium leading-relaxed"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-bold text-zinc-700 mb-1">제품에 사용된 화학물질 명칭 (주요물질, 보존제 등)</label>
+              <input
+                type="text"
+                value={legalIngredients}
+                onChange={(e) => setLegalIngredients(e.target.value)}
+                className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-medium"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-700 mb-1">안전기준적합확인신고번호</label>
+              <input
+                type="text"
+                value={legalSafetyCertNo}
+                onChange={(e) => setLegalSafetyCertNo(e.target.value)}
+                className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-mono font-bold"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-zinc-700 mb-1">소비자상담 관련 전화번호</label>
+              <input
+                type="text"
+                value={legalCsPhone}
+                onChange={(e) => setLegalCsPhone(e.target.value)}
+                className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-bold"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-bold text-zinc-700 mb-1">사용상 주의사항</label>
+              <textarea
+                rows={4}
+                value={legalCautions}
+                onChange={(e) => setLegalCautions(e.target.value)}
+                className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-medium leading-relaxed"
+              />
+            </div>
+          </div>
+        </div>
       </form>
 
-      {/* 5. Admin Password Security */}
+      {/* 6. Admin Password Security */}
       <form onSubmit={handleAdminPasswordChange} className="bg-white border-2 border-red-200 rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm">
         <div className="flex items-center gap-2.5 border-b border-red-100 pb-4">
           <Lock className="w-5 h-5 text-red-600" />
           <div>
-            <h3 className="font-bold text-lg text-zinc-950">5. 🔐 최고관리자(Admin) 비밀번호 변경 및 보안 강화</h3>
+            <h3 className="font-bold text-lg text-zinc-950">6. 🔐 최고관리자(Admin) 비밀번호 변경 및 보안 강화</h3>
             <p className="text-xs text-red-600 font-medium">관리자 계정의 비밀번호를 안전하게 즉시 변경합니다. 기존 임시 비밀번호는 즉시 무효화됩니다.</p>
           </div>
         </div>
