@@ -2,17 +2,33 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { AUTH_CONFIG } from "@/lib/authConfig";
+import { signSocialToken } from "@/lib/socialToken";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const code = searchParams.get("code");
-  const state = searchParams.get("state") || "pervade_naver_auth";
+  const state = searchParams.get("state") || "";
   const error = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
 
   const baseUrl = "https://www.pervade.co.kr";
+
+  // Parse redirectUrl from state if present
+  let redirectUrl = "/";
+  if (state) {
+    try {
+      const parsedState = JSON.parse(decodeURIComponent(state));
+      if (parsedState && parsedState.redirect) {
+        redirectUrl = parsedState.redirect;
+      }
+    } catch (e) {
+      if (state.startsWith("/")) {
+        redirectUrl = decodeURIComponent(state);
+      }
+    }
+  }
 
   if (error || !code) {
     console.error("Naver OAuth error:", error, errorDescription);
@@ -69,7 +85,7 @@ export async function GET(request: NextRequest) {
       ? `${naverUser.birthyear}-${naverUser.birthday}` 
       : null;
 
-    // 3. Find or Create User in Database
+    // 3. Find User in Database
     let user = await prisma.user.findFirst({
       where: {
         OR: [
@@ -79,41 +95,42 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    let isNewUser = false;
-
+    // -------------------------------------------------------------
+    // Branch 1: New User -> Redirect to /signup/social (No auto-creation)
+    // -------------------------------------------------------------
     if (!user) {
-      isNewUser = true;
-      const mockLoginId = `naver_${socialId.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8)}`;
-      
-      user = await prisma.user.create({
-        data: {
-          email,
-          name,
-          loginId: mockLoginId,
-          phone,
-          birthDate,
-          passwordHash: `$2b$10$naver_oauth_secure_hash_${socialId.slice(0, 10)}`,
-          socialProvider: "NAVER",
-          socialId,
-          realNameVerified: true, // Naver login inherently verifies identity
-          referralPoints: 3000,   // Welcome 3,000P
-        }
+      const pendingToken = signSocialToken({
+        name,
+        email,
+        phone,
+        birthDate,
+        socialProvider: "NAVER",
+        socialId,
+        realNameVerified: true,
+        expiresAt: Date.now() + 30 * 60 * 1000, // 30 minutes
       });
-    } else {
-      // Update info if existing user
-      user = await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          socialProvider: "NAVER",
-          socialId,
-          name: name || user.name,
-          phone: phone || user.phone,
-          realNameVerified: true,
-        }
-      });
+
+      const socialSignupUrl = `${baseUrl}/signup/social?token=${encodeURIComponent(pendingToken)}${
+        redirectUrl && redirectUrl !== "/" ? `&redirect=${encodeURIComponent(redirectUrl)}` : ""
+      }`;
+      return NextResponse.redirect(socialSignupUrl);
     }
 
-    // 4. Set Session Cookie (only lasts while browser is open)
+    // -------------------------------------------------------------
+    // Branch 2: Existing User -> Immediate Login & Redirect
+    // -------------------------------------------------------------
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        socialProvider: "NAVER",
+        socialId,
+        name: user.name || name,
+        phone: user.phone || phone,
+        realNameVerified: true,
+      }
+    });
+
+    // Set Session Cookie
     const cookieStore = await cookies();
     cookieStore.set("userId", user.id, {
       httpOnly: true,
@@ -122,7 +139,6 @@ export async function GET(request: NextRequest) {
       path: "/",
     });
 
-    // 5. Return HTML to sync sessionStorage and redirect cleanly
     const safeUserData = JSON.stringify({
       id: user.id,
       name: user.name,
@@ -131,7 +147,7 @@ export async function GET(request: NextRequest) {
       loginId: user.loginId,
     });
 
-    const destination = isNewUser ? "/mypage" : "/";
+    const destination = redirectUrl || "/";
 
     const html = `
       <!DOCTYPE html>

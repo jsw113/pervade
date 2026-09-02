@@ -33,13 +33,11 @@ export default function CartPage() {
         if (authData.loggedIn) {
           setUser(authData.user);
         } else {
-          alert("로그인이 필요한 페이지입니다.");
-          router.push("/login");
+          router.push("/login?redirect=/cart");
           return;
         }
       } else {
-        alert("로그인이 필요한 페이지입니다.");
-        router.push("/login");
+        router.push("/login?redirect=/cart");
         return;
       }
 

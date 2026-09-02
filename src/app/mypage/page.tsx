@@ -17,7 +17,7 @@ export default async function MyPage() {
   const userId = cookieStore.get("userId")?.value;
 
   if (!userId) {
-    redirect("/login");
+    redirect("/login?redirect=/mypage");
   }
 
   const dbUser = await prisma.user.findFirst({
@@ -25,7 +25,7 @@ export default async function MyPage() {
   });
 
   if (!dbUser) {
-    redirect("/login");
+    redirect("/login?redirect=/mypage");
   }
 
   // Get active policies

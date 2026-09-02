@@ -2,16 +2,33 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { AUTH_CONFIG } from "@/lib/authConfig";
+import { signSocialToken } from "@/lib/socialToken";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const code = searchParams.get("code");
+  const state = searchParams.get("state") || "";
   const error = searchParams.get("error");
   const errorDescription = searchParams.get("error_description");
 
   const baseUrl = "https://www.pervade.co.kr";
+
+  // Parse redirectUrl from state if present
+  let redirectUrl = "/";
+  if (state) {
+    try {
+      const parsedState = JSON.parse(decodeURIComponent(state));
+      if (parsedState && parsedState.redirect) {
+        redirectUrl = parsedState.redirect;
+      }
+    } catch (e) {
+      if (state.startsWith("/")) {
+        redirectUrl = decodeURIComponent(state);
+      }
+    }
+  }
 
   if (error || !code) {
     console.error("Kakao OAuth error:", error, errorDescription);
@@ -75,7 +92,7 @@ export async function GET(request: NextRequest) {
     const email = kakaoAccount.email || `kakao_${socialId.slice(0, 10)}@pervade.co.kr`;
     const name = kakaoAccount.name || kakaoAccount.profile?.nickname || "카카오 고객";
     
-    // Normalize phone number (e.g. +82 10-1234-5678 -> 010-1234-5678)
+    // Normalize phone number
     let phone: string | null = kakaoAccount.phone_number || null;
     if (phone) {
       phone = phone.replace(/\+82\s?/, "0").replace(/[^0-9-]/g, "").trim();
@@ -88,7 +105,7 @@ export async function GET(request: NextRequest) {
       ? `${kakaoAccount.birthyear}-${kakaoAccount.birthday.slice(0, 2)}-${kakaoAccount.birthday.slice(2)}`
       : null;
 
-    // 3. Find or Create User in Database
+    // 3. Find User in Database
     let user = await prisma.user.findFirst({
       where: {
         OR: [
@@ -98,43 +115,43 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    let isNewUser = false;
-
+    // -------------------------------------------------------------
+    // Branch 1: New User -> Redirect to /signup/social (No auto-creation)
+    // -------------------------------------------------------------
     if (!user) {
-      isNewUser = true;
-      const mockLoginId = `kakao_${socialId.slice(0, 8)}`;
+      const pendingToken = signSocialToken({
+        name,
+        email,
+        phone,
+        birthDate,
+        socialProvider: "KAKAO",
+        socialId,
+        realNameVerified: true,
+        expiresAt: Date.now() + 30 * 60 * 1000, // 30 minutes
+      });
 
-      user = await prisma.user.create({
-        data: {
-          email,
-          name,
-          loginId: mockLoginId,
-          phone,
-          birthDate,
-          passwordHash: `$2b$10$kakao_oauth_secure_hash_${socialId.slice(0, 10)}`,
-          socialProvider: "KAKAO",
-          socialId,
-          kakaoId: socialId,
-          realNameVerified: true, // Kakao Sync inherently verifies user identity
-          referralPoints: 3000,   // Welcome 3,000P
-        }
-      });
-    } else {
-      // Update info for existing user
-      user = await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          socialProvider: "KAKAO",
-          socialId,
-          kakaoId: socialId,
-          name: name || user.name,
-          phone: phone || user.phone,
-          realNameVerified: true,
-        }
-      });
+      const socialSignupUrl = `${baseUrl}/signup/social?token=${encodeURIComponent(pendingToken)}${
+        redirectUrl && redirectUrl !== "/" ? `&redirect=${encodeURIComponent(redirectUrl)}` : ""
+      }`;
+      return NextResponse.redirect(socialSignupUrl);
     }
 
-    // 4. Set Session Cookie (only lasts while browser is open)
+    // -------------------------------------------------------------
+    // Branch 2: Existing User -> Immediate Login & Redirect
+    // -------------------------------------------------------------
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        socialProvider: "KAKAO",
+        socialId,
+        kakaoId: socialId,
+        name: user.name || name,
+        phone: user.phone || phone,
+        realNameVerified: true,
+      }
+    });
+
+    // Set Session Cookie
     const cookieStore = await cookies();
     cookieStore.set("userId", user.id, {
       httpOnly: true,
@@ -143,7 +160,6 @@ export async function GET(request: NextRequest) {
       path: "/",
     });
 
-    // 5. Return HTML to sync sessionStorage and redirect cleanly
     const safeUserData = JSON.stringify({
       id: user.id,
       name: user.name,
@@ -152,7 +168,7 @@ export async function GET(request: NextRequest) {
       loginId: user.loginId,
     });
 
-    const destination = isNewUser ? "/mypage" : "/";
+    const destination = redirectUrl || "/";
 
     const html = `
       <!DOCTYPE html>

@@ -1,15 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
+import { signSocialToken } from "@/lib/socialToken";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const code = searchParams.get("code");
+  const state = searchParams.get("state") || "";
   const error = searchParams.get("error");
 
   const baseUrl = "https://www.pervade.co.kr";
+
+  // Parse redirectUrl from state if present
+  let redirectUrl = "/";
+  if (state) {
+    try {
+      const parsedState = JSON.parse(decodeURIComponent(state));
+      if (parsedState && parsedState.redirect) {
+        redirectUrl = parsedState.redirect;
+      }
+    } catch (e) {
+      if (state.startsWith("/")) {
+        redirectUrl = decodeURIComponent(state);
+      }
+    }
+  }
 
   if (error || !code) {
     console.error("Google OAuth error or cancelled:", error);
@@ -73,7 +90,7 @@ export async function GET(request: NextRequest) {
     const email = googleUser.email || `google_${socialId.slice(0, 10)}@pervade.co.kr`;
     const name = googleUser.name || "구글 고객";
 
-    // 4. Find or Create User in Database
+    // 4. Find User in Database
     let user = await prisma.user.findFirst({
       where: {
         OR: [
@@ -83,37 +100,41 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    let isNewUser = false;
-
+    // -------------------------------------------------------------
+    // Branch 1: New User -> Redirect to /signup/social (No auto-creation)
+    // -------------------------------------------------------------
     if (!user) {
-      isNewUser = true;
-      const mockLoginId = `google_${socialId.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8)}`;
+      const pendingToken = signSocialToken({
+        name,
+        email,
+        phone: null,
+        birthDate: null,
+        socialProvider: "GOOGLE",
+        socialId,
+        realNameVerified: true,
+        expiresAt: Date.now() + 30 * 60 * 1000, // 30 minutes
+      });
 
-      user = await prisma.user.create({
-        data: {
-          email,
-          name,
-          loginId: mockLoginId,
-          passwordHash: `$2b$10$google_oauth_secure_hash_${socialId.slice(0, 10)}`,
-          socialProvider: "GOOGLE",
-          socialId,
-          realNameVerified: true, // Google login verifies identity
-          referralPoints: 3000,   // Welcome 3,000P
-        },
-      });
-    } else {
-      user = await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          socialProvider: "GOOGLE",
-          socialId,
-          name: name || user.name,
-          realNameVerified: true,
-        },
-      });
+      const socialSignupUrl = `${baseUrl}/signup/social?token=${encodeURIComponent(pendingToken)}${
+        redirectUrl && redirectUrl !== "/" ? `&redirect=${encodeURIComponent(redirectUrl)}` : ""
+      }`;
+      return NextResponse.redirect(socialSignupUrl);
     }
 
-    // 5. Set Session Cookie (session-only)
+    // -------------------------------------------------------------
+    // Branch 2: Existing User -> Immediate Login & Redirect
+    // -------------------------------------------------------------
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        socialProvider: "GOOGLE",
+        socialId,
+        name: user.name || name,
+        realNameVerified: true,
+      },
+    });
+
+    // Set Session Cookie
     const cookieStore = await cookies();
     cookieStore.set("userId", user.id, {
       httpOnly: true,
@@ -122,7 +143,6 @@ export async function GET(request: NextRequest) {
       path: "/",
     });
 
-    // 6. Return HTML to sync sessionStorage and redirect cleanly
     const safeUserData = JSON.stringify({
       id: user.id,
       name: user.name,
@@ -131,7 +151,7 @@ export async function GET(request: NextRequest) {
       loginId: user.loginId,
     });
 
-    const destination = isNewUser ? "/mypage" : "/";
+    const destination = redirectUrl || "/";
 
     const html = `
       <!DOCTYPE html>
