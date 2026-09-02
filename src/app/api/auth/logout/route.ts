@@ -7,6 +7,7 @@ export async function POST() {
   try {
     const cookieStore = await cookies();
     cookieStore.delete("userId");
+    cookieStore.set("userId", "", { path: "/", maxAge: 0 });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Logout error:", error);
@@ -18,6 +19,7 @@ export async function GET(request: Request) {
   try {
     const cookieStore = await cookies();
     cookieStore.delete("userId");
+    cookieStore.set("userId", "", { path: "/", maxAge: 0 });
     const { origin } = new URL(request.url);
     return NextResponse.redirect(`${origin}/login`);
   } catch (error) {

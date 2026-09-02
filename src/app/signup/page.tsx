@@ -186,26 +186,27 @@ export default function SignupPage() {
 
   // Social Signup Handler
   const handleSocialSignup = async (provider: "GOOGLE" | "NAVER" | "KAKAO") => {
+    const statePayload = encodeURIComponent(JSON.stringify({ redirect: "/" }));
+
     if (provider === "NAVER") {
-      // Official Naver 1-second Instant OAuth Signup & Login
-      const state = Math.random().toString(36).substring(2, 15);
+      // Official Naver OAuth with explicit auth_type=reprompt (Forces Naver to display login/consent window)
       const redirectUri = encodeURIComponent("https://www.pervade.co.kr/api/auth/callback/naver");
-      const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=eXWsUTMyQs5043_PJBu5&redirect_uri=${redirectUri}&state=${state}`;
+      const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=eXWsUTMyQs5043_PJBu5&redirect_uri=${redirectUri}&state=${statePayload}&auth_type=reprompt`;
       window.location.href = naverAuthUrl;
       return;
     }
 
     if (provider === "KAKAO") {
-      // Official Kakao 1-second Instant OAuth Signup & Login
+      // Official Kakao OAuth with prompt=login (Forces Kakao to prompt user for credentials)
       const redirectUri = encodeURIComponent("https://www.pervade.co.kr/api/auth/callback/kakao");
-      const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=969600098ed590f4f84f68fce837fe8a&redirect_uri=${redirectUri}&response_type=code`;
+      const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=969600098ed590f4f84f68fce837fe8a&redirect_uri=${redirectUri}&response_type=code&state=${statePayload}&prompt=login`;
       window.location.href = kakaoAuthUrl;
       return;
     }
 
     if (provider === "GOOGLE") {
       // Official Google 1-second Instant OAuth Signup & Login
-      window.location.href = "/api/auth/google";
+      window.location.href = "/api/auth/google?redirect=/";
       return;
     }
   };
