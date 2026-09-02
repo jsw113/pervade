@@ -5,16 +5,28 @@ import { Menu, Search, ShoppingBag, User as UserIcon, LogOut, ShieldCheck, X } f
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
-export function Navbar() {
+interface NavbarProps {
+  initialLogoUrl?: string | null;
+  initialLogoFont?: string;
+  initialTopBannerText?: string;
+  initialTopBannerEnabled?: boolean;
+}
+
+export function Navbar({
+  initialLogoUrl = null,
+  initialLogoFont = "'Inter', sans-serif",
+  initialTopBannerText = "신규 가입 시 3,000P 적립 & 첫 구매 무료배송",
+  initialTopBannerEnabled = true,
+}: NavbarProps = {}) {
   const router = useRouter();
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  const [logoFont, setLogoFont] = useState<string>("'Inter', sans-serif");
+  const [logoUrl, setLogoUrl] = useState<string | null>(initialLogoUrl || null);
+  const [logoFont, setLogoFont] = useState<string>(initialLogoFont || "'Inter', sans-serif");
   
   // Top Banner Promo State (from DB Policies)
-  const [topBannerText, setTopBannerText] = useState("신규 가입 시 3,000P 적립 & 첫 구매 무료배송");
-  const [topBannerEnabled, setTopBannerEnabled] = useState(true);
+  const [topBannerText, setTopBannerText] = useState(initialTopBannerText || "신규 가입 시 3,000P 적립 & 첫 구매 무료배송");
+  const [topBannerEnabled, setTopBannerEnabled] = useState(initialTopBannerEnabled ?? true);
 
   // Auth & Cart State
   const [user, setUser] = useState<{ id: string; name: string; email: string; role: string; realNameVerified: boolean; loginId?: string | null } | null>(null);
@@ -209,6 +221,7 @@ export function Navbar() {
                 <img 
                   src={logoUrl} 
                   alt="PERVADE Logo" 
+                  loading="eager"
                   className="h-8 max-w-[180px] object-contain"
                 />
               ) : (

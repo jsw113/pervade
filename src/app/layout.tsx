@@ -88,8 +88,36 @@ export const metadata: Metadata = {
 
 import { ThemeStyleInjector } from "@/components/common/ThemeStyleInjector";
 import { FloatingKakaoChat } from "@/components/common/FloatingKakaoChat";
+import { prisma } from "@/lib/prisma";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Fetch initial theme & logo policies from DB for instant zero-flicker SSR rendering
+  let policies: { key: string; value: string }[] = [];
+  try {
+    policies = await prisma.policy.findMany({
+      where: {
+        key: {
+          in: [
+            "LOGO_URL",
+            "LOGO_FONT",
+            "TOP_BANNER_TEXT",
+            "TOP_BANNER_ENABLED"
+          ]
+        }
+      }
+    });
+  } catch (e) {
+    policies = [];
+  }
+
+  const getPolicy = (key: string, defaultValue: string) =>
+    policies.find((p) => p.key === key)?.value || defaultValue;
+
+  const initialLogoUrl = getPolicy("LOGO_URL", "");
+  const initialLogoFont = getPolicy("LOGO_FONT", "'Inter', sans-serif");
+  const initialTopBannerText = getPolicy("TOP_BANNER_TEXT", "신규 가입 시 3,000P 적립 & 첫 구매 무료배송");
+  const initialTopBannerEnabled = getPolicy("TOP_BANNER_ENABLED", "true") !== "false";
+
   // Schema.org Structured Data
   const jsonLd = {
     "@context": "https://schema.org",
@@ -123,7 +151,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
         <SiteLogTracker />
-        <Navbar />
+        <Navbar 
+          initialLogoUrl={initialLogoUrl || null}
+          initialLogoFont={initialLogoFont}
+          initialTopBannerText={initialTopBannerText}
+          initialTopBannerEnabled={initialTopBannerEnabled}
+        />
         <main className="flex-1">{children}</main>
         <Footer />
         <FloatingKakaoChat />
