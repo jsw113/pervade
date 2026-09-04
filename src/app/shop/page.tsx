@@ -19,6 +19,41 @@ export default async function ShopPage({
     categoriesList = [];
   }
 
+  // 1. Calculate live product counts for each category & subcategory (Toss Payments review compliance)
+  let categoryCounts: Record<string, number> = {};
+  let subCategoryCounts: Record<string, Record<string, number>> = {};
+  let allActiveProducts: any[] = [];
+
+  try {
+    allActiveProducts = await prisma.product.findMany({
+      where: { isVisible: true },
+      select: { category: true, subCategory: true }
+    });
+
+    allActiveProducts.forEach((p) => {
+      const catName = p.category || "기타";
+      categoryCounts[catName] = (categoryCounts[catName] || 0) + 1;
+
+      if (!subCategoryCounts[catName]) {
+        subCategoryCounts[catName] = {};
+      }
+      if (p.subCategory) {
+        subCategoryCounts[catName][p.subCategory] = (subCategoryCounts[catName][p.subCategory] || 0) + 1;
+      }
+    });
+  } catch (e) {
+    categoryCounts = {};
+    subCategoryCounts = {};
+  }
+
+  // Filter categories to ONLY show categories that currently have at least 1 active product
+  const visibleCategories = categoriesList.filter((cat) => (categoryCounts[cat.name] || 0) > 0);
+
+  // If a category was requested via URL that has 0 products, gracefully fallback to ALL
+  const effectiveCategory = (category && category !== "ALL" && (categoryCounts[category] || 0) > 0)
+    ? category
+    : (category && category !== "ALL" ? "ALL" : category);
+
   const where: any = {
     isVisible: true,
     ...(search ? {
@@ -27,7 +62,7 @@ export default async function ShopPage({
         { description: { contains: search } }
       ]
     } : {}),
-    ...(category && category !== "ALL" ? { category } : {}),
+    ...(effectiveCategory && effectiveCategory !== "ALL" ? { category: effectiveCategory } : {}),
     ...(subCategory && subCategory !== "ALL" ? { subCategory } : {}),
   };
 
@@ -39,7 +74,7 @@ export default async function ShopPage({
       where,
       orderBy: { createdAt: "desc" }
     });
-    totalAllCount = await prisma.product.count({ where: { isVisible: true } });
+    totalAllCount = allActiveProducts.length || await prisma.product.count({ where: { isVisible: true } });
   } catch (e) {
     console.error("Shop DB fallback triggered:", e);
     dbProducts = [
@@ -48,26 +83,22 @@ export default async function ShopPage({
         name: "퍼베이드 올인원 프리미엄 다목적 세정제 500ml",
         description: "주방 기름때부터 욕실 물때까지 완벽 분해하는 시그니처 세정제",
         price: 18900,
-        category: "다목적 세정제",
+        category: "세정제류",
+        subCategory: "다목적/올인원",
         images: JSON.stringify(["https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?q=80&w=800&auto=format&fit=crop"]),
         stock: 999,
         badge: "BEST",
-      },
-      {
-        id: "prod-refill-1000",
-        name: "퍼베이드 친환경 에코 리필 1,000ml (대용량 2회분)",
-        description: "플라스틱 사용을 줄이는 친환경 대용량 파우치 리필",
-        price: 24000,
-        category: "리필 & 대용량",
-        images: JSON.stringify(["https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?q=80&w=800&auto=format&fit=crop"]),
-        stock: 999,
-        badge: "ECO",
       }
     ];
     totalAllCount = dbProducts.length;
+    categoryCounts["세정제류"] = 1;
   }
 
-  const activeSubs = category && category !== "ALL" ? getSubCategoriesByMainCategory(category, categoriesList) : [];
+  // Filter subcategories to ONLY show subcategories with at least 1 product
+  const rawSubs = (effectiveCategory && effectiveCategory !== "ALL")
+    ? getSubCategoriesByMainCategory(effectiveCategory, categoriesList)
+    : [];
+  const activeSubs = rawSubs.filter((sub) => (subCategoryCounts[effectiveCategory || ""]?.[sub] || 0) > 0);
 
   return (
     <div className="container mx-auto px-4 py-16 max-w-6xl min-h-[75vh]">
@@ -78,7 +109,7 @@ export default async function ShopPage({
           Pervade Collections
         </span>
         <h1 className="text-3xl md:text-5xl font-black tracking-tight text-zinc-950">
-          {search ? `'${search}' 검색 결과` : category && category !== "ALL" ? category : "전체 컬렉션"}
+          {search ? `'${search}' 검색 결과` : effectiveCategory && effectiveCategory !== "ALL" ? effectiveCategory : "전체 컬렉션"}
         </h1>
         <p className="text-zinc-500 text-xs sm:text-sm leading-relaxed">
           {search 
@@ -87,22 +118,23 @@ export default async function ShopPage({
         </p>
       </div>
 
-      {/* 2-Tier Category Navigation */}
+      {/* 2-Tier Category Navigation (Empty categories are strictly hidden) */}
       <div className="mb-12 space-y-3 max-w-4xl mx-auto">
         {/* 1st Depth: 대분류 (제품 계열) */}
         <div className="flex flex-wrap justify-center items-center gap-2">
           <Link
             href={`/shop${search ? `?search=${encodeURIComponent(search)}` : ""}`}
             className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${
-              !category || category === "ALL"
+              !effectiveCategory || effectiveCategory === "ALL"
                 ? "bg-zinc-950 text-white shadow-md scale-105"
                 : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
             }`}
           >
             전체 ({totalAllCount})
           </Link>
-          {categoriesList.map((cat) => {
-            const isSelected = category === cat.name;
+          {visibleCategories.map((cat) => {
+            const isSelected = effectiveCategory === cat.name;
+            const count = categoryCounts[cat.name] || 0;
             return (
               <Link
                 key={cat.id}
@@ -113,41 +145,42 @@ export default async function ShopPage({
                     : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
                 }`}
               >
-                {cat.name}
+                {cat.name} ({count})
               </Link>
             );
           })}
         </div>
 
-        {/* 2nd Depth: 중/소분류 (용처별 칩) */}
+        {/* 2nd Depth: 중/소분류 (용처별 칩 - 상품이 존재하는 용처만 노출) */}
         {activeSubs.length > 0 && (
           <div className="pt-2 flex flex-wrap justify-center items-center gap-1.5 border-t border-zinc-100 animate-in fade-in">
             <span className="text-[11px] font-bold text-zinc-400 mr-1 flex items-center gap-1">
               <Tag className="w-3 h-3 text-amber-600" /> 용처별:
             </span>
             <Link
-              href={`/shop?category=${encodeURIComponent(category!)}${search ? `&search=${encodeURIComponent(search)}` : ""}`}
+              href={`/shop?category=${encodeURIComponent(effectiveCategory!)}${search ? `&search=${encodeURIComponent(search)}` : ""}`}
               className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all ${
                 !subCategory || subCategory === "ALL"
                   ? "bg-amber-600 text-white shadow-xs"
                   : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
               }`}
             >
-              전체
+              전체 ({categoryCounts[effectiveCategory!] || 0})
             </Link>
             {activeSubs.map((sub) => {
               const isSubSelected = subCategory === sub;
+              const subCount = subCategoryCounts[effectiveCategory!]?.[sub] || 0;
               return (
                 <Link
                   key={sub}
-                  href={`/shop?category=${encodeURIComponent(category!)}&subCategory=${encodeURIComponent(sub)}${search ? `&search=${encodeURIComponent(search)}` : ""}`}
+                  href={`/shop?category=${encodeURIComponent(effectiveCategory!)}&subCategory=${encodeURIComponent(sub)}${search ? `&search=${encodeURIComponent(search)}` : ""}`}
                   className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all ${
                     isSubSelected
                       ? "bg-amber-600 text-white shadow-xs"
                       : "bg-zinc-50 border border-zinc-200/80 text-zinc-700 hover:bg-zinc-100"
                   }`}
                 >
-                  {sub}
+                  {sub} ({subCount})
                 </Link>
               );
             })}

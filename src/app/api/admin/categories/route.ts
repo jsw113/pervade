@@ -5,7 +5,28 @@ import { DEFAULT_PRODUCT_CATEGORIES, getDynamicProductCategories } from "@/lib/c
 export async function GET() {
   try {
     const categories = await getDynamicProductCategories();
-    return NextResponse.json(categories);
+    const products = await prisma.product.findMany({
+      where: { isVisible: true },
+      select: { category: true, subCategory: true }
+    });
+
+    const productCounts: Record<string, number> = {};
+    const subCategoryCounts: Record<string, Record<string, number>> = {};
+
+    products.forEach((p) => {
+      const cat = p.category || "기타";
+      productCounts[cat] = (productCounts[cat] || 0) + 1;
+      if (!subCategoryCounts[cat]) subCategoryCounts[cat] = {};
+      if (p.subCategory) {
+        subCategoryCounts[cat][p.subCategory] = (subCategoryCounts[cat][p.subCategory] || 0) + 1;
+      }
+    });
+
+    return NextResponse.json({
+      categories,
+      productCounts,
+      subCategoryCounts,
+    });
   } catch (error: any) {
     console.error("Failed to fetch categories:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

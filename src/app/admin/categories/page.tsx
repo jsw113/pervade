@@ -6,6 +6,8 @@ import { CategoryDefinition } from "@/lib/constants/categories";
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<CategoryDefinition[]>([]);
+  const [productCounts, setProductCounts] = useState<Record<string, number>>({});
+  const [subCategoryCounts, setSubCategoryCounts] = useState<Record<string, Record<string, number>>>({});
   const [selectedCatId, setSelectedCatId] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -32,9 +34,16 @@ export default function AdminCategoriesPage() {
     try {
       const res = await fetch("/api/admin/categories");
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        setCategories(data);
-        setSelectedCatId(data[0].id);
+      const list = Array.isArray(data) ? data : (data.categories || []);
+      if (Array.isArray(list) && list.length > 0) {
+        setCategories(list);
+        setSelectedCatId(list[0].id);
+      }
+      if (data.productCounts) {
+        setProductCounts(data.productCounts);
+      }
+      if (data.subCategoryCounts) {
+        setSubCategoryCounts(data.subCategoryCounts);
       }
     } catch (e) {
       console.error(e);
@@ -222,6 +231,22 @@ export default function AdminCategoriesPage() {
         </div>
       </div>
 
+      {/* PG Inspection Rule Banner */}
+      <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex items-start gap-3">
+        <div className="p-2 bg-blue-600 text-white rounded-xl shrink-0 mt-0.5 shadow-2xs">
+          <AlertCircle className="w-4 h-4" />
+        </div>
+        <div className="text-xs text-blue-950 space-y-1">
+          <div className="font-bold flex items-center gap-2">
+            <span>🛡️ 토스페이먼츠 및 카드사 PG 심사 규정 준수 시스템 적용</span>
+            <span className="bg-blue-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full">자동 심사 보호</span>
+          </div>
+          <p className="text-[11px] text-blue-800 leading-relaxed">
+            고객 및 PG 심사관이 빈 카테고리를 클릭하여 <em>'등록된 상품이 없습니다'</em> 페이지를 보는 것을 방지하기 위해, <strong>실제 판매 상품이 1개 이상 등록된 카테고리만 쇼핑몰(`/shop`)에 자동으로 노출</strong>됩니다. 상품 관리에서 해당 카테고리로 상품을 등록하시면 즉시 쇼핑몰 탭에 자동 활성화됩니다.
+          </p>
+        </div>
+      </div>
+
       {/* Grid Layout: 1st Depth (Left) & 2nd Depth (Right) */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         
@@ -292,6 +317,7 @@ export default function AdminCategoriesPage() {
             {categories.map((cat, index) => {
               const isSelected = selectedCatId === cat.id;
               const isEditing = editingCatId === cat.id;
+              const count = productCounts[cat.name] || 0;
 
               return (
                 <div
@@ -336,14 +362,23 @@ export default function AdminCategoriesPage() {
                     </div>
                   ) : (
                     <div className="flex items-center justify-between">
-                      <div className="flex-1 space-y-1">
-                        <div className="flex items-center gap-2">
+                      <div className="flex-1 space-y-1.5">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className={`font-black text-sm ${isSelected ? "text-zinc-950" : "text-zinc-800"}`}>
                             {cat.name}
                           </span>
                           <span className="text-[10px] font-bold px-1.5 py-0.5 bg-zinc-100 text-zinc-600 rounded-full">
                             {cat.subCategories.length}개 용처
                           </span>
+                          {count > 0 ? (
+                            <span className="text-[10px] font-black px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full border border-emerald-200">
+                              🟢 쇼핑몰 노출 ({count}개)
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-bold px-2 py-0.5 bg-zinc-100 text-zinc-500 rounded-full border border-zinc-200">
+                              ⚪ 미노출 (0개)
+                            </span>
+                          )}
                         </div>
                         <p className="text-[11px] text-zinc-500 line-clamp-1">{cat.description}</p>
                       </div>
@@ -421,22 +456,34 @@ export default function AdminCategoriesPage() {
               </label>
               
               <div className="flex flex-wrap gap-2.5 min-h-[100px] p-4 bg-zinc-50 border rounded-2xl">
-                {selectedCategory?.subCategories.map((sub, sIdx) => (
-                  <div
-                    key={sIdx}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-zinc-200 rounded-xl text-xs font-bold text-zinc-800 shadow-2xs group hover:border-zinc-400 transition-colors"
-                  >
-                    <span>{sub}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteSubCategory(selectedCategory.id, sIdx)}
-                      className="text-zinc-400 hover:text-red-600 rounded p-0.5 transition-colors"
-                      title="용처 태그 삭제"
+                {selectedCategory?.subCategories.map((sub, sIdx) => {
+                  const subCount = subCategoryCounts[selectedCategory?.name || ""]?.[sub] || 0;
+                  return (
+                    <div
+                      key={sIdx}
+                      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold shadow-2xs border transition-colors ${
+                        subCount > 0
+                          ? "bg-emerald-50 border-emerald-300 text-emerald-950"
+                          : "bg-white border-zinc-200 text-zinc-800 hover:border-zinc-400"
+                      }`}
                     >
-                      ✕
-                    </button>
-                  </div>
-                ))}
+                      <span>{sub}</span>
+                      <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                        subCount > 0 ? "bg-emerald-200 text-emerald-900" : "bg-zinc-100 text-zinc-500"
+                      }`}>
+                        {subCount}개
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteSubCategory(selectedCategory.id, sIdx)}
+                        className="text-zinc-400 hover:text-red-600 rounded p-0.5 transition-colors ml-0.5"
+                        title="용처 태그 삭제"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
