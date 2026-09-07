@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LayoutDashboard, FileText, Users, Settings, Package, Palette, MessageSquare, HelpCircle, ExternalLink, BookOpen, Megaphone, Layers, ShieldCheck, LogOut, Award, Key, BarChart3 } from "lucide-react";
+import { LayoutDashboard, FileText, Users, Settings, Package, Palette, MessageSquare, HelpCircle, ExternalLink, BookOpen, Megaphone, Layers, ShieldCheck, LogOut, Award, Key, BarChart3, Ticket } from "lucide-react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -96,6 +96,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                   <Link href="/admin/promotions" className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-zinc-100 text-zinc-700 transition-colors">
                     <Megaphone className="w-4 h-4 text-zinc-500" />
                     프로모션 & 이벤트 관리
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/admin/coupons" className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-zinc-100 text-zinc-700 transition-colors">
+                    <Ticket className="w-4 h-4 text-amber-600" />
+                    쿠폰 마스터 & 재고 관리
                   </Link>
                 </li>
                 <li>

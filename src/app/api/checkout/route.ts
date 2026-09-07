@@ -38,7 +38,9 @@ export async function POST(request: Request) {
       saveAsDefaultAddress,
       deliveryMemo,
       paymentMethod,
-      usedPoints
+      usedPoints,
+      couponId,
+      couponDiscount
     } = body;
 
     // Auto-update user default address if toggled or user address was empty
@@ -56,6 +58,39 @@ export async function POST(request: Request) {
         await prisma.user.update({
           where: { id: user.id },
           data: { referralPoints: { decrement: validPoints } }
+        });
+      }
+    }
+
+    // Validate and mark coupon as used
+    let appliedCouponId: string | null = null;
+    let appliedCouponDiscount: number = 0;
+
+    if (couponId) {
+      const userCoupon = await prisma.userCoupon.findFirst({
+        where: {
+          userId: user.id,
+          couponId,
+          status: "UNUSED"
+        },
+        include: { coupon: true }
+      });
+
+      if (userCoupon && userCoupon.coupon.isActive) {
+        appliedCouponId = userCoupon.couponId;
+        appliedCouponDiscount = Number(couponDiscount || 0);
+
+        await prisma.userCoupon.update({
+          where: { id: userCoupon.id },
+          data: {
+            status: "USED",
+            usedAt: new Date(),
+          }
+        });
+
+        await prisma.coupon.update({
+          where: { id: userCoupon.couponId },
+          data: { usedQuantity: { increment: 1 } }
         });
       }
     }
@@ -89,6 +124,8 @@ export async function POST(request: Request) {
             shippingMethod: item.shippingMethod,
             shippingFee: item.product.shippingFee,
             totalAmount: itemAmount,
+            couponId: appliedCouponId,
+            couponDiscount: appliedCouponDiscount,
             status: "COMPLETED"
           }
         });
@@ -142,6 +179,8 @@ export async function POST(request: Request) {
           shippingMethod: shippingMethod || "일반택배",
           shippingFee: currentShipping,
           totalAmount: grand,
+          couponId: appliedCouponId,
+          couponDiscount: appliedCouponDiscount,
           status: "COMPLETED"
         }
       });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { 
   X, 
@@ -14,7 +14,11 @@ import {
   Sparkles, 
   Receipt, 
   ArrowRight,
-  Loader2
+  Loader2,
+  Ticket,
+  Gift,
+  Tag,
+  AlertCircle
 } from "lucide-react";
 import { ShippingAddressSelector } from "./ShippingAddressSelector";
 
@@ -66,6 +70,13 @@ export function OrderPaymentModal({
   const [deliveryMemo, setDeliveryMemo] = useState("문 앞에 놓아주세요");
   const [customMemo, setCustomMemo] = useState("");
 
+  // Coupon State
+  const [availableCoupons, setAvailableCoupons] = useState<any[]>([]);
+  const [selectedCouponId, setSelectedCouponId] = useState<string>("");
+  const [promoCodeInput, setPromoCodeInput] = useState("");
+  const [isClaimingCoupon, setIsClaimingCoupon] = useState(false);
+  const [couponCodeMessage, setCouponCodeMessage] = useState<{ text: string; isError: boolean } | null>(null);
+
   // Point Usage
   const maxPoints = user?.referralPoints || 0;
   const [usedPoints, setUsedPoints] = useState<number>(0);
@@ -76,22 +87,99 @@ export function OrderPaymentModal({
   // Receipt data
   const [completedOrderData, setCompletedOrderData] = useState<any>(null);
 
+  // Fetch available user coupons on open
+  useEffect(() => {
+    if (isOpen) {
+      fetchUserCoupons();
+    }
+  }, [isOpen]);
+
+  const fetchUserCoupons = async () => {
+    try {
+      const res = await fetch("/api/coupons/my");
+      if (res.ok) {
+        const data = await res.json();
+        setAvailableCoupons(data.available || []);
+      }
+    } catch (err) {
+      console.error("Failed to load checkout coupons:", err);
+    }
+  };
+
+  const handleClaimPromoCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!promoCodeInput.trim()) return;
+
+    setIsClaimingCoupon(true);
+    setCouponCodeMessage(null);
+
+    try {
+      const res = await fetch("/api/coupons/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: promoCodeInput.trim() })
+      });
+      const data = await res.json();
+      if (res.ok && data.coupon) {
+        setCouponCodeMessage({ text: data.message, isError: false });
+        setPromoCodeInput("");
+        await fetchUserCoupons();
+        setSelectedCouponId(data.coupon.couponId);
+      } else {
+        setCouponCodeMessage({ text: data.error || "쿠폰 등록에 실패했습니다.", isError: true });
+      }
+    } catch (err: any) {
+      setCouponCodeMessage({ text: "오류: " + err.message, isError: true });
+    } finally {
+      setIsClaimingCoupon(false);
+    }
+  };
+
   if (!isOpen) return null;
 
-  // Compute Totals
+  // Compute Totals & Discounts
   const productTotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const shippingTotal = items.reduce((acc, item) => acc + (item.shippingFee || 0), 0);
-  const actualPointsUsed = Math.min(usedPoints, productTotal, maxPoints);
-  const finalPayAmount = Math.max(0, productTotal + shippingTotal - actualPointsUsed);
-  const rewardPoints = Math.floor((productTotal - actualPointsUsed) * 0.05);
+
+  // Selected Coupon calculations
+  const selectedCoupon = availableCoupons.find(
+    (c) => c.couponId === selectedCouponId || c.id === selectedCouponId
+  );
+
+  let couponDiscount = 0;
+  let isCouponEligible = true;
+  let couponIneligibleReason = "";
+
+  if (selectedCoupon) {
+    if (productTotal < (selectedCoupon.minOrderAmount || 0)) {
+      isCouponEligible = false;
+      couponIneligibleReason = `최소 ${selectedCoupon.minOrderAmount.toLocaleString()}원 이상 구매 시 적용 가능합니다.`;
+    } else {
+      if (selectedCoupon.discountType === "FIXED") {
+        couponDiscount = Math.min(productTotal, selectedCoupon.discountValue);
+      } else {
+        const calculated = Math.floor(productTotal * (selectedCoupon.discountValue / 100));
+        const capped = selectedCoupon.maxDiscountAmount
+          ? Math.min(calculated, selectedCoupon.maxDiscountAmount)
+          : calculated;
+        couponDiscount = Math.min(productTotal, capped);
+      }
+    }
+  }
+
+  const effectiveCouponDiscount = isCouponEligible ? couponDiscount : 0;
+  const amountAfterCoupon = Math.max(0, productTotal - effectiveCouponDiscount);
+  const actualPointsUsed = Math.min(usedPoints, amountAfterCoupon, maxPoints);
+  const finalPayAmount = Math.max(0, amountAfterCoupon + shippingTotal - actualPointsUsed);
+  const rewardPoints = Math.floor((amountAfterCoupon - actualPointsUsed) * 0.05);
 
   const handleUseAllPoints = () => {
-    setUsedPoints(Math.min(maxPoints, productTotal));
+    setUsedPoints(Math.min(maxPoints, amountAfterCoupon));
   };
 
   const handlePointsChange = (val: string) => {
     const num = parseInt(val, 10) || 0;
-    setUsedPoints(Math.min(num, maxPoints, productTotal));
+    setUsedPoints(Math.min(num, maxPoints, amountAfterCoupon));
   };
 
   const handleSubmitPayment = async (e: React.FormEvent) => {
@@ -114,6 +202,8 @@ export function OrderPaymentModal({
       TOSS: "토스페이 (TossPay)",
       VBANK: "가상계좌 / 무통장입금",
     };
+
+    const appliedCouponId = isCouponEligible && selectedCoupon ? selectedCoupon.couponId : null;
 
     try {
       // 1. If paying with cash/card > 0, open Toss Payments window
@@ -143,7 +233,9 @@ export function OrderPaymentModal({
               saveAsDefaultAddress,
               deliveryMemo: memoText,
               paymentMethod: paymentMethodNames[paymentMethod] || "신용/체크카드 (토스페이먼츠)",
-              usedPoints: actualPointsUsed
+              usedPoints: actualPointsUsed,
+              couponId: appliedCouponId,
+              couponDiscount: effectiveCouponDiscount
             }));
 
             const methodMap: Record<string, string> = {
@@ -191,7 +283,9 @@ export function OrderPaymentModal({
           saveAsDefaultAddress,
           deliveryMemo: memoText,
           paymentMethod: paymentMethodNames[paymentMethod] || "신용카드",
-          usedPoints: actualPointsUsed
+          usedPoints: actualPointsUsed,
+          couponId: appliedCouponId,
+          couponDiscount: effectiveCouponDiscount
         })
       });
 
@@ -203,6 +297,8 @@ export function OrderPaymentModal({
           totalAmount: finalPayAmount,
           productTotal,
           shippingTotal,
+          couponDiscount: effectiveCouponDiscount,
+          couponName: selectedCoupon?.name,
           usedPoints: actualPointsUsed,
           rewardPoints,
           paymentMethod: paymentMethodNames[paymentMethod],
@@ -345,7 +441,80 @@ export function OrderPaymentModal({
                 </div>
               </div>
 
-              {/* 3. Point Usage */}
+              {/* 3. Coupon Usage */}
+              <div className="p-4 bg-amber-50/50 border border-amber-200/80 rounded-2xl space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-zinc-900 flex items-center gap-1.5">
+                    <Ticket className="w-4 h-4 text-amber-600" />
+                    퍼베이드 할인 쿠폰 적용
+                  </span>
+                  <span className="text-[11px] text-amber-800 font-bold">
+                    보유 쿠폰: <strong>{availableCoupons.length}장</strong>
+                  </span>
+                </div>
+
+                {/* Coupon Selector Dropdown */}
+                <div className="space-y-1.5">
+                  <select
+                    value={selectedCouponId}
+                    onChange={(e) => setSelectedCouponId(e.target.value)}
+                    className="w-full p-2.5 bg-white border border-amber-200 rounded-xl text-xs font-bold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  >
+                    <option value="">쿠폰 선택 안함 (미적용)</option>
+                    {availableCoupons.map((c) => {
+                      const isEligible = productTotal >= (c.minOrderAmount || 0);
+                      return (
+                        <option key={c.couponId || c.id} value={c.couponId || c.id} disabled={!isEligible}>
+                          {c.name} - {c.discountType === "FIXED" ? `${c.discountValue.toLocaleString()}원` : `${c.discountValue}%`} 할인
+                          {!isEligible ? ` (${c.minOrderAmount.toLocaleString()}원 이상 구매 시)` : ""}
+                        </option>
+                      );
+                    })}
+                  </select>
+
+                  {selectedCoupon && !isCouponEligible && (
+                    <p className="text-[11px] text-red-600 font-bold flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      {couponIneligibleReason}
+                    </p>
+                  )}
+
+                  {selectedCoupon && isCouponEligible && (
+                    <div className="p-2.5 bg-white border border-amber-300 rounded-xl flex justify-between items-center text-xs animate-in fade-in">
+                      <span className="text-zinc-600 font-medium">쿠폰 할인 적용금액</span>
+                      <span className="font-black text-amber-700">-₩{effectiveCouponDiscount.toLocaleString()}원</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Promo Code Quick Registration Inline Form */}
+                <div className="pt-2 border-t border-amber-200/60">
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="text"
+                      value={promoCodeInput}
+                      onChange={(e) => setPromoCodeInput(e.target.value.toUpperCase())}
+                      placeholder="프로모션 / SNS 쿠폰 코드 직접 입력"
+                      className="flex-1 p-2 bg-white border border-zinc-200 rounded-xl text-xs font-mono font-bold uppercase focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleClaimPromoCode}
+                      disabled={isClaimingCoupon || !promoCodeInput.trim()}
+                      className="px-3 py-2 bg-zinc-900 text-white rounded-xl text-xs font-bold hover:bg-zinc-800 disabled:opacity-40 shrink-0"
+                    >
+                      {isClaimingCoupon ? "확인 중..." : "코드 적용"}
+                    </button>
+                  </div>
+                  {couponCodeMessage && (
+                    <p className={`text-[11px] font-bold mt-1.5 ${couponCodeMessage.isError ? "text-red-600" : "text-emerald-700"}`}>
+                      {couponCodeMessage.text}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* 4. Point Usage */}
               <div className="p-4 bg-zinc-50 border rounded-2xl space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-zinc-800 flex items-center gap-1">
@@ -362,7 +531,7 @@ export function OrderPaymentModal({
                     <input
                       type="number"
                       min={0}
-                      max={Math.min(maxPoints, productTotal)}
+                      max={Math.min(maxPoints, amountAfterCoupon)}
                       value={usedPoints || ""}
                       onChange={(e) => handlePointsChange(e.target.value)}
                       placeholder="0"
@@ -380,7 +549,7 @@ export function OrderPaymentModal({
                 </div>
               </div>
 
-              {/* 4. Payment Method Selector */}
+              {/* 5. Payment Method Selector */}
               <div className="space-y-3">
                 <h3 className="font-black text-sm text-zinc-950 flex items-center gap-1.5 border-b pb-2">
                   <CreditCard className="w-4 h-4 text-zinc-700" />
@@ -417,7 +586,7 @@ export function OrderPaymentModal({
                 </div>
               </div>
 
-              {/* 5. Payment Amount Breakdown */}
+              {/* 6. Payment Amount Breakdown */}
               <div className="p-4 sm:p-5 bg-zinc-50 border rounded-2xl space-y-2">
                 <div className="flex justify-between text-zinc-600">
                   <span>총 상품 금액</span>
@@ -429,6 +598,12 @@ export function OrderPaymentModal({
                     {shippingTotal === 0 ? "무료배송" : `+₩${shippingTotal.toLocaleString()}원`}
                   </span>
                 </div>
+                {effectiveCouponDiscount > 0 && (
+                  <div className="flex justify-between text-amber-700 font-bold">
+                    <span>쿠폰 할인 {selectedCoupon ? `(${selectedCoupon.name})` : ""}</span>
+                    <span>-₩{effectiveCouponDiscount.toLocaleString()}원</span>
+                  </div>
+                )}
                 {actualPointsUsed > 0 && (
                   <div className="flex justify-between text-purple-700">
                     <span>포인트 적립금 사용</span>
@@ -504,6 +679,12 @@ export function OrderPaymentModal({
                   <span>배송 요청</span>
                   <span className="font-bold text-zinc-900">{completedOrderData.deliveryMemo}</span>
                 </div>
+                {completedOrderData.couponDiscount > 0 && (
+                  <div className="flex justify-between border-b pb-2 text-amber-700">
+                    <span>쿠폰 할인 {completedOrderData.couponName ? `(${completedOrderData.couponName})` : ""}</span>
+                    <span className="font-bold">-₩{completedOrderData.couponDiscount.toLocaleString()}원</span>
+                  </div>
+                )}
                 {completedOrderData.usedPoints > 0 && (
                   <div className="flex justify-between border-b pb-2 text-purple-700">
                     <span>적립금 사용</span>

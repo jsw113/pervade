@@ -44,6 +44,7 @@ model User {
   messageLogs      MessageLog[]
   cartItems        CartItem[]
   wishlist         Wishlist[]
+  userCoupons      UserCoupon[]
 }
 
 model Post {
@@ -108,6 +109,10 @@ model Order {
   user           User     @relation(fields: [userId], references: [id])
   productId      String?
   product        Product? @relation(fields: [productId], references: [id])
+
+  couponId       String?
+  couponDiscount Int      @default(0)
+  coupon         Coupon?  @relation(fields: [couponId], references: [id])
 }
 
 model Policy {
@@ -315,5 +320,53 @@ model SiteLog {
   @@index([createdAt])
   @@index([path])
   @@index([referrer])
+}
+
+model Coupon {
+  id                String       @id @default(uuid())
+  code              String?      @unique // 쿠폰 코드 (e.g., "WELCOME2026", "INSTA10", 난수 코드)
+  name              String       // 쿠폰명 (e.g., "[가입축하] 전품목 5,000원 할인쿠폰")
+  description       String?      // 상세 설명 / 혜택 안내
+  
+  // 할인 유형 및 조건
+  discountType      String       @default("FIXED") // "FIXED" (정액 할인, 원) 또는 "PERCENT" (정률 할인, %)
+  discountValue     Int          // 할인 금액 (예: 5000) 또는 할인율 (예: 10 => 10%)
+  minOrderAmount    Int          @default(0) // 최소 주문 금액 (예: 20000)
+  maxDiscountAmount Int?         // 정률 할인 시 최대 할인 한도 (예: 10000원까지)
+  
+  // 유효기간 관리
+  validFrom         DateTime     @default(now()) // 사용 가능 시작일
+  validUntil        DateTime?    // 만료일 (null이면 무제한)
+  
+  // 재고 및 수량 관리
+  totalQuantity     Int?         // 총 발행 한도 수량 (예: 선착순 100장, null이면 무제한)
+  issuedQuantity    Int          @default(0) // 현재까지 발급된 수량
+  usedQuantity      Int          @default(0) // 현재까지 실결제에 사용된 수량
+  
+  // 발급 방식 및 유입 채널 타겟팅
+  issueType         String       @default("MANUAL") // "ALL_USERS", "MANUAL", "CODE_REGISTER", "CHANNEL", "SIGNUP"
+  targetChannel     String?      // 유입 채널 식별자 (예: "INSTAGRAM", "YOUTUBE", "EVENT_WINNER", "OFFLINE")
+  
+  isActive          Boolean      @default(true) // 활성/비활성화 상태
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  userCoupons       UserCoupon[]
+  orders            Order[]
+}
+
+model UserCoupon {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  couponId  String
+  coupon    Coupon    @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  
+  status    String    @default("UNUSED") // "UNUSED" (미사용), "USED" (사용완료), "EXPIRED" (기간만료)
+  usedAt    DateTime? // 사용 일시
+  orderId   String?   // 결제에 사용된 주문 ID
+  issuedAt  DateTime  @default(now())
+  
+  @@unique([userId, couponId])
 }
 

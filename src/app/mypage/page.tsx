@@ -7,6 +7,7 @@ import { RealNameVerifier } from "@/components/shop/RealNameVerifier";
 import { ProfileEditor } from "@/components/shop/ProfileEditor";
 import { MyPageAddressEditor } from "@/components/shop/MyPageAddressEditor";
 import { ShippingAddressManager } from "@/components/shop/ShippingAddressManager";
+import { MyPageCouponBox } from "@/components/shop/MyPageCouponBox";
 import { ClientSessionSync } from "@/components/shop/ClientSessionSync";
 import { calculateUserTier } from "@/lib/userTier";
 
@@ -202,8 +203,11 @@ export default async function MyPage() {
 
         <ShippingAddressManager />
       </div>
+
+      {/* 4. Personal Coupon Box */}
+      <MyPageCouponBox />
       
-      {/* 4. Performance & Rewards Grid */}
+      {/* 5. Performance & Rewards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Purchase Performance */}
         <div className="bg-white border rounded-3xl p-6 sm:p-7 shadow-xs flex flex-col justify-between">

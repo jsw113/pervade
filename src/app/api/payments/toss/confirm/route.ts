@@ -33,7 +33,9 @@ export async function POST(request: Request) {
       saveAsDefaultAddress,
       deliveryMemo,
       paymentMethod,
-      usedPoints
+      usedPoints,
+      couponId,
+      couponDiscount
     } = body;
 
     if (!paymentKey || !orderId || amount === undefined) {
@@ -88,6 +90,39 @@ export async function POST(request: Request) {
       }
     }
 
+    // Validate and mark coupon as used
+    let appliedCouponId: string | null = null;
+    let appliedCouponDiscount: number = 0;
+
+    if (couponId) {
+      const userCoupon = await prisma.userCoupon.findFirst({
+        where: {
+          userId: user.id,
+          couponId,
+          status: "UNUSED"
+        },
+        include: { coupon: true }
+      });
+
+      if (userCoupon && userCoupon.coupon.isActive) {
+        appliedCouponId = userCoupon.couponId;
+        appliedCouponDiscount = Number(couponDiscount || 0);
+
+        await prisma.userCoupon.update({
+          where: { id: userCoupon.id },
+          data: {
+            status: "USED",
+            usedAt: new Date(),
+          }
+        });
+
+        await prisma.coupon.update({
+          where: { id: userCoupon.couponId },
+          data: { usedQuantity: { increment: 1 } }
+        });
+      }
+    }
+
     let ordersCreated: any[] = [];
     let orderGrandTotal = 0;
     let notificationItems: Array<{ name: string; option?: string; quantity: number; price: number }> = [];
@@ -117,6 +152,8 @@ export async function POST(request: Request) {
             shippingMethod: item.shippingMethod,
             shippingFee: item.product.shippingFee,
             totalAmount: itemAmount,
+            couponId: appliedCouponId,
+            couponDiscount: appliedCouponDiscount,
             status: "COMPLETED"
           }
         });
@@ -140,7 +177,7 @@ export async function POST(request: Request) {
             type: "OUT",
             quantity: item.quantity,
             balance: updatedProduct.stock,
-            reason: `토스페이먼츠 결제 출고 (주문: ${order.id.slice(0, 8)}, 승인키: ${paymentKey.slice(0, 10)}...)`
+            reason: `토스페이먼츠 결제 주문 출고 (주문번호: ${order.id.slice(0, 8)}, 결제수단: ${finalPaymentMethod})`
           }
         });
       }
@@ -162,6 +199,8 @@ export async function POST(request: Request) {
           shippingMethod: shippingMethod || "일반택배",
           shippingFee: currentShipping,
           totalAmount: grand,
+          couponId: appliedCouponId,
+          couponDiscount: appliedCouponDiscount,
           status: "COMPLETED"
         }
       });
