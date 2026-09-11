@@ -6,8 +6,8 @@ import { MessageCircle } from "lucide-react";
 export function FloatingKakaoChat() {
   const pathname = usePathname();
 
-  // Hide floating chat button inside admin console
-  if (pathname && pathname.startsWith("/admin")) {
+  // Hide floating chat button inside admin console and editorial preview
+  if (pathname && (pathname.startsWith("/admin") || pathname.startsWith("/editorial-preview"))) {
     return null;
   }
 

@@ -49,7 +49,7 @@ export default function EditorialPreviewPage() {
   ];
 
   return (
-    <div className="bg-[#FAF9F6] text-zinc-900 font-sans antialiased selection:bg-zinc-900 selection:text-white">
+    <div className="fixed inset-0 z-40 overflow-y-auto overflow-x-hidden bg-[#FAF9F6] text-zinc-900 font-sans antialiased selection:bg-zinc-900 selection:text-white">
       {/* Editorial Header */}
       <EditorialHeader />
 
