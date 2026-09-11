@@ -293,43 +293,43 @@ export default function EditorialPreviewPage() {
         </div>
       </section>
 
-      {/* 6. Editorial Footer */}
-      <footer className="bg-zinc-950 text-white py-20 px-6 border-t border-zinc-800">
+      {/* 6. Editorial Footer (Warm Ivory & Cream Aesthetic) */}
+      <footer className="bg-[#F4F1EA] text-zinc-800 py-20 px-6 border-t border-[#E6E1D6]">
         <div className="container mx-auto max-w-7xl grid grid-cols-1 md:grid-cols-4 gap-12 text-xs">
           <div className="space-y-4 md:col-span-2">
-            <span className="text-2xl font-serif tracking-[0.25em] uppercase font-light block">
+            <span className="text-2xl font-serif tracking-[0.25em] uppercase font-light block text-zinc-950">
               P E R V A D E
             </span>
-            <p className="text-zinc-400 font-light leading-relaxed max-w-sm">
+            <p className="text-zinc-600 font-light leading-relaxed max-w-sm">
               퍼베이드는 일상의 가장 가까운 곳에서 공간을 정돈하고 본질을 채우는 프리미엄 라이프스타일 케어 브랜드입니다.
             </p>
           </div>
 
           <div className="space-y-3 font-light">
             <span className="text-[11px] font-mono uppercase text-zinc-500 tracking-widest block">Navigation</span>
-            <ul className="space-y-2 text-zinc-400">
-              <li><Link href="/shop" className="hover:text-white transition-colors">전체 상품 컬렉션</Link></li>
-              <li><Link href="/about" className="hover:text-white transition-colors">브랜드 스토리</Link></li>
-              <li><Link href="/journal" className="hover:text-white transition-colors">라이프스타일 저널</Link></li>
-              <li><Link href="/guide" className="hover:text-white transition-colors">케어 루틴 가이드</Link></li>
+            <ul className="space-y-2 text-zinc-700">
+              <li><Link href="/shop" className="hover:text-zinc-950 transition-colors">전체 상품 컬렉션</Link></li>
+              <li><Link href="/about" className="hover:text-zinc-950 transition-colors">브랜드 스토리</Link></li>
+              <li><Link href="/journal" className="hover:text-zinc-950 transition-colors">라이프스타일 저널</Link></li>
+              <li><Link href="/guide" className="hover:text-zinc-950 transition-colors">케어 루틴 가이드</Link></li>
             </ul>
           </div>
 
           <div className="space-y-3 font-light">
             <span className="text-[11px] font-mono uppercase text-zinc-500 tracking-widest block">Customer Service</span>
-            <div className="space-y-1 text-zinc-400">
+            <div className="space-y-1 text-zinc-600">
               <p>평일 10:00 - 18:00 (점심 12:30 - 13:30)</p>
               <p>주말 및 공휴일 휴무</p>
-              <p className="pt-2 text-white">support@pervade.co.kr</p>
+              <p className="pt-2 font-medium text-zinc-900">support@pervade.co.kr</p>
             </div>
           </div>
         </div>
 
-        <div className="container mx-auto max-w-7xl pt-12 mt-12 border-t border-zinc-900 flex flex-col sm:flex-row items-center justify-between text-zinc-500 text-[11px] font-mono">
+        <div className="container mx-auto max-w-7xl pt-12 mt-12 border-t border-[#E6E1D6] flex flex-col sm:flex-row items-center justify-between text-zinc-500 text-[11px] font-mono">
           <p>© 2026 PERVADE. All rights reserved.</p>
           <div className="flex gap-4 mt-4 sm:mt-0">
-            <Link href="/privacy" className="hover:text-zinc-400">개인정보처리방침</Link>
-            <Link href="/terms" className="hover:text-zinc-400">이용약관</Link>
+            <Link href="/privacy" className="hover:text-zinc-800">개인정보처리방침</Link>
+            <Link href="/terms" className="hover:text-zinc-800">이용약관</Link>
           </div>
         </div>
       </footer>
