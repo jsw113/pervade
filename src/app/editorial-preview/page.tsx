@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Sparkles, Droplets, ShieldCheck, ChevronDown, ArrowUpRight } from "lucide-react";
 import { EditorialHeader } from "@/components/editorial/EditorialHeader";
-import { EditorialProductCard } from "@/components/editorial/EditorialProductCard";
+import { EditorialProductCarousel } from "@/components/editorial/EditorialProductCarousel";
 
 export const metadata = {
   title: "P E R V A D E | Editorial Lifestyle Preview",
@@ -45,6 +45,42 @@ export default function EditorialPreviewPage() {
       secondaryImage: "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?q=80&w=1200&auto=format&fit=crop",
       badge: "New Arrival",
       tag: "Fragrance"
+    },
+    {
+      id: "prod-kitchen-500",
+      name: "Botanical Kitchen Degreaser",
+      subTitle: "조리 공간과 식기에 안심하고 사용하는 순식물성 기름때 분해제",
+      volume: "500ml / 16.9 fl.oz",
+      price: 19500,
+      originalPrice: 23000,
+      primaryImage: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?q=80&w=1200&auto=format&fit=crop",
+      secondaryImage: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1200&auto=format&fit=crop",
+      badge: "Kitchen Care",
+      tag: "Plant-Based"
+    },
+    {
+      id: "prod-bath-500",
+      name: "Mineral Bathroom Descaler",
+      subTitle: "타일과 수전의 백화 및 물때를 매끄럽게 지워내는 미네랄 클렌저",
+      volume: "500ml / 16.9 fl.oz",
+      price: 19000,
+      originalPrice: 22500,
+      primaryImage: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?q=80&w=1200&auto=format&fit=crop",
+      secondaryImage: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1200&auto=format&fit=crop",
+      badge: "Bath Care",
+      tag: "Shine & Clean"
+    },
+    {
+      id: "prod-cloth-set",
+      name: "Premium Microfiber Care Cloth",
+      subTitle: "스크래치 없이 섬세한 표면을 닦아내는 프리미엄 극세사 3종 세트",
+      volume: "Set of 3 (Linen, Sand, Slate)",
+      price: 14000,
+      originalPrice: 17000,
+      primaryImage: "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?q=80&w=1200&auto=format&fit=crop",
+      secondaryImage: "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop",
+      badge: "Accessory",
+      tag: "Essential"
     }
   ];
 
@@ -114,60 +150,36 @@ export default function EditorialPreviewPage() {
           </p>
         </div>
 
-        {/* 3 Pillars Editorial Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12 pt-20 text-left">
-          <div className="space-y-3 p-6 bg-white rounded-2xl border border-zinc-200/50 shadow-xs">
+        {/* 3 Pillars Editorial Grid (Smooth horizontal snap scroll on mobile) */}
+        <div className="flex md:grid md:grid-cols-3 gap-6 sm:gap-8 pt-16 sm:pt-20 text-left overflow-x-auto snap-x snap-mandatory scrollbar-none -mx-6 px-6 md:mx-0 md:px-0">
+          <div className="shrink-0 w-[260px] sm:w-[300px] md:w-auto snap-start space-y-3 p-6 sm:p-8 bg-white rounded-2xl border border-zinc-200/60 shadow-xs">
             <span className="text-xs font-mono text-zinc-400">01 / SAFETY</span>
             <h3 className="font-serif text-lg text-zinc-900 font-medium">자연 유래 안심 성분</h3>
-            <p className="text-xs text-zinc-500 leading-relaxed font-light">
+            <p className="text-xs text-zinc-500 leading-relaxed font-light break-keep">
               코코넛과 옥수수에서 추출한 식물 유래 계면활성제로 아이와 반려동물이 머무는 공간에도 안심하고 사용할 수 있습니다.
             </p>
           </div>
-          <div className="space-y-3 p-6 bg-white rounded-2xl border border-zinc-200/50 shadow-xs">
+          <div className="shrink-0 w-[260px] sm:w-[300px] md:w-auto snap-start space-y-3 p-6 sm:p-8 bg-white rounded-2xl border border-zinc-200/60 shadow-xs">
             <span className="text-xs font-mono text-zinc-400">02 / AESTHETIC</span>
             <h3 className="font-serif text-lg text-zinc-900 font-medium">공간과 조화로운 미학</h3>
-            <p className="text-xs text-zinc-500 leading-relaxed font-light">
+            <p className="text-xs text-zinc-500 leading-relaxed font-light break-keep">
               숨기고 싶은 청소 도구가 아닌, 선반 위에 오브제처럼 자연스럽게 놓여 감각적인 인테리어를 완성합니다.
             </p>
           </div>
-          <div className="space-y-3 p-6 bg-white rounded-2xl border border-zinc-200/50 shadow-xs">
+          <div className="shrink-0 w-[260px] sm:w-[300px] md:w-auto snap-start space-y-3 p-6 sm:p-8 bg-white rounded-2xl border border-zinc-200/60 shadow-xs">
             <span className="text-xs font-mono text-zinc-400">03 / SUSTAINABLE</span>
             <h3 className="font-serif text-lg text-zinc-900 font-medium">지속 가능한 순환</h3>
-            <p className="text-xs text-zinc-500 leading-relaxed font-light">
+            <p className="text-xs text-zinc-500 leading-relaxed font-light break-keep">
               플라스틱 소비를 70% 이상 줄일 수 있는 대용량 에코 리필 파우치 시스템을 통해 환경에 대한 책임을 실천합니다.
             </p>
           </div>
         </div>
       </section>
 
-      {/* 3. Curated Product Showcase (Interactive Hover Crossfade) */}
-      <section className="py-20 sm:py-28 px-6 bg-white border-y border-zinc-200/60">
+      {/* 3. Horizontal Curated Product Carousel (Fluid Smooth Flow) */}
+      <section className="py-20 sm:py-28 px-6 bg-white border-y border-zinc-200/60 overflow-hidden">
         <div className="container mx-auto max-w-7xl">
-          {/* Section Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 sm:mb-16 gap-4">
-            <div>
-              <span className="text-[11px] font-mono tracking-[0.3em] uppercase text-zinc-400 block mb-2">
-                Selected Works
-              </span>
-              <h2 className="text-2xl sm:text-4xl font-serif text-zinc-900 font-light tracking-tight">
-                Signature Collection
-              </h2>
-            </div>
-            <Link
-              href="/shop"
-              className="text-xs font-medium tracking-widest uppercase text-zinc-900 hover:text-zinc-500 transition-colors flex items-center gap-1 group"
-            >
-              전체 컬렉션 보기
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
-
-          {/* Editorial 3-Column Product Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
-            {curatedProducts.map((product) => (
-              <EditorialProductCard key={product.id} {...product} />
-            ))}
-          </div>
+          <EditorialProductCarousel products={curatedProducts} />
         </div>
       </section>
 
