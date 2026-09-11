@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     description: "일상의 공간을 완벽하게 케어하는 프리미엄 다목적 세정제 퍼베이드. 강력한 분해력과 감각적인 청소 노하우를 만나보세요.",
     images: [
       {
-        url: "/uploads/hero_bg_1786971398395.JPG",
+        url: "/uploads/logo_1786948363468.JPG",
         width: 1200,
         height: 630,
         alt: "PERVADE Premium Homecare",
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "퍼베이드 (PERVADE) | 프리미엄 다목적 홈케어",
     description: "일상의 공간을 완벽하게 케어하는 프리미엄 다목적 세정제 퍼베이드",
-    images: ["/uploads/hero_bg_1786971398395.JPG"],
+    images: ["/uploads/logo_1786948363468.JPG"],
   },
   alternates: {
     canonical: "https://www.pervade.co.kr",
@@ -124,7 +124,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     "@type": "Organization",
     name: "PERVADE",
     url: "https://www.pervade.co.kr",
-    logo: "https://www.pervade.co.kr/uploads/hero_bg_1786971398395.JPG",
+    logo: initialLogoUrl ? `https://www.pervade.co.kr${initialLogoUrl}` : "https://www.pervade.co.kr/uploads/logo_1786948363468.JPG",
     description: "프리미엄 다목적 가정용 세정제 퍼베이드 공식 스토어 및 라이프스타일 저널",
     contactPoint: {
       "@type": "ContactPoint",

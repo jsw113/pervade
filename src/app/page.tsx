@@ -63,36 +63,6 @@ export default async function Home() {
     console.error("Home page DB fallback triggered:", error);
   }
 
-  // Fallback defaults if DB is cold starting
-  if (featuredProducts.length === 0) {
-    featuredProducts = [
-      {
-        id: "prod-main-500",
-        name: "퍼베이드 올인원 프리미엄 다목적 세정제 500ml (본품)",
-        description: "주방 기름때부터 욕실 물때까지 완벽 분해하는 시그니처 세정제",
-        price: 18900,
-        originalPrice: 22000,
-        category: "다목적 세정제",
-        imageUrl: "/uploads/products/prod_1787151309265_c1i6mj.JPG",
-        stock: 999,
-        shippingFee: 0,
-        badge: "BEST",
-      },
-      {
-        id: "prod-refill-1000",
-        name: "퍼베이드 친환경 에코 리필 1,000ml (대용량 2회분)",
-        description: "플라스틱 사용을 줄이는 친환경 대용량 파우치 리필",
-        price: 24000,
-        originalPrice: 28000,
-        category: "리필 & 대용량",
-        imageUrl: "/uploads/products/prod_1787151393931_spxhav.JPG",
-        stock: 999,
-        shippingFee: 0,
-        badge: "ECO",
-      }
-    ];
-  }
-
   const getPolicy = (key: string, defaultValue: string) => 
     policies.find(p => p.key === key)?.value || defaultValue;
 
@@ -105,7 +75,7 @@ export default async function Home() {
   const heroBgUrl = getPolicy("HERO_BG_URL", "");
   const heroOverlayOpacity = getPolicy("HERO_OVERLAY_OPACITY", "0");
 
-  const fallbackDefaultBg = "/uploads/hero_bg_1786971398395.JPG";
+  const fallbackDefaultBg = "";
   const activeBgUrl = heroBgUrl || fallbackDefaultBg;
 
   // 'Why PERVADE?' (Features) Section Dynamic Policies

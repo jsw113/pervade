@@ -77,21 +77,8 @@ export default async function ShopPage({
     totalAllCount = allActiveProducts.length || await prisma.product.count({ where: { isVisible: true } });
   } catch (e) {
     console.error("Shop DB fallback triggered:", e);
-    dbProducts = [
-      {
-        id: "prod-main-500",
-        name: "퍼베이드 올인원 프리미엄 다목적 세정제 500ml",
-        description: "주방 기름때부터 욕실 물때까지 완벽 분해하는 시그니처 세정제",
-        price: 18900,
-        category: "세정제류",
-        subCategory: "다목적/올인원",
-        images: JSON.stringify(["https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?q=80&w=800&auto=format&fit=crop"]),
-        stock: 999,
-        badge: "BEST",
-      }
-    ];
-    totalAllCount = dbProducts.length;
-    categoryCounts["세정제류"] = 1;
+    dbProducts = [];
+    totalAllCount = 0;
   }
 
   // Filter subcategories to ONLY show subcategories with at least 1 product
