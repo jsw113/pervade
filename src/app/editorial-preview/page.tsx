@@ -336,13 +336,13 @@ export default function EditorialPreviewPage() {
 
       {/* Floating Mode Switcher Badge */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-        <div className="bg-zinc-900/95 text-white px-5 py-2.5 rounded-full shadow-2xl backdrop-blur-md border border-white/20 flex items-center gap-3 text-xs tracking-wider">
-          <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="font-light">희녹 스타일 에디토리얼 프리뷰 모드</span>
-          <div className="w-[1px] h-3 bg-zinc-700" />
+        <div className="bg-white/95 text-zinc-900 px-5 py-2.5 rounded-full shadow-2xl backdrop-blur-md border border-zinc-200/80 flex items-center gap-3 text-xs tracking-wider">
+          <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="font-medium text-zinc-800">희녹 스타일 에디토리얼 프리뷰 모드</span>
+          <div className="w-[1px] h-3 bg-zinc-300" />
           <Link
             href="/"
-            className="text-zinc-300 hover:text-white underline font-medium"
+            className="text-zinc-600 hover:text-zinc-950 underline font-medium"
           >
             현재 메인 홈 보기
           </Link>

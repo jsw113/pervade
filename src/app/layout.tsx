@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import { SiteLogTracker } from "@/components/common/SiteLogTracker";
 
 const geistSans = Geist({
@@ -87,8 +85,9 @@ export const metadata: Metadata = {
 };
 
 import { ThemeStyleInjector } from "@/components/common/ThemeStyleInjector";
-import { FloatingKakaoChat } from "@/components/common/FloatingKakaoChat";
 import { prisma } from "@/lib/prisma";
+
+import { AppShell } from "@/components/layout/AppShell";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Fetch initial theme & logo policies from DB for instant zero-flicker SSR rendering
@@ -151,15 +150,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
         <SiteLogTracker />
-        <Navbar 
+        <AppShell
           initialLogoUrl={initialLogoUrl || null}
           initialLogoFont={initialLogoFont}
           initialTopBannerText={initialTopBannerText}
           initialTopBannerEnabled={initialTopBannerEnabled}
-        />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <FloatingKakaoChat />
+        >
+          {children}
+        </AppShell>
       </body>
     </html>
   );
