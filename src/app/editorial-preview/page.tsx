@@ -102,14 +102,14 @@ export default function EditorialPreviewPage() {
           <span className="text-[11px] font-mono tracking-[0.3em] uppercase text-zinc-400">
             Brand Philosophy
           </span>
-          <h2 className="text-2xl sm:text-4xl md:text-5xl font-serif font-normal text-zinc-900 leading-snug tracking-tight">
-            깨끗함이란 인공적인 향으로 덮는 것이 아니라,<br className="hidden md:inline" />
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-normal text-zinc-900 leading-snug tracking-tight break-keep max-w-4xl mx-auto">
+            깨끗함이란 인공적인 향으로 덮는 것이 아니라,<br className="hidden sm:inline" />
             가장 맑은 본래의 상태로 되돌리는 것.
           </h2>
           <div className="w-12 h-[1px] bg-zinc-300 mx-auto my-6" />
-          <p className="text-xs sm:text-sm md:text-base text-zinc-500 font-light leading-loose max-w-2xl mx-auto">
-            퍼베이드는 눈에 띄는 화려한 포장 대신 미니멀한 실루엣을,<br />
-            독한 화학 계면활성제 대신 식물 유래 세정 성분을 선택했습니다.<br />
+          <p className="text-xs sm:text-sm md:text-base text-zinc-500 font-light leading-loose max-w-2xl mx-auto break-keep">
+            퍼베이드는 눈에 띄는 화려한 포장 대신 미니멀한 실루엣을,<br className="hidden sm:inline" />
+            독한 화학 계면활성제 대신 식물 유래 세정 성분을 선택했습니다.<br className="hidden sm:inline" />
             주방의 기름때부터 욕실의 물때까지, 표면을 상하게 하지 않고 자연스럽게 스며듭니다.
           </p>
         </div>
@@ -197,11 +197,11 @@ export default function EditorialPreviewPage() {
             <span className="text-[11px] font-mono tracking-[0.3em] uppercase text-zinc-400">
               Care Routine
             </span>
-            <h2 className="text-3xl sm:text-5xl font-serif font-light text-zinc-900 tracking-tight leading-tight">
-              매일 아침 햇살과 함께<br />
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-light text-zinc-900 tracking-tight leading-tight break-keep">
+              매일 아침 햇살과 함께<br className="hidden sm:inline" />
               시작하는 10분의 정돈
             </h2>
-            <p className="text-xs sm:text-sm text-zinc-500 font-light leading-relaxed">
+            <p className="text-xs sm:text-sm text-zinc-500 font-light leading-relaxed break-keep">
               가벼운 분무 한 번으로 공간의 공기가 달라집니다. 끈적임이나 독한 잔여물 없이 깔끔하게 닦아내고, 은은하고 자연스러운 여운만을 남깁니다.
             </p>
 
@@ -210,14 +210,14 @@ export default function EditorialPreviewPage() {
                 <span className="font-mono text-xs text-zinc-400 pt-0.5">01</span>
                 <div>
                   <h4 className="text-sm font-medium text-zinc-900">주방 인덕션 & 상판 케어</h4>
-                  <p className="text-xs text-zinc-500 font-light">찌든 기름때 위에 분무 후 30초 뒤 극세사 타월로 부드럽게 닦아냅니다.</p>
+                  <p className="text-xs text-zinc-500 font-light break-keep">찌든 기름때 위에 분무 후 30초 뒤 극세사 타월로 부드럽게 닦아냅니다.</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
                 <span className="font-mono text-xs text-zinc-400 pt-0.5">02</span>
                 <div>
                   <h4 className="text-sm font-medium text-zinc-900">욕실 거울 & 수전 광택</h4>
-                  <p className="text-xs text-zinc-500 font-light">유리 표면의 얼룩과 물때를 지우고 오염 재착색 방지 코팅막을 형성합니다.</p>
+                  <p className="text-xs text-zinc-500 font-light break-keep">유리 표면의 얼룩과 물때를 지우고 오염 재착색 방지 코팅막을 형성합니다.</p>
                 </div>
               </div>
             </div>
@@ -241,10 +241,10 @@ export default function EditorialPreviewPage() {
             <span className="text-[11px] font-mono tracking-[0.3em] uppercase text-zinc-400">
               Editorial Journal
             </span>
-            <h2 className="text-2xl sm:text-4xl font-serif font-light text-zinc-900 tracking-tight">
+            <h2 className="text-2xl sm:text-4xl font-serif font-light text-zinc-900 tracking-tight break-keep">
               공간과 라이프스타일 이야기
             </h2>
-            <p className="text-xs sm:text-sm text-zinc-500 font-light">
+            <p className="text-xs sm:text-sm text-zinc-500 font-light break-keep">
               퍼베이드가 제안하는 감각적인 공간 케어 노하우와 일상의 정돈 에세이
             </p>
           </div>
