@@ -160,9 +160,9 @@ export default async function Home() {
               </video>
             ) : (
               <div 
-                className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-700 will-change-transform"
+                className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-700 will-change-transform bg-zinc-950"
                 style={{ 
-                  backgroundImage: `url(${activeBgUrl})`,
+                  backgroundImage: activeBgUrl ? `url(${activeBgUrl})` : "none",
                   backgroundPosition: "center center",
                   backgroundRepeat: "no-repeat",
                   backgroundSize: "cover",
