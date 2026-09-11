@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ShieldCheck, ExternalLink } from "lucide-react";
 
 export function Footer() {
+  const pathname = usePathname();
   const [policies, setPolicies] = useState<Record<string, string>>({
     COMPANY_NAME: "(주)퍼베이드 (PERVADE Corp.)",
     CEO_NAME: "홍길동",
@@ -29,6 +31,10 @@ export function Footer() {
       })
       .catch((err) => console.error("Footer policy load error:", err));
   }, []);
+
+  if (pathname?.startsWith("/editorial-preview")) {
+    return null;
+  }
 
   const rawBizNum = policies.BIZ_REG_NUMBER ? policies.BIZ_REG_NUMBER.replace(/[^0-9]/g, "") : "1234567890";
 
