@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Sparkles, Droplets, ShieldCheck, ChevronDown, ArrowUpRight } from "lucide-react";
 import { EditorialHeader } from "@/components/editorial/EditorialHeader";
 import { EditorialProductCarousel } from "@/components/editorial/EditorialProductCarousel";
+import { EditorialJournalCarousel } from "@/components/editorial/EditorialJournalCarousel";
 
 export const metadata = {
   title: "P E R V A D E | Editorial Lifestyle Preview",
@@ -9,6 +10,41 @@ export const metadata = {
 };
 
 export default function EditorialPreviewPage() {
+  const curatedArticles = [
+    {
+      id: "journal-01",
+      issue: "ISSUE 01 / LIVING & ROUTINE",
+      title: "단정한 아침을 여는 10분의 정돈 습관",
+      desc: "어수선한 일상에서 벗어나 나와 나의 공간을 돌보는 가장 고요하고 다정한 케어 리추얼.",
+      image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1200&auto=format&fit=crop",
+      link: "/journal"
+    },
+    {
+      id: "journal-02",
+      issue: "ISSUE 02 / SAFE ESSENCE",
+      title: "우리가 머무는 공간에 남아야 할 성분들",
+      desc: "인공 향료와 독한 화학 잔여물 없이, 표면을 지키고 공기를 맑게 만드는 자연 유래 포뮬러 이야기.",
+      image: "https://images.unsplash.com/photo-1507652313519-d4e9174996dd?q=80&w=1200&auto=format&fit=crop",
+      link: "/journal"
+    },
+    {
+      id: "journal-03",
+      issue: "ISSUE 03 / KITCHEN AESTHETIC",
+      title: "오브제가 되는 주방과 찌든 때 없는 일상",
+      desc: "수납장에 숨기지 않고 아일랜드 식탁 위에 올려두어도 감각적인 인테리어가 되는 미니멀 디자인.",
+      image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1200&auto=format&fit=crop",
+      link: "/journal"
+    },
+    {
+      id: "journal-04",
+      issue: "ISSUE 04 / ZERO PLASTIC",
+      title: "지속 가능한 집을 만드는 에코 리필 파우치",
+      desc: "플라스틱 사용량을 70% 줄이고 공간의 미니멀리즘을 유지하는 퍼베이드의 순환 프로젝트.",
+      image: "https://images.unsplash.com/photo-1585670210693-e7fdd16b142e?q=80&w=1200&auto=format&fit=crop",
+      link: "/journal"
+    }
+  ];
+
   const curatedProducts = [
     {
       id: "prod-main-500",
@@ -246,82 +282,10 @@ export default function EditorialPreviewPage() {
         </div>
       </section>
 
-      {/* 5. Living Journal (Magazine Asymmetrical Cards) */}
-      <section className="py-24 bg-stone-100/70 border-t border-zinc-200/70 px-6">
+      {/* 5. Living Journal (Horizontal Flowing Carousel) */}
+      <section className="py-24 bg-stone-100/70 border-t border-zinc-200/70 px-6 overflow-hidden">
         <div className="container mx-auto max-w-7xl">
-          <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
-            <span className="text-[11px] font-mono tracking-[0.3em] uppercase text-zinc-400">
-              Editorial Journal
-            </span>
-            <h2 className="text-2xl sm:text-4xl font-serif font-light text-zinc-900 tracking-tight break-keep">
-              공간과 라이프스타일 이야기
-            </h2>
-            <p className="text-xs sm:text-sm text-zinc-500 font-light break-keep">
-              퍼베이드가 제안하는 감각적인 공간 케어 노하우와 일상의 정돈 에세이
-            </p>
-          </div>
-
-          <div className="flex md:grid md:grid-cols-3 gap-6 sm:gap-8 overflow-x-auto snap-x snap-mandatory scrollbar-none -mx-6 px-6 md:mx-0 md:px-0">
-            {/* Journal Item 1 */}
-            <Link href="/journal" className="shrink-0 w-[280px] sm:w-[320px] md:w-auto snap-start group block space-y-4">
-              <div className="relative aspect-[16/11] overflow-hidden rounded-2xl bg-zinc-200">
-                <img
-                  src="https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1200&auto=format&fit=crop"
-                  alt="Journal 01"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <div className="text-[11px] font-mono text-zinc-400 tracking-wider">ISSUE #01 · LIFESTYLE</div>
-                <h3 className="font-serif text-base sm:text-lg text-zinc-900 group-hover:text-zinc-600 transition-colors break-keep">
-                  빛이 잘 드는 아침, 주방을 리셋하는 3단계 미니멀 정돈법
-                </h3>
-                <p className="text-xs text-zinc-500 font-light line-clamp-2 leading-relaxed break-keep">
-                  바쁜 일상 속에서도 주방을 언제나 새것처럼 유지할 수 있는 가장 단순하고 효과적인 청소 습관.
-                </p>
-              </div>
-            </Link>
-
-            {/* Journal Item 2 */}
-            <Link href="/journal" className="shrink-0 w-[280px] sm:w-[320px] md:w-auto snap-start group block space-y-4">
-              <div className="relative aspect-[16/11] overflow-hidden rounded-2xl bg-zinc-200">
-                <img
-                  src="https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?q=80&w=1200&auto=format&fit=crop"
-                  alt="Journal 02"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <div className="text-[11px] font-mono text-zinc-400 tracking-wider">ISSUE #02 · SCIENCE & ECO</div>
-                <h3 className="font-serif text-base sm:text-lg text-zinc-900 group-hover:text-zinc-600 transition-colors break-keep">
-                  식물 유래 계면활성제는 왜 일반 세제보다 자극이 적을까?
-                </h3>
-                <p className="text-xs text-zinc-500 font-light line-clamp-2 leading-relaxed break-keep">
-                  자연 유래 계면활성제의 미세한 오염 분해 메커니즘과 가족의 호흡기를 지키는 안전한 성분의 과학.
-                </p>
-              </div>
-            </Link>
-
-            {/* Journal Item 3 */}
-            <Link href="/journal" className="shrink-0 w-[280px] sm:w-[320px] md:w-auto snap-start group block space-y-4">
-              <div className="relative aspect-[16/11] overflow-hidden rounded-2xl bg-zinc-200">
-                <img
-                  src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=1200&auto=format&fit=crop"
-                  alt="Journal 03"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <div className="text-[11px] font-mono text-zinc-400 tracking-wider">ISSUE #03 · MOOD & SCENT</div>
-                <h3 className="font-serif text-base sm:text-lg text-zinc-900 group-hover:text-zinc-600 transition-colors break-keep">
-                  공간의 첫인상을 완성하는 내추럴 우디 잔향 테라피
-                </h3>
-                <p className="text-xs text-zinc-500 font-light line-clamp-2 leading-relaxed break-keep">
-                  정돈된 공간 위에 은은하게 스며드는 편백과 숲의 피톤치드 향이 선사하는 일상의 휴식.
-                </p>
-              </div>
-            </Link>
-          </div>
+          <EditorialJournalCarousel articles={curatedArticles} />
         </div>
       </section>
 
