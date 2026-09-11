@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { ArrowRight, Sparkles, Droplets, ShieldCheck, ChevronDown, ArrowUpRight } from "lucide-react";
 import { EditorialHeader } from "@/components/editorial/EditorialHeader";
 import { EditorialProductCard } from "@/components/editorial/EditorialProductCard";
@@ -17,7 +17,7 @@ export default function EditorialPreviewPage() {
       volume: "500ml / 16.9 fl.oz",
       price: 18900,
       originalPrice: 22000,
-      primaryImage: "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?q=80&w=1200&auto=format&fit=crop",
+      primaryImage: "https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=1200&auto=format&fit=crop",
       secondaryImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop",
       badge: "Signature",
       tag: "Best Seller"
