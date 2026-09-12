@@ -6,18 +6,30 @@ import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface JournalItem {
   id: string;
-  issue: string;
+  issue?: string;
   title: string;
-  desc: string;
+  desc?: string;
   image: string;
   link: string;
 }
 
 interface EditorialJournalCarouselProps {
+  categoryTag?: string;
+  title?: string;
+  subtitle?: string;
+  moreLink?: string;
+  moreLabel?: string;
   articles: JournalItem[];
 }
 
-export function EditorialJournalCarousel({ articles }: EditorialJournalCarouselProps) {
+export function EditorialJournalCarousel({ 
+  categoryTag, 
+  title = "EDITORIAL JOURNAL", 
+  subtitle, 
+  moreLink = "/journal", 
+  moreLabel = "전체보기", 
+  articles 
+}: EditorialJournalCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -55,25 +67,31 @@ export function EditorialJournalCarousel({ articles }: EditorialJournalCarouselP
       {/* Header with Title & Left/Right Arrows */}
       <div className="flex items-end justify-between gap-4">
         <div>
-          <span className="text-[11px] font-mono tracking-[0.3em] uppercase text-zinc-400 block mb-2">
-            Editorial Journal
-          </span>
+          {categoryTag && (
+            <span className="text-[11px] font-mono tracking-[0.3em] uppercase text-zinc-400 block mb-2">
+              {categoryTag}
+            </span>
+          )}
           <h2 className="text-2xl sm:text-4xl font-serif font-light text-zinc-900 tracking-tight break-keep">
-            공간과 라이프스타일 이야기
+            {title}
           </h2>
-          <p className="text-xs sm:text-sm text-zinc-500 font-light mt-2 break-keep">
-            퍼베이드가 제안하는 감각적인 공간 케어 노하우와 일상의 정돈 에세이
-          </p>
+          {subtitle && (
+            <p className="text-xs sm:text-sm text-zinc-500 font-light mt-2 break-keep">
+              {subtitle}
+            </p>
+          )}
         </div>
 
         <div className="flex items-center gap-4">
-          <Link
-            href="/journal"
-            className="text-xs font-medium tracking-widest uppercase text-zinc-900 hover:text-zinc-500 transition-colors hidden sm:flex items-center gap-1 group"
-          >
-            저널 전체보기
-            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-          </Link>
+          {moreLink && (
+            <Link
+              href={moreLink}
+              className="text-xs font-medium tracking-widest uppercase text-zinc-900 hover:text-zinc-500 transition-colors hidden sm:flex items-center gap-1 group"
+            >
+              {moreLabel}
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          )}
 
           {/* Left / Right Arrow Buttons */}
           <div className="flex items-center gap-2">

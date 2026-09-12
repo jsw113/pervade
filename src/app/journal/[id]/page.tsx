@@ -10,8 +10,8 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   
-  let post: EditorialPost | null = await prisma.post.findFirst({
-    where: { id, type: "JOURNAL" }
+  let post: any = await prisma.post.findFirst({
+    where: { id }
   }).catch(() => null);
 
   if (!post) {
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       title: `${post.title} | PERVADE Journal`,
       description: post.content.replace(/[#*`]/g, "").slice(0, 120),
       url: `https://www.pervade.co.kr/journal/${id}`,
-      images: [{ url: "https://www.pervade.co.kr/og-image.jpg", width: 1200, height: 630 }],
+      images: [{ url: post.imageUrl || "https://www.pervade.co.kr/og-image.jpg", width: 1200, height: 630 }],
     }
   };
 }
@@ -35,8 +35,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function JournalDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   
-  let post: EditorialPost | null = await prisma.post.findFirst({
-    where: { id, type: "JOURNAL" }
+  let post: any = await prisma.post.findFirst({
+    where: { id }
   });
 
   if (!post) {

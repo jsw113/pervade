@@ -16,7 +16,8 @@ const DEFAULT_SECTIONS: Section[] = [
   { id: "features", name: "특장점 소개 (Features)", visible: true },
   { id: "brand_story", name: "브랜드 스토리 (Brand Story)", visible: true },
   { id: "products", name: "인기 제품 소개 (Products)", visible: true },
-  { id: "journal", name: "저널 / 라이프스타일 스토리 (Journal)", visible: true },
+  { id: "journal", name: "저널 매거진 (Journal)", visible: true },
+  { id: "news", name: "공지 & 뉴스 (News)", visible: true },
 ];
 
 const LOGO_FONTS = [
@@ -397,7 +398,7 @@ export default function ThemeAdminPage() {
     try {
       const orderToSave = sections.map(s => ({
         id: s.id,
-        visible: s.id === "hero" ? heroVisible : (s.id === "features" || s.id === "why" || s.id === "brand_story") ? whyVisible : s.visible
+        visible: s.id === "hero" ? heroVisible : (s.id === "features" || s.id === "why") ? whyVisible : s.visible
       }));
       
       const payload = {

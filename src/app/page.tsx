@@ -12,53 +12,79 @@ export default async function Home() {
   let policies: any[] = [];
   let latestPromotion: any = null;
   let featuredProducts: any[] = [];
+  let brandStoryPosts: any[] = [];
   let journalPosts: any[] = [];
+  let newsPosts: any[] = [];
   let featuredGuides: any[] = [];
 
   try {
-    policies = await prisma.policy.findMany({
-      where: {
-        key: {
-          in: [
-            "HERO_TITLE", "HERO_SUBTITLE", "HERO_BG_TYPE", "HERO_BG_URL", "HERO_VISIBLE", 
-            "HERO_SHOW_TEXT", "HERO_SHOW_CTA", "HOME_SECTIONS_ORDER", "HERO_OVERLAY_OPACITY",
-            "WHY_VISIBLE", "WHY_TITLE", "WHY_SUBTITLE", "WHY_CARD1_TITLE", "WHY_CARD1_DESC", 
-            "WHY_CARD2_TITLE", "WHY_CARD2_DESC", "WHY_CARD3_TITLE", "WHY_CARD3_DESC"
-          ]
-        }
-      }
-    });
-
     const now = new Date();
-    latestPromotion = await prisma.promotion.findFirst({
-      where: { 
-        isActive: true,
-        startDate: { lte: now },
-        OR: [
-          { endDate: null },
-          { endDate: { gte: now } }
-        ]
-      },
-      orderBy: { order: "asc" }
-    });
+    const [
+      policiesRes,
+      latestPromotionRes,
+      featuredProductsRes,
+      brandStoryPostsRes,
+      journalPostsRes,
+      newsPostsRes,
+      featuredGuidesRes,
+    ] = await Promise.all([
+      prisma.policy.findMany({
+        where: {
+          key: {
+            in: [
+              "HERO_TITLE", "HERO_SUBTITLE", "HERO_BG_TYPE", "HERO_BG_URL", "HERO_VISIBLE", 
+              "HERO_SHOW_TEXT", "HERO_SHOW_CTA", "HOME_SECTIONS_ORDER", "HERO_OVERLAY_OPACITY",
+              "WHY_VISIBLE", "WHY_TITLE", "WHY_SUBTITLE", "WHY_CARD1_TITLE", "WHY_CARD1_DESC", 
+              "WHY_CARD2_TITLE", "WHY_CARD2_DESC", "WHY_CARD3_TITLE", "WHY_CARD3_DESC"
+            ]
+          }
+        }
+      }),
+      prisma.promotion.findFirst({
+        where: { 
+          isActive: true,
+          startDate: { lte: now },
+          OR: [
+            { endDate: null },
+            { endDate: { gte: now } }
+          ]
+        },
+        orderBy: { order: "asc" }
+      }),
+      prisma.product.findMany({
+        where: { isVisible: true },
+        take: 8,
+        orderBy: { createdAt: "desc" }
+      }),
+      prisma.post.findMany({
+        where: { type: "ABOUT", published: true },
+        take: 8,
+        orderBy: { createdAt: "desc" }
+      }),
+      prisma.post.findMany({
+        where: { type: "JOURNAL", published: true },
+        take: 8,
+        orderBy: { createdAt: "desc" }
+      }),
+      prisma.post.findMany({
+        where: { type: "NOTICE", published: true },
+        take: 8,
+        orderBy: { createdAt: "desc" }
+      }),
+      prisma.guidePost.findMany({
+        where: { published: true },
+        take: 4,
+        orderBy: { createdAt: "desc" }
+      }),
+    ]);
 
-    featuredProducts = await prisma.product.findMany({
-      where: { isVisible: true },
-      take: 6,
-      orderBy: { createdAt: "desc" }
-    });
-
-    journalPosts = await prisma.post.findMany({
-      where: { published: true },
-      take: 8,
-      orderBy: { createdAt: "desc" }
-    });
-
-    featuredGuides = await prisma.guidePost.findMany({
-      where: { published: true },
-      take: 4,
-      orderBy: { createdAt: "desc" }
-    });
+    policies = policiesRes;
+    latestPromotion = latestPromotionRes;
+    featuredProducts = featuredProductsRes;
+    brandStoryPosts = brandStoryPostsRes;
+    journalPosts = journalPostsRes;
+    newsPosts = newsPostsRes;
+    featuredGuides = featuredGuidesRes;
   } catch (error) {
     console.error("Home page DB fallback triggered:", error);
   }
@@ -66,6 +92,7 @@ export default async function Home() {
   const getPolicy = (key: string, defaultValue: string) => 
     policies.find(p => p.key === key)?.value || defaultValue;
 
+  const heroVisible = getPolicy("HERO_VISIBLE", "true") !== "false";
   const heroBgType = getPolicy("HERO_BG_TYPE", "IMAGE");
   const heroBgUrl = getPolicy("HERO_BG_URL", "");
   const heroOverlayOpacity = parseInt(getPolicy("HERO_OVERLAY_OPACITY", "0"), 10) || 0;
@@ -85,14 +112,39 @@ export default async function Home() {
   const whyCard3Desc = getPolicy("WHY_CARD3_DESC", "플라스틱 소비를 70% 이상 줄일 수 있는 대용량 에코 리필 파우치 시스템을 통해 환경에 대한 책임을 실천합니다.");
 
   const whyVisiblePolicy = getPolicy("WHY_VISIBLE", "true");
-  const homeSectionsOrder = getPolicy("HOME_SECTIONS_ORDER", "");
   let isWhyVisible = whyVisiblePolicy !== "false";
-  if (homeSectionsOrder) {
-    try {
+
+  // Dynamic Sections Order Resolution
+  const homeSectionsOrder = getPolicy("HOME_SECTIONS_ORDER", "");
+  const DEFAULT_SECTIONS_ORDER = [
+    { id: "hero", visible: true },
+    { id: "promotion", visible: true },
+    { id: "features", visible: true },
+    { id: "brand_story", visible: true },
+    { id: "products", visible: true },
+    { id: "journal", visible: true },
+    { id: "news", visible: true },
+  ];
+
+  let sectionsOrder: { id: string; visible: boolean }[] = [];
+  try {
+    if (homeSectionsOrder) {
       const parsed = JSON.parse(homeSectionsOrder);
-      const whySec = parsed.find((s: any) => s.id === "why" || s.id === "features" || s.id === "brand_story" || s.id === "philosophy");
-      if (whySec && whySec.visible === false) isWhyVisible = false;
-    } catch(e) {}
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        sectionsOrder = parsed;
+      }
+    }
+  } catch (e) {}
+
+  if (sectionsOrder.length === 0) {
+    sectionsOrder = DEFAULT_SECTIONS_ORDER;
+  } else {
+    // Add any missing default sections
+    DEFAULT_SECTIONS_ORDER.forEach((ds) => {
+      if (!sectionsOrder.some((s) => s.id === ds.id)) {
+        sectionsOrder.push(ds);
+      }
+    });
   }
 
   // Fallback curated products merged with DB products
@@ -200,13 +252,44 @@ export default async function Home() {
       })
     : defaultCuratedProducts;
 
-  // Fallback curated articles merged with DB posts
-  const defaultCuratedArticles = [
+  // 1. Fallback Brand Stories
+  const defaultBrandStories = [
+    {
+      id: "story-01",
+      issue: "BRAND STORY",
+      title: "가장 맑은 본래의 상태로 되돌리는 클리닝",
+      image: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200&auto=format&fit=crop",
+      link: "/about"
+    },
+    {
+      id: "story-02",
+      issue: "BRAND STORY",
+      title: "식물 유래 안심 성분과 피부 저자극 설계",
+      image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=1200&auto=format&fit=crop",
+      link: "/about"
+    },
+    {
+      id: "story-03",
+      issue: "BRAND STORY",
+      title: "불필요한 플라스틱을 덜어내는 에코 리필 라이프",
+      image: "https://images.unsplash.com/photo-1585670210693-e7fdd16b142e?q=80&w=1200&auto=format&fit=crop",
+      link: "/about"
+    },
+    {
+      id: "story-04",
+      issue: "BRAND STORY",
+      title: "선반 위에 오브제처럼 머무는 미니멀 실루엣",
+      image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=1200&auto=format&fit=crop",
+      link: "/about"
+    }
+  ];
+
+  // 2. Fallback Journal Articles
+  const defaultJournalArticles = [
     {
       id: "journal-01",
       issue: "ISSUE 01 / LIVING & ROUTINE",
       title: "단정한 아침을 여는 10분의 정돈 습관",
-      desc: "어수선한 일상에서 벗어나 나와 나의 공간을 돌보는 가장 고요하고 다정한 케어 리추얼.",
       image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1200&auto=format&fit=crop",
       link: "/journal"
     },
@@ -214,7 +297,6 @@ export default async function Home() {
       id: "journal-02",
       issue: "ISSUE 02 / SAFE ESSENCE",
       title: "우리가 머무는 공간에 남아야 할 성분들",
-      desc: "인공 향료와 독한 화학 잔여물 없이, 표면을 지키고 공기를 맑게 만드는 자연 유래 포뮬러 이야기.",
       image: "https://images.unsplash.com/photo-1507652313519-d4e9174996dd?q=80&w=1200&auto=format&fit=crop",
       link: "/journal"
     },
@@ -222,7 +304,6 @@ export default async function Home() {
       id: "journal-03",
       issue: "ISSUE 03 / KITCHEN AESTHETIC",
       title: "오브제가 되는 주방과 찌든 때 없는 일상",
-      desc: "수납장에 숨기지 않고 아일랜드 식탁 위에 올려두어도 감각적인 인테리어가 되는 미니멀 디자인.",
       image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1200&auto=format&fit=crop",
       link: "/journal"
     },
@@ -230,148 +311,256 @@ export default async function Home() {
       id: "journal-04",
       issue: "ISSUE 04 / ZERO PLASTIC",
       title: "지속 가능한 집을 만드는 에코 리필 파우치",
-      desc: "플라스틱 사용량을 70% 줄이고 공간의 미니멀리즘을 유지하는 퍼베이드의 순환 프로젝트.",
-      image: "https://images.unsplash.com/photo-1585670210693-e7fdd16b142e?q=80&w=1200&auto=format&fit=crop",
+      image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1200&auto=format&fit=crop",
       link: "/journal"
     }
   ];
 
-  const displayArticles = (journalPosts.length > 0 || featuredGuides.length > 0)
+  // 3. Fallback News Articles
+  const defaultNewsArticles = [
+    {
+      id: "news-01",
+      issue: "NOTICE / 2026",
+      title: "퍼베이드 공식 온라인 플래그십 스토어 오픈 안내",
+      image: "https://images.unsplash.com/photo-1608248597359-5936735e00b6?q=80&w=1200&auto=format&fit=crop",
+      link: "/journal"
+    },
+    {
+      id: "news-02",
+      issue: "NEW ARRIVAL / 2026",
+      title: "대용량 1,000ml 친환경 에코 리필 파우치 정식 출시",
+      image: "https://images.unsplash.com/photo-1585670210693-e7fdd16b142e?q=80&w=1200&auto=format&fit=crop",
+      link: "/journal"
+    },
+    {
+      id: "news-03",
+      issue: "MEMBERSHIP",
+      title: "신규 가입 회원 대상 첫 구매 10% 웰컴 쿠폰 혜택",
+      image: "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?q=80&w=1200&auto=format&fit=crop",
+      link: "/journal"
+    }
+  ];
+
+  // Map Brand Stories
+  const displayBrandStories = brandStoryPosts.length > 0
+    ? brandStoryPosts.map((post, idx) => ({
+        id: post.id,
+        issue: "BRAND STORY",
+        title: post.title,
+        image: post.imageUrl || defaultBrandStories[idx % defaultBrandStories.length].image,
+        link: `/journal/${post.id}`
+      }))
+    : defaultBrandStories;
+
+  // Map Journals (Including Guides if needed)
+  const displayJournals = (journalPosts.length > 0 || featuredGuides.length > 0)
     ? [
         ...journalPosts.map((post, idx) => ({
           id: post.id,
-          issue: post.type === 'ABOUT' ? 'BRAND STORY' : post.type === 'NOTICE' ? 'NOTICE' : `ISSUE 0${idx + 1} / LIVING JOURNAL`,
+          issue: `ISSUE 0${idx + 1} / LIVING JOURNAL`,
           title: post.title,
-          desc: post.content.replace(/[#*`]/g, '').substring(0, 70),
-          image: post.imageUrl || defaultCuratedArticles[idx % defaultCuratedArticles.length].image,
-          link: post.type === 'ABOUT' ? '/about' : post.type === 'NOTICE' ? `/notice/${post.id}` : `/journal/${post.id}`
+          image: post.imageUrl || defaultJournalArticles[idx % defaultJournalArticles.length].image,
+          link: `/journal/${post.id}`
         })),
         ...featuredGuides.map((guide, idx) => ({
           id: guide.id,
           issue: `CARE ROUTINE / ${guide.category || 'GUIDE'}`,
           title: guide.title,
-          desc: guide.summary || guide.content.substring(0, 70),
-          image: guide.thumbnailUrl || defaultCuratedArticles[(idx + 2) % defaultCuratedArticles.length].image,
+          image: guide.thumbnailUrl || defaultJournalArticles[(idx + 2) % defaultJournalArticles.length].image,
           link: `/guide/${guide.id}`
         }))
       ].slice(0, 8)
-    : defaultCuratedArticles;
+    : defaultJournalArticles;
+
+  // Map News
+  const displayNews = newsPosts.length > 0
+    ? newsPosts.map((post, idx) => ({
+        id: post.id,
+        issue: "NEWS & NOTICE",
+        title: post.title,
+        image: post.imageUrl || defaultNewsArticles[idx % defaultNewsArticles.length].image,
+        link: `/journal/${post.id}`
+      }))
+    : defaultNewsArticles;
+
+  const renderSection = (sectionId: string) => {
+    switch (sectionId) {
+      case "hero": {
+        if (!heroVisible) return null;
+        return (
+          <section key="hero" className="relative w-full h-screen min-h-[640px] flex items-center justify-center overflow-hidden bg-zinc-950">
+            {heroBgType === "VIDEO" && heroBgUrl ? (
+              <video 
+                key={heroBgUrl}
+                autoPlay 
+                loop 
+                muted 
+                playsInline 
+                preload="auto"
+                className="absolute inset-0 w-full h-full object-cover rounded-none"
+              >
+                <source src={heroBgUrl} type="video/mp4" />
+                <source src={heroBgUrl} type="video/webm" />
+              </video>
+            ) : (
+              <div 
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 scale-100"
+                style={{
+                  backgroundImage: `url('${activeBgUrl}')`,
+                  backgroundPosition: "center 40%"
+                }}
+              />
+            )}
+
+            {/* Dynamic Overlay Mask (Only if opacity > 0 in Backoffice) */}
+            {heroOverlayOpacity > 0 && (
+              <div 
+                className="absolute inset-0 bg-black pointer-events-none transition-opacity" 
+                style={{ opacity: heroOverlayOpacity / 100 }}
+              />
+            )}
+
+            {/* Hero Typography (Strictly controlled by Backoffice HERO_SHOW_TEXT setting) */}
+            {heroShowText && (heroTitle || heroSubtitle) && (
+              <div className="relative z-10 text-center text-white px-6 max-w-4xl mx-auto space-y-6 pt-16">
+                {heroTitle && (
+                  <h1 className="text-3xl sm:text-5xl md:text-7xl font-serif font-light tracking-tight leading-[1.15] whitespace-pre-line">
+                    {heroTitle}
+                  </h1>
+                )}
+                {heroSubtitle && (
+                  <p className="text-xs sm:text-sm md:text-base text-zinc-200 font-light max-w-xl mx-auto leading-relaxed pt-2 whitespace-pre-line">
+                    {heroSubtitle}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Scroll Indicator */}
+            <div className="absolute bottom-8 left-0 right-0 z-10 flex flex-col items-center justify-center text-white/80 gap-2">
+              <span className="text-[10px] uppercase tracking-[0.25em] font-light">Scroll Down</span>
+              <ChevronDown className="w-4 h-4 animate-bounce opacity-70" />
+            </div>
+          </section>
+        );
+      }
+
+      case "features":
+      case "why": {
+        if (!isWhyVisible) return null;
+        return (
+          <section key="features" className="py-16 sm:py-24 md:py-32 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto text-center w-full">
+            <div className="space-y-4 sm:space-y-6 md:space-y-8">
+              <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.3em] uppercase text-zinc-400">
+                Brand Philosophy
+              </span>
+              <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-normal text-zinc-900 leading-snug tracking-tight break-keep max-w-4xl mx-auto whitespace-pre-line">
+                {whyTitle}
+              </h2>
+              <div className="w-12 h-[1px] bg-zinc-300 mx-auto my-4 sm:my-6" />
+              <p className="text-xs sm:text-sm md:text-base text-zinc-500 font-light leading-relaxed sm:leading-loose max-w-2xl mx-auto break-keep whitespace-pre-line">
+                {whySubtitle}
+              </p>
+            </div>
+
+            {/* 3 Pillars: Clean Responsive Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 pt-12 sm:pt-16 lg:pt-20 text-left">
+              <div className="space-y-3 p-6 sm:p-8 bg-white rounded-none border border-zinc-200 hover:border-zinc-900 transition-colors shadow-xs">
+                <span className="text-xs font-mono text-zinc-400">01 / SAFETY</span>
+                <h3 className="font-serif text-base sm:text-lg text-zinc-900 font-medium">{whyCard1Title}</h3>
+                <p className="text-xs text-zinc-500 leading-relaxed font-light break-keep whitespace-pre-line">
+                  {whyCard1Desc}
+                </p>
+              </div>
+              <div className="space-y-3 p-6 sm:p-8 bg-white rounded-none border border-zinc-200 hover:border-zinc-900 transition-colors shadow-xs">
+                <span className="text-xs font-mono text-zinc-400">02 / AESTHETIC</span>
+                <h3 className="font-serif text-base sm:text-lg text-zinc-900 font-medium">{whyCard2Title}</h3>
+                <p className="text-xs text-zinc-500 leading-relaxed font-light break-keep whitespace-pre-line">
+                  {whyCard2Desc}
+                </p>
+              </div>
+              <div className="space-y-3 p-6 sm:p-8 bg-white rounded-none border border-zinc-200 hover:border-zinc-900 transition-colors shadow-xs">
+                <span className="text-xs font-mono text-zinc-400">03 / SUSTAINABLE</span>
+                <h3 className="font-serif text-base sm:text-lg text-zinc-900 font-medium">{whyCard3Title}</h3>
+                <p className="text-xs text-zinc-500 leading-relaxed font-light break-keep whitespace-pre-line">
+                  {whyCard3Desc}
+                </p>
+              </div>
+            </div>
+          </section>
+        );
+      }
+
+      case "brand_story": {
+        return (
+          <section key="brand_story" className="py-16 sm:py-24 bg-white border-t border-zinc-200/70 px-4 sm:px-6 lg:px-8 overflow-hidden w-full">
+            <div className="container mx-auto max-w-6xl">
+              <EditorialJournalCarousel
+                categoryTag="BRAND STORY"
+                title="BRAND STORY"
+                subtitle="퍼베이드가 제안하는 맑은 공간의 미학과 지속 가능한 가치"
+                moreLink="/about"
+                moreLabel="스토리 전체보기"
+                articles={displayBrandStories}
+              />
+            </div>
+          </section>
+        );
+      }
+
+      case "products": {
+        return (
+          <section key="products" className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8 bg-white border-t border-zinc-200/60 overflow-hidden w-full">
+            <div className="container mx-auto max-w-6xl">
+              <EditorialProductCarousel products={displayProducts} />
+            </div>
+          </section>
+        );
+      }
+
+      case "journal": {
+        return (
+          <section key="journal" className="py-16 sm:py-24 bg-white border-t border-zinc-200/70 px-4 sm:px-6 lg:px-8 overflow-hidden w-full">
+            <div className="container mx-auto max-w-6xl">
+              <EditorialJournalCarousel
+                categoryTag="EDITORIAL JOURNAL"
+                title="JOURNAL"
+                subtitle="공간 케어 노하우와 일상의 정돈 에세이"
+                moreLink="/journal"
+                moreLabel="저널 전체보기"
+                articles={displayJournals}
+              />
+            </div>
+          </section>
+        );
+      }
+
+      case "news":
+      case "notice": {
+        return (
+          <section key="news" className="py-16 sm:py-24 bg-white border-t border-zinc-200/70 px-4 sm:px-6 lg:px-8 overflow-hidden w-full">
+            <div className="container mx-auto max-w-6xl">
+              <EditorialJournalCarousel
+                categoryTag="NOTICE & NEWS"
+                title="NEWS"
+                subtitle="퍼베이드의 새로운 소식과 안내"
+                moreLink="/journal"
+                moreLabel="소식 전체보기"
+                articles={displayNews}
+              />
+            </div>
+          </section>
+        );
+      }
+
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-white text-zinc-900 font-sans antialiased selection:bg-zinc-900 selection:text-white">
-      {/* 1. Full-Bleed Hero Banner (Full Viewport) */}
-      <section className="relative w-full h-screen min-h-[640px] flex items-center justify-center overflow-hidden bg-zinc-950">
-        {heroBgType === "VIDEO" && heroBgUrl ? (
-          <video 
-            key={heroBgUrl}
-            autoPlay 
-            loop 
-            muted 
-            playsInline 
-            preload="auto"
-            className="absolute inset-0 w-full h-full object-cover rounded-none"
-          >
-            <source src={heroBgUrl} type="video/mp4" />
-            <source src={heroBgUrl} type="video/webm" />
-          </video>
-        ) : (
-          <div 
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 scale-100"
-            style={{
-              backgroundImage: `url('${activeBgUrl}')`,
-              backgroundPosition: "center 40%"
-            }}
-          />
-        )}
-
-        {/* Dynamic Overlay Mask (Only if opacity > 0 in Backoffice) */}
-        {heroOverlayOpacity > 0 && (
-          <div 
-            className="absolute inset-0 bg-black pointer-events-none transition-opacity" 
-            style={{ opacity: heroOverlayOpacity / 100 }}
-          />
-        )}
-
-        {/* Hero Typography (Strictly controlled by Backoffice HERO_SHOW_TEXT setting) */}
-        {heroShowText && (heroTitle || heroSubtitle) && (
-          <div className="relative z-10 text-center text-white px-6 max-w-4xl mx-auto space-y-6 pt-16">
-            {heroTitle && (
-              <h1 className="text-3xl sm:text-5xl md:text-7xl font-serif font-light tracking-tight leading-[1.15] whitespace-pre-line">
-                {heroTitle}
-              </h1>
-            )}
-            {heroSubtitle && (
-              <p className="text-xs sm:text-sm md:text-base text-zinc-200 font-light max-w-xl mx-auto leading-relaxed pt-2 whitespace-pre-line">
-                {heroSubtitle}
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-0 right-0 z-10 flex flex-col items-center justify-center text-white/80 gap-2">
-          <span className="text-[10px] uppercase tracking-[0.25em] font-light">Scroll Down</span>
-          <ChevronDown className="w-4 h-4 animate-bounce opacity-70" />
-        </div>
-      </section>
-
-      {/* 2. Editorial Narrative / Brand Philosophy Section (Fully Synced with CMS) */}
-      {isWhyVisible && (
-        <section className="py-16 sm:py-24 md:py-32 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto text-center w-full">
-          <div className="space-y-4 sm:space-y-6 md:space-y-8">
-            <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.3em] uppercase text-zinc-400">
-              Brand Philosophy
-            </span>
-            <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-normal text-zinc-900 leading-snug tracking-tight break-keep max-w-4xl mx-auto whitespace-pre-line">
-              {whyTitle}
-            </h2>
-            <div className="w-12 h-[1px] bg-zinc-300 mx-auto my-4 sm:my-6" />
-            <p className="text-xs sm:text-sm md:text-base text-zinc-500 font-light leading-relaxed sm:leading-loose max-w-2xl mx-auto break-keep whitespace-pre-line">
-              {whySubtitle}
-            </p>
-          </div>
-
-          {/* 3 Pillars: Clean Responsive Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 pt-12 sm:pt-16 lg:pt-20 text-left">
-            <div className="space-y-3 p-6 sm:p-8 bg-white rounded-none border border-zinc-200 hover:border-zinc-900 transition-colors shadow-xs">
-              <span className="text-xs font-mono text-zinc-400">01 / SAFETY</span>
-              <h3 className="font-serif text-base sm:text-lg text-zinc-900 font-medium">{whyCard1Title}</h3>
-              <p className="text-xs text-zinc-500 leading-relaxed font-light break-keep whitespace-pre-line">
-                {whyCard1Desc}
-              </p>
-            </div>
-            <div className="space-y-3 p-6 sm:p-8 bg-white rounded-none border border-zinc-200 hover:border-zinc-900 transition-colors shadow-xs">
-              <span className="text-xs font-mono text-zinc-400">02 / AESTHETIC</span>
-              <h3 className="font-serif text-base sm:text-lg text-zinc-900 font-medium">{whyCard2Title}</h3>
-              <p className="text-xs text-zinc-500 leading-relaxed font-light break-keep whitespace-pre-line">
-                {whyCard2Desc}
-              </p>
-            </div>
-            <div className="space-y-3 p-6 sm:p-8 bg-white rounded-none border border-zinc-200 hover:border-zinc-900 transition-colors shadow-xs">
-              <span className="text-xs font-mono text-zinc-400">03 / SUSTAINABLE</span>
-              <h3 className="font-serif text-base sm:text-lg text-zinc-900 font-medium">{whyCard3Title}</h3>
-              <p className="text-xs text-zinc-500 leading-relaxed font-light break-keep whitespace-pre-line">
-                {whyCard3Desc}
-              </p>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* 3. Horizontal Curated Product Carousel (Fluid Smooth Flow) */}
-      <section className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8 bg-white border-y border-zinc-200/60 overflow-hidden w-full">
-        <div className="container mx-auto max-w-6xl">
-          <EditorialProductCarousel products={displayProducts} />
-        </div>
-      </section>
-
-      {/* 4. Living Journal (Horizontal Flowing Carousel) */}
-      <section className="py-16 sm:py-24 bg-white border-t border-zinc-200/70 px-4 sm:px-6 lg:px-8 overflow-hidden w-full">
-        <div className="container mx-auto max-w-6xl">
-          <EditorialJournalCarousel articles={displayArticles} />
-        </div>
-      </section>
-
+      {sectionsOrder.map((sec) => (sec.visible !== false ? renderSection(sec.id) : null))}
       <PromotionModal promotion={latestPromotion ? JSON.parse(JSON.stringify(latestPromotion)) : null} />
     </div>
   );
