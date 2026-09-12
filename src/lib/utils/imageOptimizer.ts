@@ -7,17 +7,8 @@
  */
 export async function optimizeLogoImageFile(file: File, maxWidth = 800, maxHeight = 300): Promise<string> {
   return new Promise((resolve, reject) => {
-    // If SVG or GIF, directly read data URL to preserve vectors and animations
-    if (file.type === "image/svg+xml" || file.type === "image/gif") {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-      return;
-    }
-
-    // If file is already a small PNG (< 150KB), keep original to ensure lossless transparency
-    if (file.type === "image/png" && file.size < 150 * 1024) {
+    // If SVG, directly read data URL
+    if (file.type === "image/svg+xml") {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result as string);
       reader.onerror = reject;
@@ -58,7 +49,36 @@ export async function optimizeLogoImageFile(file: File, maxWidth = 800, maxHeigh
         ctx.imageSmoothingQuality = "high";
         ctx.drawImage(img, 0, 0, width, height);
 
-        // MUST export as image/png or image/webp to preserve transparent alpha channel
+        // Analyze and remove any solid white / near-white background
+        const imgData = ctx.getImageData(0, 0, width, height);
+        const data = imgData.data;
+        let hasTransparency = false;
+
+        for (let i = 0; i < data.length; i += 4) {
+          if (data[i + 3] < 200) {
+            hasTransparency = true;
+            break;
+          }
+        }
+
+        // If the image had no transparent background (baked white background), remove white
+        if (!hasTransparency) {
+          for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            if (r > 235 && g > 235 && b > 235) {
+              data[i + 3] = 0;
+            } else if (r > 200 && g > 200 && b > 200) {
+              const lightness = (r + g + b) / 3;
+              const alpha = Math.max(0, Math.min(255, Math.round(255 * (1 - (lightness - 200) / 35))));
+              data[i + 3] = Math.min(data[i + 3], alpha);
+            }
+          }
+          ctx.putImageData(imgData, 0, 0);
+        }
+
+        // MUST export as image/png to preserve transparent alpha channel
         const dataUrl = canvas.toDataURL("image/png");
         resolve(dataUrl);
       };
