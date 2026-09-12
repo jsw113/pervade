@@ -68,14 +68,11 @@ export default function GuideHubPage() {
 
   return (
     <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 py-12 sm:py-20 min-h-[75vh] space-y-12 sm:space-y-16">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4">
+      {/* Clean Luxury Header (Matching PRODUCTS) */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-zinc-200/70 pb-6 gap-6">
         <div>
-          <span className="text-[11px] font-mono tracking-widest text-zinc-400 uppercase block mb-1">
-            PERVADE GUIDE
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-serif font-light text-zinc-950 tracking-tight">
-            공간별 공식 케어 가이드
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-light text-zinc-950 tracking-tight uppercase">
+            GUIDE
           </h1>
         </div>
 

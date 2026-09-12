@@ -34,18 +34,18 @@ export default async function JournalPage() {
 
   return (
     <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 py-12 sm:py-20 space-y-12 sm:space-y-16">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-zinc-200/70 pb-6 gap-4">
-        <div className="space-y-2">
-          <span className="text-[11px] font-mono tracking-[0.25em] text-zinc-400 uppercase block">
-            PERVADE JOURNAL
-          </span>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-light text-zinc-950 tracking-tight">
+      {/* Clean Luxury Header (Matching PRODUCTS) */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-zinc-200/70 pb-6 gap-6">
+        <div>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-light text-zinc-950 tracking-tight uppercase">
             JOURNAL
           </h1>
         </div>
-        <div className="text-xs font-mono text-zinc-400">
-          TOTAL <span className="text-zinc-900 font-bold">{posts.length}</span> ARTICLES
+
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="px-3.5 py-1.5 rounded-none text-xs tracking-wider font-bold bg-zinc-950 text-white">
+            ALL ({posts.length})
+          </span>
         </div>
       </div>
 
