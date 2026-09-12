@@ -32,7 +32,10 @@ export async function GET() {
       "THEME_BODY_FONT",
       "THEME_HEADING_FONT",
       "THEME_RADIUS",
-      "HERO_OVERLAY_OPACITY"
+      "HERO_OVERLAY_OPACITY",
+      "TOP_BANNER_MESSAGES",
+      "TOP_BANNER_TEXT",
+      "TOP_BANNER_ENABLED"
     ];
     const policies = await prisma.policy.findMany({
       where: { key: { in: keys } }
@@ -85,7 +88,10 @@ export async function POST(request: Request) {
       "THEME_BODY_FONT",
       "THEME_HEADING_FONT",
       "THEME_RADIUS",
-      "HERO_OVERLAY_OPACITY"
+      "HERO_OVERLAY_OPACITY",
+      "TOP_BANNER_MESSAGES",
+      "TOP_BANNER_TEXT",
+      "TOP_BANNER_ENABLED"
     ];
 
     // Individual upserts for rock-solid reliability

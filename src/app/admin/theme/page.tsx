@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { GripVertical, Eye, EyeOff, Save, RefreshCw, Upload, Image as ImageIcon, Video, CheckCircle2, AlertCircle, Sparkles, Wand2 } from "lucide-react";
+import { GripVertical, Eye, EyeOff, Save, RefreshCw, Upload, Image as ImageIcon, Video, CheckCircle2, AlertCircle, Sparkles, Wand2, Megaphone, Plus, Trash2 } from "lucide-react";
 import { optimizeImageFile, optimizeHeroBannerImage, optimizeLogoImageFile } from "@/lib/utils/imageOptimizer";
 
 type Section = {
@@ -159,6 +159,13 @@ export default function ThemeAdminPage() {
   const [whyCard3Title, setWhyCard3Title] = useState("지속 가능한 순환");
   const [whyCard3Desc, setWhyCard3Desc] = useState("플라스틱 소비를 70% 이상 줄일 수 있는 대용량 에코 리필 파우치 시스템을 통해 환경에 대한 책임을 실천합니다.");
   
+  // Top Rolling Banner States
+  const [topBannerEnabled, setTopBannerEnabled] = useState(true);
+  const [topBannerMessages, setTopBannerMessages] = useState<string[]>([
+    "신규 가입 시 3,000P 적립 & 첫 구매 무료배송",
+    "우수회원 5% 포인트 적립"
+  ]);
+
   const [sections, setSections] = useState<Section[]>(DEFAULT_SECTIONS);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -299,6 +306,21 @@ export default function ThemeAdminPage() {
           setWhyVisible(data.WHY_VISIBLE !== "false");
         }
 
+        // Load Top Rolling Banner data
+        if (data.TOP_BANNER_ENABLED !== undefined && data.TOP_BANNER_ENABLED !== "") {
+          setTopBannerEnabled(data.TOP_BANNER_ENABLED !== "false");
+        }
+        if (data.TOP_BANNER_MESSAGES) {
+          try {
+            const arr = JSON.parse(data.TOP_BANNER_MESSAGES);
+            if (Array.isArray(arr) && arr.length > 0) {
+              setTopBannerMessages(arr);
+            }
+          } catch (e) {}
+        } else if (data.TOP_BANNER_TEXT) {
+          setTopBannerMessages([data.TOP_BANNER_TEXT]);
+        }
+
         if (data.HOME_SECTIONS_ORDER) {
           try {
             const parsed = JSON.parse(data.HOME_SECTIONS_ORDER);
@@ -392,6 +414,24 @@ export default function ThemeAdminPage() {
     alert(`🎨 '${preset.name}' 테마 프리셋이 적용되었습니다!\n하단의 [전체 변경사항 저장]을 누르면 쇼핑몰에 최종 반영됩니다.`);
   };
 
+  const handleAddBannerMessage = () => {
+    setTopBannerMessages([...topBannerMessages, "새로운 공지 문구를 입력하세요."]);
+  };
+
+  const handleUpdateBannerMessage = (idx: number, val: string) => {
+    const updated = [...topBannerMessages];
+    updated[idx] = val;
+    setTopBannerMessages(updated);
+  };
+
+  const handleDeleteBannerMessage = (idx: number) => {
+    if (topBannerMessages.length <= 1) {
+      alert("최소 1개 이상의 문구가 필요합니다.");
+      return;
+    }
+    setTopBannerMessages(topBannerMessages.filter((_, i) => i !== idx));
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     setSaveSuccess(false);
@@ -408,6 +448,9 @@ export default function ThemeAdminPage() {
         THEME_BODY_FONT: themeBodyFont,
         THEME_HEADING_FONT: themeHeadingFont,
         THEME_RADIUS: themeRadius,
+        TOP_BANNER_ENABLED: topBannerEnabled ? "true" : "false",
+        TOP_BANNER_MESSAGES: JSON.stringify(topBannerMessages.filter(m => m.trim().length > 0)),
+        TOP_BANNER_TEXT: topBannerMessages[0] || "",
         HERO_VISIBLE: heroVisible ? "true" : "false",
         HERO_SHOW_TEXT: heroShowText ? "true" : "false",
         HERO_SHOW_CTA: heroShowCta ? "true" : "false",
@@ -739,6 +782,90 @@ export default function ThemeAdminPage() {
                 </span>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ======================================================== */}
+      {/* 2. Top Rolling Announcement Banner Management (CMS)     */}
+      {/* ======================================================== */}
+      <div className="bg-white rounded-2xl border p-6 space-y-6 shadow-xs">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b pb-4">
+          <div>
+            <h2 className="text-base font-bold text-zinc-900 flex items-center gap-2">
+              <Megaphone className="w-4 h-4 text-amber-500" />
+              2. 상단 롤링 공지 배너 관리 (Top Rolling Banner)
+            </h2>
+            <p className="text-xs text-zinc-500 mt-0.5">
+              쇼핑몰 최상단에 푸터 배경색과 일치된 높고 우아한 롤링 공지 바를 노출하고 문구를 자유롭게 추가/수정/삭제합니다.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-zinc-600">배너 노출 여부:</span>
+            <button
+              type="button"
+              onClick={() => setTopBannerEnabled(!topBannerEnabled)}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                topBannerEnabled
+                  ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                  : "bg-zinc-100 text-zinc-500 border border-zinc-300"
+              }`}
+            >
+              {topBannerEnabled ? "🟢 활성화됨" : "⚪ 비활성화"}
+            </button>
+          </div>
+        </div>
+
+        {/* Live Top Banner Preview */}
+        <div className="space-y-2">
+          <label className="block text-xs font-bold text-zinc-700">🎨 상단 배너 실시간 롤링 미리보기 (푸터 컬러 매칭 & 3배 높이)</label>
+          <div className="w-full bg-[#F6F4EE] border border-[#E7E2D8] text-stone-800 py-3.5 px-4 min-h-[48px] rounded-xl flex items-center justify-center text-center shadow-2xs">
+            <span className="text-xs sm:text-[13px] font-medium tracking-wide text-stone-800 inline-flex items-center gap-2">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-stone-400" />
+              {topBannerMessages[0] || "등록된 공지 문구가 없습니다."}
+            </span>
+          </div>
+        </div>
+
+        {/* Messages List & Management */}
+        <div className="space-y-3 pt-2 border-t">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-zinc-800">
+              롤링 공지 문구 목록 ({topBannerMessages.length}개)
+            </label>
+            <button
+              type="button"
+              onClick={handleAddBannerMessage}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-950 text-white rounded-lg text-xs font-bold hover:bg-zinc-800 transition-colors shadow-2xs cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              문구 추가
+            </button>
+          </div>
+
+          <div className="space-y-2.5">
+            {topBannerMessages.map((msg, idx) => (
+              <div key={idx} className="flex items-center gap-2 p-2 bg-zinc-50 border rounded-xl">
+                <span className="w-6 h-6 rounded-full bg-zinc-200 text-zinc-700 text-xs font-bold flex items-center justify-center shrink-0">
+                  {idx + 1}
+                </span>
+                <input
+                  type="text"
+                  value={msg}
+                  onChange={(e) => handleUpdateBannerMessage(idx, e.target.value)}
+                  placeholder="공지 문구를 입력하세요 (예: 신규 가입 시 3,000P 적립 & 첫 구매 무료배송)"
+                  className="flex-1 px-3 py-2 bg-white rounded-lg border text-xs font-medium focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleDeleteBannerMessage(idx)}
+                  className="p-2 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                  title="삭제"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
           </div>
         </div>
       </div>

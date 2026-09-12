@@ -9,6 +9,7 @@ interface NavbarProps {
   initialLogoUrl?: string | null;
   initialLogoFont?: string;
   initialTopBannerText?: string;
+  initialTopBannerMessages?: string[];
   initialTopBannerEnabled?: boolean;
 }
 
@@ -16,6 +17,10 @@ export function Navbar({
   initialLogoUrl = null,
   initialLogoFont = "'Inter', sans-serif",
   initialTopBannerText = "신규 가입 시 3,000P 적립 & 첫 구매 무료배송",
+  initialTopBannerMessages = [
+    "신규 가입 시 3,000P 적립 & 첫 구매 무료배송",
+    "우수회원 5% 포인트 적립"
+  ],
   initialTopBannerEnabled = true,
 }: NavbarProps = {}) {
   const router = useRouter();
@@ -25,7 +30,10 @@ export function Navbar({
   const [logoFont, setLogoFont] = useState<string>(initialLogoFont || "'Inter', sans-serif");
   
   // Top Banner Promo State (from DB Policies)
-  const [topBannerText, setTopBannerText] = useState(initialTopBannerText || "신규 가입 시 3,000P 적립 & 첫 구매 무료배송");
+  const [topBannerMessages, setTopBannerMessages] = useState<string[]>(initialTopBannerMessages);
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [isBannerFading, setIsBannerFading] = useState(false);
+  const [isBannerHovered, setIsBannerHovered] = useState(false);
   const [topBannerEnabled, setTopBannerEnabled] = useState(initialTopBannerEnabled ?? true);
 
   // Auth & Cart State
@@ -35,6 +43,21 @@ export function Navbar({
   // Search Modal State
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
+
+  // Rolling Top Banner Effect
+  useEffect(() => {
+    if (!topBannerEnabled || topBannerMessages.length <= 1 || isBannerHovered) return;
+
+    const interval = setInterval(() => {
+      setIsBannerFading(true);
+      setTimeout(() => {
+        setCurrentMessageIndex((prev) => (prev + 1) % topBannerMessages.length);
+        setIsBannerFading(false);
+      }, 300);
+    }, 3500);
+
+    return () => clearInterval(interval);
+  }, [topBannerEnabled, topBannerMessages, isBannerHovered]);
 
   // 1. Instantly read user from sessionStorage on mount and on custom auth event (Zero flicker, session-only)
   useEffect(() => {
@@ -73,7 +96,16 @@ export function Navbar({
       const policyRes = await fetch("/api/policies");
       if (policyRes.ok) {
         const pData = await policyRes.json();
-        if (pData.TOP_BANNER_TEXT) setTopBannerText(pData.TOP_BANNER_TEXT);
+        if (pData.TOP_BANNER_MESSAGES) {
+          try {
+            const arr = JSON.parse(pData.TOP_BANNER_MESSAGES);
+            if (Array.isArray(arr) && arr.length > 0) {
+              setTopBannerMessages(arr);
+            }
+          } catch (e) {}
+        } else if (pData.TOP_BANNER_TEXT) {
+          setTopBannerMessages([pData.TOP_BANNER_TEXT]);
+        }
         if (pData.TOP_BANNER_ENABLED !== undefined) setTopBannerEnabled(pData.TOP_BANNER_ENABLED !== "false");
       }
 
@@ -161,61 +193,47 @@ export function Navbar({
     return null;
   }
 
+  const currentMessage = topBannerMessages[currentMessageIndex] || topBannerMessages[0] || "";
+
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        {/* Top utility bar */}
-        <div className="bg-zinc-950 text-white text-[11px] py-1.5 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-6xl mx-auto flex justify-between items-center w-full">
-            <div className="flex items-center gap-3">
-              {topBannerEnabled && (
-                <span className="font-medium text-zinc-300 transition-all">
-                  {topBannerText}
+        {/* Top Utility Rolling Banner (Footer Color & 3x Height & Centered) */}
+        {topBannerEnabled && topBannerMessages.length > 0 && (
+          <div 
+            className="w-full bg-[#F6F4EE] border-b border-[#E7E2D8] text-stone-800 py-3.5 sm:py-4 px-4 min-h-[48px] sm:min-h-[52px] flex items-center justify-center transition-colors"
+            onMouseEnter={() => setIsBannerHovered(true)}
+            onMouseLeave={() => setIsBannerHovered(false)}
+          >
+            <div className="max-w-6xl mx-auto flex items-center justify-center relative w-full text-center">
+              {/* Rolling Center Text */}
+              <div className="overflow-hidden h-6 flex items-center justify-center">
+                <span 
+                  className={`text-xs sm:text-[13px] font-medium tracking-wide text-stone-800 transition-all duration-300 transform inline-flex items-center gap-2 ${
+                    isBannerFading 
+                      ? "-translate-y-3 opacity-0" 
+                      : "translate-y-0 opacity-100"
+                  }`}
+                >
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-stone-400" />
+                  {currentMessage}
                 </span>
-              )}
-            </div>
-            <div className="flex items-center gap-4">
-              {user ? (
-                <div className="flex items-center gap-3">
-                  {/* Show Backoffice link strictly for authenticated ADMIN / MANAGER */}
-                  {(user.role === "ADMIN" || user.role === "SUPER_ADMIN" || user.role?.startsWith("MANAGER") || user.loginId === "admin" || user.email === "admin@pervade.co.kr") && (
-                    <>
-                      <Link 
-                        href="/admin" 
-                        className="px-2.5 py-0.5 bg-amber-400 text-zinc-950 hover:bg-amber-300 rounded font-black transition-colors flex items-center gap-1 text-[10px] shadow-2xs"
-                        title="통합 백오피스 관리자 콘솔로 이동"
-                      >
-                        ⚙️ 백오피스(Admin)
-                      </Link>
-                      <span className="text-zinc-700">|</span>
-                    </>
-                  )}
+              </div>
 
-                  <span className="text-zinc-300 font-medium">
-                    <strong className="text-white font-bold">{user.name}</strong>님 환영합니다!
-                  </span>
-                  <span className="text-zinc-700">|</span>
-                  <button 
-                    onClick={handleLogout} 
-                    className="text-rose-400 hover:text-rose-300 font-bold cursor-pointer transition-colors"
+              {/* Admin console button (strictly for admin, positioned discreetly on far right) */}
+              {user && (user.role === "ADMIN" || user.role === "SUPER_ADMIN" || user.loginId === "admin") && (
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden md:flex items-center">
+                  <Link 
+                    href="/admin" 
+                    className="px-2.5 py-1 bg-stone-900 text-white hover:bg-stone-800 text-[10px] font-bold transition-colors"
                   >
-                    로그오프
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <Link href="/login" className="text-zinc-300 hover:text-white transition-colors">
-                    로그인
-                  </Link>
-                  <span className="text-zinc-600">|</span>
-                  <Link href="/signup" className="text-zinc-300 hover:text-white transition-colors font-bold">
-                    회원가입
+                    ⚙️ 백오피스
                   </Link>
                 </div>
               )}
             </div>
           </div>
-        </div>
+        )}
 
         {/* Main Navbar */}
         <div className="max-w-6xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8 w-full">

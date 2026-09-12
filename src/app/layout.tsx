@@ -106,6 +106,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             "LOGO_URL",
             "LOGO_FONT",
             "TOP_BANNER_TEXT",
+            "TOP_BANNER_MESSAGES",
             "TOP_BANNER_ENABLED"
           ]
         }
@@ -121,6 +122,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const initialLogoUrl = getPolicy("LOGO_URL", "");
   const initialLogoFont = getPolicy("LOGO_FONT", "'Inter', sans-serif");
   const initialTopBannerText = getPolicy("TOP_BANNER_TEXT", "신규 가입 시 3,000P 적립 & 첫 구매 무료배송");
+  const rawBannerMessages = getPolicy("TOP_BANNER_MESSAGES", "");
+  let initialTopBannerMessages: string[] = [
+    "신규 가입 시 3,000P 적립 & 첫 구매 무료배송",
+    "우수회원 5% 포인트 적립"
+  ];
+  if (rawBannerMessages) {
+    try {
+      const parsed = JSON.parse(rawBannerMessages);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        initialTopBannerMessages = parsed;
+      }
+    } catch (e) {}
+  }
+
   const initialTopBannerEnabled = getPolicy("TOP_BANNER_ENABLED", "true") !== "false";
 
   // Schema.org Structured Data
@@ -160,6 +175,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           initialLogoUrl={initialLogoUrl || null}
           initialLogoFont={initialLogoFont}
           initialTopBannerText={initialTopBannerText}
+          initialTopBannerMessages={initialTopBannerMessages}
           initialTopBannerEnabled={initialTopBannerEnabled}
         >
           {children}

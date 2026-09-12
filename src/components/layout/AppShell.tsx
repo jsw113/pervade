@@ -9,6 +9,7 @@ interface AppShellProps {
   initialLogoUrl?: string | null;
   initialLogoFont?: string;
   initialTopBannerText?: string;
+  initialTopBannerMessages?: string[];
   initialTopBannerEnabled?: boolean;
   children: React.ReactNode;
 }
@@ -17,6 +18,7 @@ export function AppShell({
   initialLogoUrl,
   initialLogoFont,
   initialTopBannerText,
+  initialTopBannerMessages,
   initialTopBannerEnabled,
   children,
 }: AppShellProps) {
@@ -35,6 +37,7 @@ export function AppShell({
           initialLogoUrl={initialLogoUrl}
           initialLogoFont={initialLogoFont}
           initialTopBannerText={initialTopBannerText}
+          initialTopBannerMessages={initialTopBannerMessages}
           initialTopBannerEnabled={initialTopBannerEnabled}
         />
       )}
