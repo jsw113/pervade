@@ -132,20 +132,7 @@ export default async function Home() {
         return (
           <section key="hero" className="w-full bg-zinc-100/60 py-4 sm:py-6">
             <div className="max-w-6xl mx-auto px-4">
-              <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden aspect-[16/9] min-h-[380px] sm:min-h-[460px] md:min-h-[520px] max-h-[620px] flex flex-col items-center justify-center bg-zinc-950 shadow-xl">
-                {/* Dynamic Overlay Masking (0% = totally transparent / no mask, 100% = solid black) */}
-                {(() => {
-                  const num = Number(heroOverlayOpacity);
-                  const opacityVal = isNaN(num) ? 0.45 : Math.max(0, Math.min(100, num)) / 100;
-                  if (opacityVal <= 0) return null;
-                  return (
-                    <div 
-                      className="absolute inset-0 bg-black z-10 transition-opacity duration-300 pointer-events-none" 
-                      style={{ opacity: opacityVal }} 
-                    />
-                  );
-                })()}
-                
+              <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden bg-zinc-950 shadow-xl flex items-center justify-center">
                 {/* Dynamic Background: Video vs Image */}
                 {heroBgType === "VIDEO" && heroBgUrl ? (
                   <video 
@@ -155,29 +142,37 @@ export default async function Home() {
                     muted 
                     playsInline 
                     preload="auto"
-                    className="absolute inset-0 w-full h-full object-cover z-0"
+                    className="w-full h-auto max-h-[85vh] object-cover block"
                   >
                     <source src={heroBgUrl} type="video/mp4" />
                     <source src={heroBgUrl} type="video/webm" />
                   </video>
-                ) : (
-                  <div 
-                    className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-700 will-change-transform bg-zinc-950"
-                    style={{ 
-                      backgroundImage: activeBgUrl ? `url(${activeBgUrl})` : "none",
-                      backgroundPosition: "center center",
-                      backgroundRepeat: "no-repeat",
-                      backgroundSize: "cover",
-                      imageRendering: "auto",
-                      transform: "translate3d(0, 0, 0)",
-                      WebkitBackfaceVisibility: "hidden",
-                    }}
+                ) : activeBgUrl ? (
+                  <img
+                    src={activeBgUrl}
+                    alt="PERVADE Main Hero"
+                    className="w-full h-auto object-contain block"
                   />
+                ) : (
+                  <div className="w-full aspect-[16/9] min-h-[380px] bg-zinc-900 flex items-center justify-center" />
                 )}
-                
+
+                {/* Dynamic Overlay Masking (0% = totally transparent / no mask, 100% = solid black) */}
+                {(() => {
+                  const num = Number(heroOverlayOpacity);
+                  const opacityVal = isNaN(num) ? 0 : Math.max(0, Math.min(100, num)) / 100;
+                  if (opacityVal <= 0) return null;
+                  return (
+                    <div 
+                      className="absolute inset-0 bg-black z-10 transition-opacity duration-300 pointer-events-none" 
+                      style={{ opacity: opacityVal }} 
+                    />
+                  );
+                })()}
+
                 {/* Main Headline Content Area (Upper / Center) */}
                 {heroShowText && (
-                  <div className="container relative z-20 mx-auto px-4 text-center text-white pb-16 md:pb-20">
+                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center text-white px-6 pb-16 md:pb-20">
                     <span className="text-xs md:text-sm font-bold tracking-widest uppercase mb-3 sm:mb-4 inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-white shadow-xs">
                       Pervade Premium Clean Living
                     </span>
@@ -217,7 +212,7 @@ export default async function Home() {
       case "promotion":
         return (
           <section key="promotion" className="py-20 bg-amber-500/5 border-y border-amber-500/20">
-            <div className="container mx-auto px-4 max-w-5xl">
+            <div className="container mx-auto px-4 max-w-6xl">
               {isPromoActive && activePromoData ? (
                 /* 1. Ongoing Active Promotion Banner */
                 <div className="bg-white rounded-3xl border border-amber-200 p-8 sm:p-12 shadow-xl relative overflow-hidden flex flex-col md:flex-row items-center gap-8 md:gap-12">
@@ -357,7 +352,7 @@ export default async function Home() {
       case "brand_story":
         return (
           <section key="brand_story" className="py-24 bg-zinc-950 text-white relative overflow-hidden">
-            <div className="container mx-auto px-4 max-w-4xl text-center space-y-12">
+            <div className="container mx-auto px-4 max-w-6xl text-center space-y-12">
               {/* Centered Section Header */}
               <div className="space-y-4 max-w-2xl mx-auto">
                 <span className="text-xs font-bold text-amber-400 uppercase tracking-widest inline-flex items-center justify-center gap-1.5 px-3 py-1 bg-amber-400/10 rounded-full border border-amber-400/20">
@@ -415,7 +410,7 @@ export default async function Home() {
               </div>
 
               {/* Centered & Compact Product Cards Container */}
-              <div className="flex flex-wrap justify-center gap-6 max-w-5xl mx-auto">
+              <div className="flex flex-wrap justify-center gap-6 max-w-6xl mx-auto">
                 {featuredProducts.length === 0 ? (
                   <div className="py-12 text-center text-zinc-400 text-xs">
                     등록된 상품이 없습니다.
@@ -496,7 +491,7 @@ export default async function Home() {
       case "journal":
         return (
           <section key="journal" className="py-24 bg-white border-t space-y-16">
-            <div className="container mx-auto px-4 max-w-5xl">
+            <div className="container mx-auto px-4 max-w-6xl">
               {/* 1. Cleaning Guides Feed */}
               <div className="space-y-8">
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b pb-6">
