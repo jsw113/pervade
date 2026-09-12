@@ -128,16 +128,6 @@ export function EditorialProductCarousel({ products }: EditorialProductCarouselP
           style={{ width: `${Math.max(15, scrollProgress)}%` }}
         />
       </div>
-
-      {/* Mobile View All Link */}
-      <div className="pt-2 text-center sm:hidden">
-        <Link
-          href="/shop"
-          className="text-xs font-medium tracking-widest uppercase text-zinc-900 hover:text-zinc-600 inline-flex items-center gap-1 border-b border-zinc-900 pb-0.5"
-        >
-          전체 컬렉션 둘러보기 <ArrowRight className="w-3.5 h-3.5" />
-        </Link>
-      </div>
     </div>
   );
 }
