@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { usePathname } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
@@ -38,7 +38,7 @@ export function AppShell({
           initialTopBannerEnabled={initialTopBannerEnabled}
         />
       )}
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 bg-white">{children}</main>
       {!isAdmin && <Footer />}
       {!isAdmin && <FloatingKakaoChat />}
     </>

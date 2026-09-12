@@ -469,7 +469,7 @@ export default async function Home() {
               </div>
 
               {/* 2. Lifestyle Journal Feed */}
-              <div className="space-y-8 pt-12 border-t">
+              <div className="space-y-8 pt-8">
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                   <div>
                     <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest inline-flex items-center gap-1.5 mb-1">
@@ -545,7 +545,7 @@ export default async function Home() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-white">
       {sectionsOrder
         .filter(s => s.visible)
         .map(s => renderSection(s.id))
