@@ -256,28 +256,24 @@ export default async function Home() {
   const defaultBrandStories = [
     {
       id: "story-01",
-      issue: "BRAND STORY",
       title: "가장 맑은 본래의 상태로 되돌리는 클리닝",
       image: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200&auto=format&fit=crop",
       link: "/about"
     },
     {
       id: "story-02",
-      issue: "BRAND STORY",
       title: "식물 유래 안심 성분과 피부 저자극 설계",
       image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=1200&auto=format&fit=crop",
       link: "/about"
     },
     {
       id: "story-03",
-      issue: "BRAND STORY",
       title: "불필요한 플라스틱을 덜어내는 에코 리필 라이프",
       image: "https://images.unsplash.com/photo-1585670210693-e7fdd16b142e?q=80&w=1200&auto=format&fit=crop",
       link: "/about"
     },
     {
       id: "story-04",
-      issue: "BRAND STORY",
       title: "선반 위에 오브제처럼 머무는 미니멀 실루엣",
       image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=1200&auto=format&fit=crop",
       link: "/about"
@@ -288,28 +284,24 @@ export default async function Home() {
   const defaultJournalArticles = [
     {
       id: "journal-01",
-      issue: "ISSUE 01 / LIVING & ROUTINE",
       title: "단정한 아침을 여는 10분의 정돈 습관",
       image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1200&auto=format&fit=crop",
       link: "/journal"
     },
     {
       id: "journal-02",
-      issue: "ISSUE 02 / SAFE ESSENCE",
       title: "우리가 머무는 공간에 남아야 할 성분들",
       image: "https://images.unsplash.com/photo-1507652313519-d4e9174996dd?q=80&w=1200&auto=format&fit=crop",
       link: "/journal"
     },
     {
       id: "journal-03",
-      issue: "ISSUE 03 / KITCHEN AESTHETIC",
       title: "오브제가 되는 주방과 찌든 때 없는 일상",
       image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1200&auto=format&fit=crop",
       link: "/journal"
     },
     {
       id: "journal-04",
-      issue: "ISSUE 04 / ZERO PLASTIC",
       title: "지속 가능한 집을 만드는 에코 리필 파우치",
       image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1200&auto=format&fit=crop",
       link: "/journal"
@@ -320,21 +312,18 @@ export default async function Home() {
   const defaultNewsArticles = [
     {
       id: "news-01",
-      issue: "NOTICE / 2026",
       title: "퍼베이드 공식 온라인 플래그십 스토어 오픈 안내",
       image: "https://images.unsplash.com/photo-1608248597359-5936735e00b6?q=80&w=1200&auto=format&fit=crop",
       link: "/journal"
     },
     {
       id: "news-02",
-      issue: "NEW ARRIVAL / 2026",
       title: "대용량 1,000ml 친환경 에코 리필 파우치 정식 출시",
       image: "https://images.unsplash.com/photo-1585670210693-e7fdd16b142e?q=80&w=1200&auto=format&fit=crop",
       link: "/journal"
     },
     {
       id: "news-03",
-      issue: "MEMBERSHIP",
       title: "신규 가입 회원 대상 첫 구매 10% 웰컴 쿠폰 혜택",
       image: "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?q=80&w=1200&auto=format&fit=crop",
       link: "/journal"
@@ -343,30 +332,27 @@ export default async function Home() {
 
   // Map Brand Stories
   const displayBrandStories = brandStoryPosts.length > 0
-    ? brandStoryPosts.map((post, idx) => ({
+    ? brandStoryPosts.map((post) => ({
         id: post.id,
-        issue: "BRAND STORY",
         title: post.title,
-        image: post.imageUrl || defaultBrandStories[idx % defaultBrandStories.length].image,
+        image: post.imageUrl || defaultBrandStories[0].image,
         link: `/journal/${post.id}`
       }))
     : defaultBrandStories;
 
-  // Map Journals (Including Guides if needed)
+  // Map Journals
   const displayJournals = (journalPosts.length > 0 || featuredGuides.length > 0)
     ? [
-        ...journalPosts.map((post, idx) => ({
+        ...journalPosts.map((post) => ({
           id: post.id,
-          issue: `ISSUE 0${idx + 1} / LIVING JOURNAL`,
           title: post.title,
-          image: post.imageUrl || defaultJournalArticles[idx % defaultJournalArticles.length].image,
+          image: post.imageUrl || defaultJournalArticles[0].image,
           link: `/journal/${post.id}`
         })),
-        ...featuredGuides.map((guide, idx) => ({
+        ...featuredGuides.map((guide) => ({
           id: guide.id,
-          issue: `CARE ROUTINE / ${guide.category || 'GUIDE'}`,
           title: guide.title,
-          image: guide.thumbnailUrl || defaultJournalArticles[(idx + 2) % defaultJournalArticles.length].image,
+          image: guide.thumbnailUrl || defaultJournalArticles[0].image,
           link: `/guide/${guide.id}`
         }))
       ].slice(0, 8)
@@ -374,11 +360,10 @@ export default async function Home() {
 
   // Map News
   const displayNews = newsPosts.length > 0
-    ? newsPosts.map((post, idx) => ({
+    ? newsPosts.map((post) => ({
         id: post.id,
-        issue: "NEWS & NOTICE",
         title: post.title,
-        image: post.imageUrl || defaultNewsArticles[idx % defaultNewsArticles.length].image,
+        image: post.imageUrl || defaultNewsArticles[0].image,
         link: `/journal/${post.id}`
       }))
     : defaultNewsArticles;

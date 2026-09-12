@@ -6,28 +6,22 @@ import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface JournalItem {
   id: string;
-  issue?: string;
   title: string;
-  desc?: string;
   image: string;
   link: string;
 }
 
 interface EditorialJournalCarouselProps {
-  categoryTag?: string;
   title?: string;
-  subtitle?: string;
   moreLink?: string;
   moreLabel?: string;
   articles: JournalItem[];
 }
 
 export function EditorialJournalCarousel({ 
-  categoryTag, 
-  title = "EDITORIAL JOURNAL", 
-  subtitle, 
+  title = "JOURNAL", 
   moreLink = "/journal", 
-  moreLabel = "전체보기", 
+  moreLabel = "VIEW ALL", 
   articles 
 }: EditorialJournalCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -135,13 +129,8 @@ export function EditorialJournalCarousel({
               {/* Bottom Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent pointer-events-none" />
 
-              {/* Title embedded inside bottom-left of image */}
-              <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 text-white space-y-2 z-10">
-                {item.issue && (
-                  <span className="text-[10px] font-mono tracking-widest uppercase text-white/70 block">
-                    {item.issue}
-                  </span>
-                )}
+              {/* Title embedded inside bottom-left of image only */}
+              <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 text-white z-10">
                 <h3 className="font-serif text-base sm:text-lg font-light text-white leading-snug tracking-tight break-keep group-hover:underline underline-offset-4 line-clamp-2">
                   {item.title}
                 </h3>
