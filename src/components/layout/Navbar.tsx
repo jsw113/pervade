@@ -11,6 +11,11 @@ interface NavbarProps {
   initialTopBannerText?: string;
   initialTopBannerMessages?: string[];
   initialTopBannerEnabled?: boolean;
+  initialTopBannerFontSize?: string;
+  initialTopBannerFontWeight?: string;
+  initialTopBannerTextColor?: string;
+  initialTopBannerBgColor?: string;
+  initialTopBannerSpeed?: number;
 }
 
 export function Navbar({
@@ -22,6 +27,11 @@ export function Navbar({
     "우수회원 5% 포인트 적립"
   ],
   initialTopBannerEnabled = true,
+  initialTopBannerFontSize = "13px",
+  initialTopBannerFontWeight = "500",
+  initialTopBannerTextColor = "#292524",
+  initialTopBannerBgColor = "#F6F4EE",
+  initialTopBannerSpeed = 3500,
 }: NavbarProps = {}) {
   const router = useRouter();
   const pathname = usePathname();
@@ -35,6 +45,11 @@ export function Navbar({
   const [isBannerFading, setIsBannerFading] = useState(false);
   const [isBannerHovered, setIsBannerHovered] = useState(false);
   const [topBannerEnabled, setTopBannerEnabled] = useState(initialTopBannerEnabled ?? true);
+  const [topBannerFontSize, setTopBannerFontSize] = useState<string>(initialTopBannerFontSize || "13px");
+  const [topBannerFontWeight, setTopBannerFontWeight] = useState<string>(initialTopBannerFontWeight || "500");
+  const [topBannerTextColor, setTopBannerTextColor] = useState<string>(initialTopBannerTextColor || "#292524");
+  const [topBannerBgColor, setTopBannerBgColor] = useState<string>(initialTopBannerBgColor || "#F6F4EE");
+  const [topBannerSpeed, setTopBannerSpeed] = useState<number>(initialTopBannerSpeed || 3500);
 
   // Auth & Cart State
   const [user, setUser] = useState<{ id: string; name: string; email: string; role: string; realNameVerified: boolean; loginId?: string | null } | null>(null);
@@ -54,10 +69,10 @@ export function Navbar({
         setCurrentMessageIndex((prev) => (prev + 1) % topBannerMessages.length);
         setIsBannerFading(false);
       }, 300);
-    }, 3500);
+    }, topBannerSpeed || 3500);
 
     return () => clearInterval(interval);
-  }, [topBannerEnabled, topBannerMessages, isBannerHovered]);
+  }, [topBannerEnabled, topBannerMessages, isBannerHovered, topBannerSpeed]);
 
   // 1. Instantly read user from sessionStorage on mount and on custom auth event (Zero flicker, session-only)
   useEffect(() => {
@@ -107,6 +122,11 @@ export function Navbar({
           setTopBannerMessages([pData.TOP_BANNER_TEXT]);
         }
         if (pData.TOP_BANNER_ENABLED !== undefined) setTopBannerEnabled(pData.TOP_BANNER_ENABLED !== "false");
+        if (pData.TOP_BANNER_FONT_SIZE) setTopBannerFontSize(pData.TOP_BANNER_FONT_SIZE);
+        if (pData.TOP_BANNER_FONT_WEIGHT) setTopBannerFontWeight(pData.TOP_BANNER_FONT_WEIGHT);
+        if (pData.TOP_BANNER_TEXT_COLOR) setTopBannerTextColor(pData.TOP_BANNER_TEXT_COLOR);
+        if (pData.TOP_BANNER_BG_COLOR) setTopBannerBgColor(pData.TOP_BANNER_BG_COLOR);
+        if (pData.TOP_BANNER_SPEED) setTopBannerSpeed(parseInt(pData.TOP_BANNER_SPEED, 10) || 3500);
       }
 
       // 3. Auth
@@ -198,24 +218,33 @@ export function Navbar({
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        {/* Top Utility Rolling Banner (Footer Color & 3x Height & Centered) */}
+        {/* Top Utility Rolling Banner (Customizable Color, Height & Typography) */}
         {topBannerEnabled && topBannerMessages.length > 0 && (
           <div 
-            className="w-full bg-[#F6F4EE] border-b border-[#E7E2D8] text-stone-800 py-3.5 sm:py-4 px-4 min-h-[48px] sm:min-h-[52px] flex items-center justify-center transition-colors"
+            className="w-full border-b border-[#E7E2D8] py-3.5 sm:py-4 px-4 min-h-[48px] sm:min-h-[52px] flex items-center justify-center transition-colors"
+            style={{ backgroundColor: topBannerBgColor }}
             onMouseEnter={() => setIsBannerHovered(true)}
             onMouseLeave={() => setIsBannerHovered(false)}
           >
             <div className="max-w-6xl mx-auto flex items-center justify-center relative w-full text-center">
               {/* Rolling Center Text */}
-              <div className="overflow-hidden h-6 flex items-center justify-center">
+              <div className="overflow-hidden h-7 flex items-center justify-center">
                 <span 
-                  className={`text-xs sm:text-[13px] font-medium tracking-wide text-stone-800 transition-all duration-300 transform inline-flex items-center gap-2 ${
+                  style={{
+                    fontSize: topBannerFontSize,
+                    fontWeight: topBannerFontWeight,
+                    color: topBannerTextColor,
+                  }}
+                  className={`tracking-wide transition-all duration-300 transform inline-flex items-center gap-2 ${
                     isBannerFading 
                       ? "-translate-y-3 opacity-0" 
                       : "translate-y-0 opacity-100"
                   }`}
                 >
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-stone-400" />
+                  <span 
+                    className="inline-block w-1.5 h-1.5 rounded-full opacity-60 shrink-0"
+                    style={{ backgroundColor: topBannerTextColor }} 
+                  />
                   {currentMessage}
                 </span>
               </div>

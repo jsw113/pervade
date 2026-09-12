@@ -107,7 +107,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             "LOGO_FONT",
             "TOP_BANNER_TEXT",
             "TOP_BANNER_MESSAGES",
-            "TOP_BANNER_ENABLED"
+            "TOP_BANNER_ENABLED",
+            "TOP_BANNER_FONT_SIZE",
+            "TOP_BANNER_FONT_WEIGHT",
+            "TOP_BANNER_TEXT_COLOR",
+            "TOP_BANNER_BG_COLOR",
+            "TOP_BANNER_SPEED"
           ]
         }
       }
@@ -137,6 +142,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   }
 
   const initialTopBannerEnabled = getPolicy("TOP_BANNER_ENABLED", "true") !== "false";
+  const initialTopBannerFontSize = getPolicy("TOP_BANNER_FONT_SIZE", "13px");
+  const initialTopBannerFontWeight = getPolicy("TOP_BANNER_FONT_WEIGHT", "500");
+  const initialTopBannerTextColor = getPolicy("TOP_BANNER_TEXT_COLOR", "#292524");
+  const initialTopBannerBgColor = getPolicy("TOP_BANNER_BG_COLOR", "#F6F4EE");
+  const initialTopBannerSpeed = parseInt(getPolicy("TOP_BANNER_SPEED", "3500"), 10) || 3500;
 
   // Schema.org Structured Data
   const jsonLd = {
@@ -177,6 +187,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           initialTopBannerText={initialTopBannerText}
           initialTopBannerMessages={initialTopBannerMessages}
           initialTopBannerEnabled={initialTopBannerEnabled}
+          initialTopBannerFontSize={initialTopBannerFontSize}
+          initialTopBannerFontWeight={initialTopBannerFontWeight}
+          initialTopBannerTextColor={initialTopBannerTextColor}
+          initialTopBannerBgColor={initialTopBannerBgColor}
+          initialTopBannerSpeed={initialTopBannerSpeed}
         >
           {children}
         </AppShell>

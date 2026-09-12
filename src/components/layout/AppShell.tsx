@@ -11,6 +11,11 @@ interface AppShellProps {
   initialTopBannerText?: string;
   initialTopBannerMessages?: string[];
   initialTopBannerEnabled?: boolean;
+  initialTopBannerFontSize?: string;
+  initialTopBannerFontWeight?: string;
+  initialTopBannerTextColor?: string;
+  initialTopBannerBgColor?: string;
+  initialTopBannerSpeed?: number;
   children: React.ReactNode;
 }
 
@@ -20,6 +25,11 @@ export function AppShell({
   initialTopBannerText,
   initialTopBannerMessages,
   initialTopBannerEnabled,
+  initialTopBannerFontSize,
+  initialTopBannerFontWeight,
+  initialTopBannerTextColor,
+  initialTopBannerBgColor,
+  initialTopBannerSpeed,
   children,
 }: AppShellProps) {
   const pathname = usePathname();
@@ -39,6 +49,11 @@ export function AppShell({
           initialTopBannerText={initialTopBannerText}
           initialTopBannerMessages={initialTopBannerMessages}
           initialTopBannerEnabled={initialTopBannerEnabled}
+          initialTopBannerFontSize={initialTopBannerFontSize}
+          initialTopBannerFontWeight={initialTopBannerFontWeight}
+          initialTopBannerTextColor={initialTopBannerTextColor}
+          initialTopBannerBgColor={initialTopBannerBgColor}
+          initialTopBannerSpeed={initialTopBannerSpeed}
         />
       )}
       <main className="flex-1 bg-white">{children}</main>

@@ -161,6 +161,11 @@ export default function ThemeAdminPage() {
   
   // Top Rolling Banner States
   const [topBannerEnabled, setTopBannerEnabled] = useState(true);
+  const [topBannerFontSize, setTopBannerFontSize] = useState("13px");
+  const [topBannerFontWeight, setTopBannerFontWeight] = useState("500");
+  const [topBannerTextColor, setTopBannerTextColor] = useState("#292524");
+  const [topBannerBgColor, setTopBannerBgColor] = useState("#F6F4EE");
+  const [topBannerSpeed, setTopBannerSpeed] = useState("3500");
   const [topBannerMessages, setTopBannerMessages] = useState<string[]>([
     "신규 가입 시 3,000P 적립 & 첫 구매 무료배송",
     "우수회원 5% 포인트 적립"
@@ -310,6 +315,12 @@ export default function ThemeAdminPage() {
         if (data.TOP_BANNER_ENABLED !== undefined && data.TOP_BANNER_ENABLED !== "") {
           setTopBannerEnabled(data.TOP_BANNER_ENABLED !== "false");
         }
+        if (data.TOP_BANNER_FONT_SIZE) setTopBannerFontSize(data.TOP_BANNER_FONT_SIZE);
+        if (data.TOP_BANNER_FONT_WEIGHT) setTopBannerFontWeight(data.TOP_BANNER_FONT_WEIGHT);
+        if (data.TOP_BANNER_TEXT_COLOR) setTopBannerTextColor(data.TOP_BANNER_TEXT_COLOR);
+        if (data.TOP_BANNER_BG_COLOR) setTopBannerBgColor(data.TOP_BANNER_BG_COLOR);
+        if (data.TOP_BANNER_SPEED) setTopBannerSpeed(data.TOP_BANNER_SPEED);
+
         if (data.TOP_BANNER_MESSAGES) {
           try {
             const arr = JSON.parse(data.TOP_BANNER_MESSAGES);
@@ -451,6 +462,11 @@ export default function ThemeAdminPage() {
         TOP_BANNER_ENABLED: topBannerEnabled ? "true" : "false",
         TOP_BANNER_MESSAGES: JSON.stringify(topBannerMessages.filter(m => m.trim().length > 0)),
         TOP_BANNER_TEXT: topBannerMessages[0] || "",
+        TOP_BANNER_FONT_SIZE: topBannerFontSize,
+        TOP_BANNER_FONT_WEIGHT: topBannerFontWeight,
+        TOP_BANNER_TEXT_COLOR: topBannerTextColor,
+        TOP_BANNER_BG_COLOR: topBannerBgColor,
+        TOP_BANNER_SPEED: topBannerSpeed,
         HERO_VISIBLE: heroVisible ? "true" : "false",
         HERO_SHOW_TEXT: heroShowText ? "true" : "false",
         HERO_SHOW_CTA: heroShowCta ? "true" : "false",
@@ -797,7 +813,7 @@ export default function ThemeAdminPage() {
               2. 상단 롤링 공지 배너 관리 (Top Rolling Banner)
             </h2>
             <p className="text-xs text-zinc-500 mt-0.5">
-              쇼핑몰 최상단에 푸터 배경색과 일치된 높고 우아한 롤링 공지 바를 노출하고 문구를 자유롭게 추가/수정/삭제합니다.
+              쇼핑몰 최상단 공지 바의 폰트 크기, 굵기, 글자/배경 색상, 롤링 속도를 자유롭게 커스텀하고 문구를 관리합니다.
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -805,7 +821,7 @@ export default function ThemeAdminPage() {
             <button
               type="button"
               onClick={() => setTopBannerEnabled(!topBannerEnabled)}
-              className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
                 topBannerEnabled
                   ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
                   : "bg-zinc-100 text-zinc-500 border border-zinc-300"
@@ -818,12 +834,217 @@ export default function ThemeAdminPage() {
 
         {/* Live Top Banner Preview */}
         <div className="space-y-2">
-          <label className="block text-xs font-bold text-zinc-700">🎨 상단 배너 실시간 롤링 미리보기 (푸터 컬러 매칭 & 3배 높이)</label>
-          <div className="w-full bg-[#F6F4EE] border border-[#E7E2D8] text-stone-800 py-3.5 px-4 min-h-[48px] rounded-xl flex items-center justify-center text-center shadow-2xs">
-            <span className="text-xs sm:text-[13px] font-medium tracking-wide text-stone-800 inline-flex items-center gap-2">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-stone-400" />
+          <div className="flex items-center justify-between">
+            <label className="block text-xs font-bold text-zinc-700">🎨 상단 배너 실시간 롤링 미리보기 (설정 즉시 반영)</label>
+            <span className="text-[11px] text-zinc-400 font-mono">
+              {topBannerFontSize} • 굵기 {topBannerFontWeight} • 롤링 {Number(topBannerSpeed) / 1000}초
+            </span>
+          </div>
+          <div 
+            className="w-full border border-[#E7E2D8] py-3.5 px-4 min-h-[48px] rounded-xl flex items-center justify-center text-center shadow-2xs transition-all"
+            style={{ backgroundColor: topBannerBgColor }}
+          >
+            <span 
+              style={{
+                fontSize: topBannerFontSize,
+                fontWeight: topBannerFontWeight,
+                color: topBannerTextColor,
+              }}
+              className="tracking-wide inline-flex items-center gap-2 transition-all"
+            >
+              <span 
+                className="inline-block w-1.5 h-1.5 rounded-full opacity-60 shrink-0"
+                style={{ backgroundColor: topBannerTextColor }} 
+              />
               {topBannerMessages[0] || "등록된 공지 문구가 없습니다."}
             </span>
+          </div>
+        </div>
+
+        {/* Banner Styling Customizer Controls (3-Column Grid) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2 border-t">
+          {/* 1. Typography (Size & Weight) */}
+          <div className="space-y-4 p-4 rounded-xl bg-zinc-50 border">
+            <h3 className="text-xs font-bold text-zinc-900 flex items-center gap-1.5">
+              <span>🔤 폰트 크기 &amp; 굵기</span>
+            </h3>
+
+            {/* Font Size */}
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-medium text-zinc-600">폰트 크기 (Font Size)</label>
+              <div className="grid grid-cols-3 gap-1.5">
+                {[
+                  { label: "11px (소)", val: "11px" },
+                  { label: "12px", val: "12px" },
+                  { label: "13px (기본)", val: "13px" },
+                  { label: "14px", val: "14px" },
+                  { label: "15px (대)", val: "15px" },
+                  { label: "16px (특대)", val: "16px" },
+                ].map((sz) => (
+                  <button
+                    key={sz.val}
+                    type="button"
+                    onClick={() => setTopBannerFontSize(sz.val)}
+                    className={`px-2 py-1.5 rounded-lg border text-[11px] font-medium transition-all cursor-pointer ${
+                      topBannerFontSize === sz.val
+                        ? "bg-zinc-950 text-white border-zinc-950 font-bold shadow-xs"
+                        : "bg-white text-zinc-700 hover:bg-zinc-100"
+                    }`}
+                  >
+                    {sz.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Font Weight */}
+            <div className="space-y-1.5 pt-1">
+              <label className="block text-[11px] font-medium text-zinc-600">폰트 굵기 (Font Weight)</label>
+              <div className="grid grid-cols-2 gap-1.5">
+                {[
+                  { label: "보통 (400)", val: "400" },
+                  { label: "약간 굵게 (500)", val: "500" },
+                  { label: "굵게 (600)", val: "600" },
+                  { label: "아주 굵게 (700)", val: "700" },
+                ].map((fw) => (
+                  <button
+                    key={fw.val}
+                    type="button"
+                    onClick={() => setTopBannerFontWeight(fw.val)}
+                    className={`px-2 py-1.5 rounded-lg border text-[11px] transition-all cursor-pointer ${
+                      topBannerFontWeight === fw.val
+                        ? "bg-zinc-950 text-white border-zinc-950 font-bold shadow-xs"
+                        : "bg-white text-zinc-700 hover:bg-zinc-100"
+                    }`}
+                  >
+                    {fw.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 2. Color Palette (Text & Background) */}
+          <div className="space-y-4 p-4 rounded-xl bg-zinc-50 border">
+            <h3 className="text-xs font-bold text-zinc-900 flex items-center gap-1.5">
+              <span>🎨 글자 &amp; 배경 색상</span>
+            </h3>
+
+            {/* Text Color */}
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-medium text-zinc-600">문구 글자 색상 (Text Color)</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={topBannerTextColor}
+                  onChange={(e) => setTopBannerTextColor(e.target.value)}
+                  className="w-8 h-8 rounded-lg border cursor-pointer p-0.5 bg-white"
+                />
+                <input
+                  type="text"
+                  value={topBannerTextColor}
+                  onChange={(e) => setTopBannerTextColor(e.target.value)}
+                  className="flex-1 px-3 py-1.5 bg-white rounded-lg border text-xs font-mono font-bold uppercase focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                />
+              </div>
+              {/* Quick Text Color Presets */}
+              <div className="flex flex-wrap gap-1 pt-1">
+                {[
+                  { name: "스톤 차콜", color: "#292524" },
+                  { name: "딥 블랙", color: "#09090B" },
+                  { name: "앰버 브라운", color: "#78350F" },
+                  { name: "에코 그린", color: "#15803D" },
+                  { name: "로열 블루", color: "#1D4ED8" },
+                  { name: "로즈 레드", color: "#E11D48" },
+                ].map((c) => (
+                  <button
+                    key={c.color}
+                    type="button"
+                    onClick={() => setTopBannerTextColor(c.color)}
+                    className="px-2 py-0.5 rounded text-[10px] border bg-white hover:bg-zinc-100 flex items-center gap-1 cursor-pointer"
+                  >
+                    <span className="w-2.5 h-2.5 rounded-full border" style={{ backgroundColor: c.color }} />
+                    <span>{c.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Background Color */}
+            <div className="space-y-1.5 pt-1">
+              <label className="block text-[11px] font-medium text-zinc-600">배너 배경 색상 (Background Color)</label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={topBannerBgColor}
+                  onChange={(e) => setTopBannerBgColor(e.target.value)}
+                  className="w-8 h-8 rounded-lg border cursor-pointer p-0.5 bg-white"
+                />
+                <input
+                  type="text"
+                  value={topBannerBgColor}
+                  onChange={(e) => setTopBannerBgColor(e.target.value)}
+                  className="flex-1 px-3 py-1.5 bg-white rounded-lg border text-xs font-mono font-bold uppercase focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                />
+              </div>
+              {/* Quick Bg Color Presets */}
+              <div className="flex flex-wrap gap-1 pt-1">
+                {[
+                  { name: "푸터 웜톤", color: "#F6F4EE" },
+                  { name: "화이트", color: "#FFFFFF" },
+                  { name: "라이트 그레이", color: "#F4F4F5" },
+                  { name: "딥 차콜", color: "#18181B" },
+                ].map((c) => (
+                  <button
+                    key={c.color}
+                    type="button"
+                    onClick={() => setTopBannerBgColor(c.color)}
+                    className="px-2 py-0.5 rounded text-[10px] border bg-white hover:bg-zinc-100 flex items-center gap-1 cursor-pointer"
+                  >
+                    <span className="w-2.5 h-2.5 rounded-full border" style={{ backgroundColor: c.color }} />
+                    <span>{c.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 3. Rolling Speed & Animation */}
+          <div className="space-y-4 p-4 rounded-xl bg-zinc-50 border flex flex-col justify-between">
+            <div className="space-y-3">
+              <h3 className="text-xs font-bold text-zinc-900 flex items-center gap-1.5">
+                <span>⏱️ 롤링 전환 속도</span>
+              </h3>
+
+              <div className="space-y-1.5">
+                <label className="block text-[11px] font-medium text-zinc-600">문구 교체 주기</label>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {[
+                    { label: "2.5초 (빠름)", val: "2500" },
+                    { label: "3.5초 (기본/추천)", val: "3500" },
+                    { label: "5.0초 (여유)", val: "5000" },
+                    { label: "7.0초 (느림)", val: "7000" },
+                  ].map((spd) => (
+                    <button
+                      key={spd.val}
+                      type="button"
+                      onClick={() => setTopBannerSpeed(spd.val)}
+                      className={`px-2 py-2 rounded-lg border text-[11px] font-medium transition-all cursor-pointer ${
+                        String(topBannerSpeed) === spd.val
+                          ? "bg-zinc-950 text-white border-zinc-950 font-bold shadow-xs"
+                          : "bg-white text-zinc-700 hover:bg-zinc-100"
+                      }`}
+                    >
+                      {spd.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="p-3 bg-white rounded-lg border text-[11px] text-zinc-500 leading-relaxed">
+              💡 <strong>안내:</strong> 문구가 2개 이상 등록되어 있을 때 위 주기로 부드럽게 위아래 롤링 애니메이션이 실행됩니다. 마우스를 올리면 롤링이 일시 정지됩니다.
+            </div>
           </div>
         </div>
 
@@ -831,7 +1052,7 @@ export default function ThemeAdminPage() {
         <div className="space-y-3 pt-2 border-t">
           <div className="flex items-center justify-between">
             <label className="text-xs font-bold text-zinc-800">
-              롤링 공지 문구 목록 ({topBannerMessages.length}개)
+              롤링 공지 문구 목록 ({topBannerMessages.length}개 등록됨)
             </label>
             <button
               type="button"
@@ -845,7 +1066,7 @@ export default function ThemeAdminPage() {
 
           <div className="space-y-2.5">
             {topBannerMessages.map((msg, idx) => (
-              <div key={idx} className="flex items-center gap-2 p-2 bg-zinc-50 border rounded-xl">
+              <div key={idx} className="flex items-center gap-2 p-2.5 bg-zinc-50 border rounded-xl shadow-2xs">
                 <span className="w-6 h-6 rounded-full bg-zinc-200 text-zinc-700 text-xs font-bold flex items-center justify-center shrink-0">
                   {idx + 1}
                 </span>

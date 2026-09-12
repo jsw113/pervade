@@ -35,7 +35,12 @@ export async function GET() {
       "HERO_OVERLAY_OPACITY",
       "TOP_BANNER_MESSAGES",
       "TOP_BANNER_TEXT",
-      "TOP_BANNER_ENABLED"
+      "TOP_BANNER_ENABLED",
+      "TOP_BANNER_FONT_SIZE",
+      "TOP_BANNER_FONT_WEIGHT",
+      "TOP_BANNER_TEXT_COLOR",
+      "TOP_BANNER_BG_COLOR",
+      "TOP_BANNER_SPEED"
     ];
     const policies = await prisma.policy.findMany({
       where: { key: { in: keys } }
@@ -91,7 +96,12 @@ export async function POST(request: Request) {
       "HERO_OVERLAY_OPACITY",
       "TOP_BANNER_MESSAGES",
       "TOP_BANNER_TEXT",
-      "TOP_BANNER_ENABLED"
+      "TOP_BANNER_ENABLED",
+      "TOP_BANNER_FONT_SIZE",
+      "TOP_BANNER_FONT_WEIGHT",
+      "TOP_BANNER_TEXT_COLOR",
+      "TOP_BANNER_BG_COLOR",
+      "TOP_BANNER_SPEED"
     ];
 
     // Individual upserts for rock-solid reliability
