@@ -297,7 +297,7 @@ export function Navbar({
               <Link href="/journal" className="hover:text-primary/80 transition-colors">
                 저널
               </Link>
-              <Link href="/faq" className="hover:text-primary/80 transition-colors text-muted-foreground">
+              <Link href="/cs" className="hover:text-primary/80 transition-colors text-muted-foreground">
                 고객센터
               </Link>
             </nav>
@@ -353,9 +353,9 @@ export function Navbar({
               <Link href="/shop" onClick={() => setIsMenuOpen(false)} className="font-bold text-base">전체 상품</Link>
               <Link href="/guide" onClick={() => setIsMenuOpen(false)} className="text-amber-600 font-bold">사용가이드</Link>
               <Link href="/about" onClick={() => setIsMenuOpen(false)}>브랜드 스토리</Link>
-              <Link href="/journal" onClick={() => setIsMenuOpen(false)}>저널</Link>
-              <Link href="/faq" onClick={() => setIsMenuOpen(false)}>고객센터 (FAQ)</Link>
-              <Link href="/qna" onClick={() => setIsMenuOpen(false)}>1:1 Q&A 문의</Link>
+              <Link href="/cs" onClick={() => setIsMenuOpen(false)}>고객센터</Link>
+              <Link href="/faq" onClick={() => setIsMenuOpen(false)} className="text-zinc-500 pl-2 text-xs">↳ 자주 묻는 질문 (FAQ)</Link>
+              <Link href="/qna" onClick={() => setIsMenuOpen(false)} className="text-zinc-500 pl-2 text-xs">↳ 1:1 Q&amp;A 문의</Link>
             </nav>
             <div className="pt-4 border-t flex flex-col gap-2">
               {user ? (
