@@ -67,7 +67,7 @@ export default function GuideHubPage() {
   });
 
   return (
-    <div className="container mx-auto px-4 py-12 sm:py-20 max-w-6xl min-h-[75vh] space-y-12">
+    <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 py-12 sm:py-20 min-h-[75vh] space-y-12 sm:space-y-16">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4">
         <div>
@@ -139,11 +139,11 @@ export default function GuideHubPage() {
           <p className="text-xs text-zinc-400">다른 카테고리나 검색어로 확인해보세요.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-14">
           {filteredGuides.map((guide) => (
-            <article key={guide.id} className="group flex flex-col justify-between space-y-4">
-              <Link href={`/guide/${guide.id}`} className="block space-y-4">
-                {/* Sharp Image */}
+            <article key={guide.id} className="group flex flex-col justify-between space-y-5">
+              <Link href={`/guide/${guide.id}`} className="block space-y-5">
+                {/* Sharp Editorial Image */}
                 <div className="aspect-[3/4] bg-zinc-100 overflow-hidden relative">
                   {guide.thumbnailUrl ? (
                     <img
@@ -159,29 +159,29 @@ export default function GuideHubPage() {
                 </div>
 
                 {/* Body */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-[11px] text-zinc-400 font-mono">
+                <div className="space-y-2.5">
+                  <div className="flex items-center gap-2 text-xs text-zinc-400 font-mono tracking-wider">
                     <span>{guide.category}</span>
                     {guide.product && (
                       <>
                         <span>·</span>
-                        <span>{guide.product.name}</span>
+                        <span className="text-zinc-600 font-medium">{guide.product.name}</span>
                       </>
                     )}
                   </div>
-                  <h3 className="font-serif font-light text-lg sm:text-xl text-zinc-950 group-hover:text-zinc-600 transition-colors line-clamp-2 leading-snug">
+                  <h3 className="font-serif font-normal text-xl sm:text-2xl text-zinc-950 group-hover:text-zinc-600 transition-colors line-clamp-2 leading-snug">
                     {guide.title}
                   </h3>
-                  <p className="text-xs text-zinc-500 font-light line-clamp-2 leading-relaxed">
+                  <p className="text-sm text-zinc-500 font-light line-clamp-2 leading-relaxed">
                     {guide.summary || guide.content?.replace(/[#*`]/g, '')}
                   </p>
                 </div>
               </Link>
 
-              <div className="pt-2">
+              <div className="pt-1">
                 <Link
                   href={`/guide/${guide.id}`}
-                  className="text-xs font-semibold text-zinc-900 group-hover:text-zinc-500 inline-flex items-center gap-1 transition-colors"
+                  className="text-xs font-semibold tracking-wider uppercase text-zinc-900 group-hover:text-zinc-500 inline-flex items-center gap-1.5 transition-colors"
                 >
                   가이드 읽기
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />

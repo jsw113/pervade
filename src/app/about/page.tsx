@@ -32,9 +32,9 @@ export default async function AboutPage() {
   const posts = dbPosts.length > 0 ? dbPosts : [DEFAULT_BRAND_STORY];
 
   return (
-    <div className="container mx-auto px-4 py-12 sm:py-20 max-w-6xl space-y-12">
+    <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 py-12 sm:py-20 space-y-12 sm:space-y-16">
       {/* Top Breadcrumb */}
-      <div className="flex items-center justify-between pb-4">
+      <div className="flex items-center justify-between border-b border-zinc-200/70 pb-5">
         <Link 
           href="/" 
           className="inline-flex items-center gap-1.5 text-zinc-400 hover:text-zinc-950 text-xs font-medium transition-colors"
@@ -47,7 +47,7 @@ export default async function AboutPage() {
       </div>
 
       {/* Main Story Content */}
-      <div className="space-y-20">
+      <div className="space-y-24">
         {posts.map((post, idx) => {
           const defaultImages = [
             "https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200&auto=format&fit=crop",
@@ -58,11 +58,11 @@ export default async function AboutPage() {
 
           return (
             <article key={post.id} className="space-y-8">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 xl:gap-20 items-start">
                 
                 {/* Left Column: Sharp Image */}
-                <div className="lg:col-span-5 w-full lg:sticky lg:top-24">
-                  <div className="relative aspect-[3/4] overflow-hidden bg-zinc-100">
+                <div className="lg:col-span-6 w-full lg:sticky lg:top-24">
+                  <div className="relative aspect-[4/5] sm:aspect-[3/4] overflow-hidden bg-zinc-100">
                     <img
                       src={imgUrl}
                       alt={post.title}
@@ -72,18 +72,18 @@ export default async function AboutPage() {
                 </div>
 
                 {/* Right Column: Article Text */}
-                <div className="lg:col-span-7 space-y-6">
-                  <div className="pb-6 space-y-2">
-                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-light text-zinc-950 leading-tight break-keep">
+                <div className="lg:col-span-6 space-y-8">
+                  <div className="pb-6 space-y-3 border-b border-zinc-200/60">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-serif font-light text-zinc-950 leading-tight break-keep">
                       {post.title}
                     </h1>
-                    <time className="text-xs text-zinc-400 block font-mono pt-1">
+                    <time className="text-xs text-zinc-400 block font-mono pt-1 tracking-wider">
                       발행일: {new Date(post.createdAt).toLocaleDateString()} · PERVADE Brand Story
                     </time>
                   </div>
 
                   {/* Editorial Body */}
-                  <div className="whitespace-pre-wrap leading-relaxed sm:leading-loose text-zinc-700 text-sm sm:text-base font-light font-sans space-y-4">
+                  <div className="whitespace-pre-wrap leading-relaxed sm:leading-loose text-zinc-700 text-sm sm:text-base font-light font-sans space-y-6">
                     {post.content}
                   </div>
 
@@ -91,15 +91,15 @@ export default async function AboutPage() {
                   <div className="pt-6 flex justify-end">
                     <Link
                       href="/shop"
-                      className="text-sm font-semibold tracking-tight text-zinc-900 hover:text-zinc-500 transition-colors inline-flex items-center gap-1 group"
+                      className="text-xs font-semibold tracking-wider uppercase text-zinc-900 hover:text-zinc-500 transition-colors inline-flex items-center gap-1 group"
                     >
-                      관련제품
+                      관련 제품 컬렉션 보기
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </div>
 
                   {/* Social Share Buttons */}
-                  <div className="pt-4">
+                  <div className="pt-4 border-t border-zinc-200/60">
                     <ShareButtons 
                       title={post.title}
                       description={post.content.replace(/[#*`]/g, "").slice(0, 100)}

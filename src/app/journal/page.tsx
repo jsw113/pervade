@@ -33,31 +33,36 @@ export default async function JournalPage() {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-12 sm:py-20 max-w-6xl space-y-12">
+    <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 py-12 sm:py-20 space-y-12 sm:space-y-16">
       {/* Header */}
-      <div className="flex items-center justify-between pb-4">
-        <span className="text-[11px] font-mono tracking-widest text-zinc-400 uppercase">
-          PERVADE JOURNAL
-        </span>
-        <span className="text-xs text-zinc-400 font-light">
-          총 {posts.length}개의 아티클
-        </span>
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-zinc-200/70 pb-6 gap-4">
+        <div className="space-y-2">
+          <span className="text-[11px] font-mono tracking-[0.25em] text-zinc-400 uppercase block">
+            PERVADE JOURNAL
+          </span>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-light text-zinc-950 tracking-tight">
+            JOURNAL
+          </h1>
+        </div>
+        <div className="text-xs font-mono text-zinc-400">
+          TOTAL <span className="text-zinc-900 font-bold">{posts.length}</span> ARTICLES
+        </div>
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-14">
         {posts.map((post, idx) => {
           const formattedDate = new Date(post.createdAt).toLocaleDateString();
-          const cleanExcerpt = post.content.replace(/[#*`]/g, "").slice(0, 100);
+          const cleanExcerpt = post.content.replace(/[#*`]/g, "").slice(0, 120);
           const imgUrl = post.imageUrl || defaultImages[idx % defaultImages.length];
 
           return (
             <article 
               key={post.id} 
-              className="group flex flex-col justify-between space-y-4"
+              className="group flex flex-col justify-between space-y-5"
             >
-              <Link href={`/journal/${post.id}`} className="block space-y-4">
-                {/* Sharp Image */}
+              <Link href={`/journal/${post.id}`} className="block space-y-5">
+                {/* Sharp Editorial Image */}
                 <div className="aspect-[3/4] bg-zinc-100 overflow-hidden relative">
                   <img
                     src={imgUrl}
@@ -67,23 +72,23 @@ export default async function JournalPage() {
                 </div>
 
                 {/* Content */}
-                <div className="space-y-2">
-                  <time className="text-[11px] text-zinc-400 font-mono block">
+                <div className="space-y-2.5">
+                  <time className="text-xs text-zinc-400 font-mono tracking-wider block">
                     {formattedDate} · JOURNAL
                   </time>
-                  <h2 className="font-serif font-light text-lg sm:text-xl text-zinc-950 group-hover:text-zinc-600 transition-colors line-clamp-2 leading-snug">
+                  <h2 className="font-serif font-normal text-xl sm:text-2xl text-zinc-950 group-hover:text-zinc-600 transition-colors line-clamp-2 leading-snug">
                     {post.title}
                   </h2>
-                  <p className="text-xs text-zinc-500 font-light line-clamp-2 leading-relaxed">
+                  <p className="text-sm text-zinc-500 font-light line-clamp-2 leading-relaxed">
                     {cleanExcerpt}
                   </p>
                 </div>
               </Link>
 
-              <div className="pt-2">
+              <div className="pt-1">
                 <Link 
                   href={`/journal/${post.id}`} 
-                  className="text-xs font-semibold text-zinc-900 group-hover:text-zinc-500 inline-flex items-center gap-1 transition-colors"
+                  className="text-xs font-semibold tracking-wider uppercase text-zinc-900 group-hover:text-zinc-500 inline-flex items-center gap-1.5 transition-colors"
                 >
                   아티클 읽기
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />

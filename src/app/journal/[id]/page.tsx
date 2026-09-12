@@ -70,9 +70,9 @@ export default async function JournalDetailPage({ params }: { params: Promise<{ 
   const typeLabel = post.type === "ABOUT" ? "BRAND STORY" : post.type === "NOTICE" ? "NEWS" : "JOURNAL";
 
   return (
-    <div className="container mx-auto px-4 py-12 sm:py-20 max-w-6xl space-y-10">
+    <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 py-12 sm:py-20 space-y-10 sm:space-y-14">
       {/* Top Breadcrumb / Return */}
-      <div className="flex items-center justify-between pb-4">
+      <div className="flex items-center justify-between border-b border-zinc-200/70 pb-5">
         <Link 
           href="/journal" 
           className="inline-flex items-center gap-1.5 text-zinc-400 hover:text-zinc-950 text-xs font-medium transition-colors"
@@ -85,11 +85,11 @@ export default async function JournalDetailPage({ params }: { params: Promise<{ 
       </div>
       
       {/* Pure Editorial 2-Column Layout without Boxes */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 xl:gap-20 items-start">
         
         {/* Left Column: Clean Image */}
-        <div className="lg:col-span-5 w-full lg:sticky lg:top-24">
-          <div className="relative aspect-[3/4] overflow-hidden bg-zinc-100">
+        <div className="lg:col-span-6 w-full lg:sticky lg:top-24">
+          <div className="relative aspect-[4/5] sm:aspect-[3/4] overflow-hidden bg-zinc-100">
             <img
               src={articleImage}
               alt={post.title}
@@ -99,18 +99,18 @@ export default async function JournalDetailPage({ params }: { params: Promise<{ 
         </div>
 
         {/* Right Column: Article Flows Beside the Image */}
-        <div className="lg:col-span-7 space-y-6">
-          <div className="space-y-2 pb-6">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-light tracking-tight text-zinc-950 leading-tight break-keep">
+        <div className="lg:col-span-6 space-y-8">
+          <div className="space-y-3 pb-6 border-b border-zinc-200/60">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-serif font-light tracking-tight text-zinc-950 leading-tight break-keep">
               {post.title}
             </h1>
-            <time className="text-xs text-zinc-400 block font-mono pt-1">
+            <time className="text-xs text-zinc-400 block font-mono pt-1 tracking-wider">
               발행일: {new Date(post.createdAt).toLocaleDateString()} · PERVADE Editorial
             </time>
           </div>
 
           {/* Content Body */}
-          <div className="whitespace-pre-wrap leading-relaxed sm:leading-loose text-zinc-700 text-sm sm:text-base font-light font-sans space-y-4 pt-2">
+          <div className="whitespace-pre-wrap leading-relaxed sm:leading-loose text-zinc-700 text-sm sm:text-base font-light font-sans space-y-6 pt-2">
             {post.content}
           </div>
 
@@ -118,15 +118,15 @@ export default async function JournalDetailPage({ params }: { params: Promise<{ 
           <div className="pt-6 flex justify-end">
             <Link
               href="/shop"
-              className="text-sm font-semibold tracking-tight text-zinc-900 hover:text-zinc-500 transition-colors inline-flex items-center gap-1 group"
+              className="text-xs font-semibold tracking-wider uppercase text-zinc-900 hover:text-zinc-500 transition-colors inline-flex items-center gap-1 group"
             >
-              관련제품
+              관련 제품 컬렉션 보기
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
           {/* Social Share (Minimalist Grey Text) */}
-          <div className="pt-4">
+          <div className="pt-4 border-t border-zinc-200/60">
             <ShareButtons 
               title={post.title}
               description={post.content.replace(/[#*`]/g, "").slice(0, 100)}
