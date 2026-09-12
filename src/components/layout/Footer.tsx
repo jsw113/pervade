@@ -40,7 +40,7 @@ export function Footer() {
 
   return (
     <footer className="w-full bg-[#ECE7DF] border-t border-[#DDD6CA] py-12 sm:py-16 md:py-20 text-xs text-stone-800">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-12">
+      <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 space-y-8 sm:space-y-12">
         {/* Top Navigation Links */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 pb-8 border-b border-[#DDD6CA]">
           <div className="md:col-span-1 space-y-3">
