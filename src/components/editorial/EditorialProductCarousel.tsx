@@ -60,11 +60,8 @@ export function EditorialProductCarousel({ products }: EditorialProductCarouselP
       {/* Header with Navigation Controls */}
       <div className="flex items-end justify-between gap-4">
         <div>
-          <span className="text-[11px] font-mono tracking-[0.3em] uppercase text-zinc-400 block mb-2">
-            Selected Works
-          </span>
-          <h2 className="text-2xl sm:text-4xl font-serif text-zinc-900 font-light tracking-tight break-keep">
-            Signature Collection
+          <h2 className="text-2xl sm:text-4xl font-serif text-zinc-900 font-light tracking-tight">
+            PRODUCTS
           </h2>
         </div>
 
