@@ -131,7 +131,7 @@ export default async function Home() {
       case "hero":
         if (!heroVisible) return null;
         return (
-          <section key="hero" className="w-full bg-zinc-100/60 py-4 sm:py-6">
+          <section key="hero" className="w-full bg-white py-4 sm:py-6">
             <div className="max-w-6xl mx-auto px-4">
               <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden bg-zinc-950 shadow-xl flex items-center justify-center">
                 {/* Dynamic Background: Video vs Image */}
@@ -215,7 +215,7 @@ export default async function Home() {
 
       case "features":
         return (
-          <section key="features" className="py-24 bg-white">
+          <section key="features" className="py-16 sm:py-20 bg-white">
             <div className="container mx-auto px-4 max-w-6xl">
               {/* Centered Section Header */}
               <div className="text-center mb-16 space-y-2">
@@ -261,7 +261,7 @@ export default async function Home() {
 
       case "brand_story":
         return (
-          <section key="brand_story" className="py-8 sm:py-12 bg-zinc-100/60">
+          <section key="brand_story" className="py-8 sm:py-12 bg-white">
             <div className="max-w-6xl mx-auto px-4">
               <div className="bg-zinc-950 text-white rounded-3xl p-8 sm:p-14 lg:p-16 shadow-2xl text-center space-y-12">
                 {/* Centered Section Header */}
@@ -310,7 +310,7 @@ export default async function Home() {
 
       case "products":
         return (
-          <section key="products" className="py-24 bg-zinc-50 border-t">
+          <section key="products" className="py-16 sm:py-20 bg-white">
             <div className="container mx-auto px-4 max-w-6xl">
               {/* Centered Section Header */}
               <div className="text-center mb-14 space-y-2">
@@ -402,7 +402,7 @@ export default async function Home() {
 
       case "journal":
         return (
-          <section key="journal" className="py-24 bg-white border-t space-y-16">
+          <section key="journal" className="py-16 sm:py-20 bg-white space-y-16">
             <div className="container mx-auto px-4 max-w-6xl">
               {/* 1. Cleaning Guides Feed */}
               <div className="space-y-8">

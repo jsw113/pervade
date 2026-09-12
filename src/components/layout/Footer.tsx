@@ -39,7 +39,7 @@ export function Footer() {
   const rawBizNum = policies.BIZ_REG_NUMBER ? policies.BIZ_REG_NUMBER.replace(/[^0-9]/g, "") : "1234567890";
 
   return (
-    <footer className="w-full bg-zinc-100/60 py-8 sm:py-12 border-t text-xs">
+    <footer className="w-full bg-white py-8 sm:py-12 text-xs">
       <div className="max-w-6xl mx-auto px-4">
         <div className="bg-zinc-900 text-zinc-300 rounded-3xl p-8 sm:p-12 shadow-xl space-y-12">
           {/* Top Navigation Links */}
