@@ -33,17 +33,22 @@ export default async function AboutPage() {
 
   return (
     <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 py-12 sm:py-20 space-y-12 sm:space-y-16">
-      {/* Top Breadcrumb */}
-      <div className="flex items-center justify-between border-b border-zinc-200/70 pb-5">
-        <Link 
-          href="/" 
-          className="inline-flex items-center gap-1.5 text-zinc-400 hover:text-zinc-950 text-xs font-medium transition-colors"
-        >
-          <ArrowRight className="w-3.5 h-3.5 rotate-180" /> 홈으로 돌아가기
-        </Link>
-        <span className="text-[11px] font-mono tracking-widest text-zinc-400 uppercase">
-          PERVADE BRAND STORY
-        </span>
+      {/* Clean Luxury Header (Matching PRODUCTS / JOURNAL) */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-zinc-200/70 pb-6 gap-6">
+        <div>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-light text-zinc-950 tracking-tight uppercase">
+            BRAND STORY
+          </h1>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <Link 
+            href="/" 
+            className="text-xs font-mono tracking-wider uppercase text-zinc-400 hover:text-zinc-950 transition-colors inline-flex items-center gap-1.5"
+          >
+            <ArrowRight className="w-3.5 h-3.5 rotate-180" /> HOME
+          </Link>
+        </div>
       </div>
 
       {/* Main Story Content */}
