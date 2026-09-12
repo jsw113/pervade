@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { BookOpen, ArrowRight, Sparkles } from "lucide-react";
-import { DEFAULT_JOURNAL_POSTS, EditorialPost } from "@/lib/defaultEditorialContent";
+import { DEFAULT_JOURNAL_POSTS, DEFAULT_NEWS_POSTS, EditorialPost } from "@/lib/defaultEditorialContent";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -17,13 +17,32 @@ export const metadata: Metadata = {
   }
 };
 
-export default async function JournalPage() {
+export default async function JournalPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ type?: string }>;
+}) {
+  let type: string | undefined;
+  try {
+    const resolved = (await searchParams) || {};
+    type = resolved.type;
+  } catch (e) {
+    type = undefined;
+  }
+
+  const isNotice = type === "NOTICE";
+  const targetType = isNotice ? "NOTICE" : "JOURNAL";
+
   const dbPosts = await prisma.post.findMany({
-    where: { type: "JOURNAL", published: true },
+    where: { type: targetType, published: true },
     orderBy: { createdAt: "desc" },
   });
 
-  const posts: EditorialPost[] = dbPosts.length > 0 ? dbPosts : DEFAULT_JOURNAL_POSTS;
+  const posts: EditorialPost[] = dbPosts.length > 0
+    ? dbPosts
+    : isNotice
+    ? DEFAULT_NEWS_POSTS
+    : DEFAULT_JOURNAL_POSTS;
 
   const defaultImages = [
     "https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200&auto=format&fit=crop",
@@ -38,7 +57,7 @@ export default async function JournalPage() {
       <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-zinc-200/70 pb-6 gap-6">
         <div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-light text-zinc-950 tracking-tight uppercase">
-            JOURNAL
+            {isNotice ? "NOTICE & NEWS" : "JOURNAL"}
           </h1>
         </div>
 

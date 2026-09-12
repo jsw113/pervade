@@ -59,18 +59,19 @@ export function Footer() {
           <div>
             <h4 className="font-bold text-stone-950 mb-3 text-xs uppercase tracking-wider">Shop &amp; Guide</h4>
             <ul className="space-y-2 text-stone-600">
-              <li><Link href="/shop" className="hover:text-stone-950 transition-colors">전체 상품 라인업</Link></li>
-              <li><Link href="/guide" className="hover:text-amber-900 transition-colors font-semibold">공식 사용 가이드 (블로그)</Link></li>
-              <li><Link href="/about" className="hover:text-stone-950 transition-colors">브랜드 스토리</Link></li>
-              <li><Link href="/journal" className="hover:text-stone-950 transition-colors">리빙 저널</Link></li>
+              <li><Link href="/shop" className="hover:text-stone-950 transition-colors">전체상품</Link></li>
+              <li><Link href="/guide" className="hover:text-stone-950 transition-colors">사용가이드</Link></li>
+              <li><Link href="/about" className="hover:text-stone-950 transition-colors">브랜드스토리</Link></li>
+              <li><Link href="/journal" className="hover:text-stone-950 transition-colors">저널</Link></li>
+              <li><Link href="/journal?type=NOTICE" className="hover:text-stone-950 transition-colors">공지및뉴스</Link></li>
               <li>
                 <a 
                   href="https://www.instagram.com" 
                   target="_blank" 
                   rel="noreferrer" 
-                  className="hover:text-stone-950 transition-colors inline-flex items-center gap-1 font-semibold text-stone-700 pt-1"
+                  className="hover:text-stone-950 transition-colors inline-flex items-center gap-1 font-medium text-stone-700 pt-0.5"
                 >
-                  <span>📸 공식 인스타그램</span>
+                  <span>공식인스타그램</span>
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </li>
