@@ -226,7 +226,7 @@ export function Navbar({
             onMouseEnter={() => setIsBannerHovered(true)}
             onMouseLeave={() => setIsBannerHovered(false)}
           >
-            <div className="max-w-6xl mx-auto flex items-center justify-center relative w-full text-center">
+            <div className="w-full max-w-[1700px] mx-auto flex items-center justify-center relative text-center px-4 sm:px-8 lg:px-12">
               {/* Rolling Center Text */}
               <div className="overflow-hidden h-7 flex items-center justify-center">
                 <span 
@@ -251,7 +251,7 @@ export function Navbar({
 
               {/* Admin console button (strictly for admin, positioned discreetly on far right) */}
               {user && (user.role === "ADMIN" || user.role === "SUPER_ADMIN" || user.loginId === "admin") && (
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden md:flex items-center">
+                <div className="absolute right-4 sm:right-8 lg:right-12 top-1/2 -translate-y-1/2 hidden md:flex items-center">
                   <Link 
                     href="/admin" 
                     className="px-2.5 py-1 bg-stone-900 text-white hover:bg-stone-800 text-[10px] font-bold transition-colors"
@@ -264,16 +264,16 @@ export function Navbar({
           </div>
         )}
 
-        {/* Main Navbar */}
-        <div className="max-w-6xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8 w-full">
-          <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2">
+        {/* Main Navbar (Expanded to match full content width) */}
+        <div className="w-full max-w-[1700px] mx-auto flex h-16 items-center justify-between px-4 sm:px-8 lg:px-12">
+          <div className="flex items-center gap-8 lg:gap-10">
+            <Link href="/" className="flex items-center gap-2 shrink-0">
               {logoUrl ? (
                 <img 
                   src={logoUrl} 
                   alt="PERVADE Logo" 
                   loading="eager"
-                  className="h-8 max-w-[180px] object-contain"
+                  className="h-8 max-w-[180px] object-contain mix-blend-multiply bg-transparent"
                 />
               ) : (
                 <span 
