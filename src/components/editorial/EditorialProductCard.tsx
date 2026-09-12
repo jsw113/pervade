@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -47,7 +47,7 @@ export function EditorialProductCard({
     >
       <Link href={`/shop/${id}`} className="block relative">
         {/* Image Container with Editorial Aspect Ratio (4:5) */}
-        <div className="relative aspect-[4/5] bg-stone-100 overflow-hidden rounded-2xl transition-all duration-700">
+        <div className="relative aspect-[4/5] bg-stone-100 overflow-hidden rounded-none border border-zinc-200 group-hover:border-zinc-900 transition-colors duration-500">
           {/* Primary Image */}
           <img
             src={primaryImage}
@@ -67,30 +67,30 @@ export function EditorialProductCard({
           />
 
           {/* Minimal Badges */}
-          <div className="absolute top-4 left-4 flex flex-col gap-1.5 z-10">
+          <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
             {badge && (
-              <span className="text-[10px] tracking-widest font-mono uppercase px-2.5 py-1 bg-white/90 backdrop-blur-xs text-zinc-900 rounded-full shadow-xs">
+              <span className="text-[10px] tracking-widest font-mono uppercase px-2 py-0.5 bg-white text-zinc-900 rounded-none shadow-xs">
                 {badge}
               </span>
             )}
             {tag && (
-              <span className="text-[10px] tracking-widest font-mono uppercase px-2.5 py-1 bg-zinc-900/80 backdrop-blur-xs text-white rounded-full shadow-xs">
+              <span className="text-[10px] tracking-widest font-mono uppercase px-2 py-0.5 bg-zinc-900 text-white rounded-none shadow-xs">
                 {tag}
               </span>
             )}
           </div>
 
           {/* Quick Add Floating Button on Hover */}
-          <div className="absolute bottom-4 right-4 z-20">
+          <div className="absolute bottom-3 right-3 z-20">
             <button
               onClick={handleQuickAdd}
               aria-label="쇼핑백에 담기"
-              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-md ${
+              className={`w-9 h-9 rounded-none flex items-center justify-center transition-all duration-300 shadow-md ${
                 isAdded 
-                  ? "bg-zinc-900 text-white scale-110" 
+                  ? "bg-zinc-900 text-white" 
                   : isHovered 
-                    ? "bg-white/95 text-zinc-900 hover:bg-zinc-900 hover:text-white scale-100 opacity-100" 
-                    : "bg-white/80 text-zinc-900 scale-90 opacity-0 md:opacity-0"
+                    ? "bg-white text-zinc-900 hover:bg-zinc-900 hover:text-white opacity-100" 
+                    : "bg-white/90 text-zinc-900 opacity-0 md:opacity-0"
               }`}
             >
               {isAdded ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}

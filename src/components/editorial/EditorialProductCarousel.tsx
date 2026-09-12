@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
@@ -83,7 +83,7 @@ export function EditorialProductCarousel({ products }: EditorialProductCarouselP
               onClick={() => scroll("left")}
               disabled={!canScrollLeft}
               aria-label="이전 상품 보기"
-              className={`w-9 h-9 rounded-full border border-zinc-200 flex items-center justify-center transition-all ${
+              className={`w-9 h-9 rounded-none border border-zinc-200 flex items-center justify-center transition-all ${
                 canScrollLeft 
                   ? "text-zinc-900 hover:border-zinc-900 hover:bg-zinc-900 hover:text-white" 
                   : "text-zinc-300 border-zinc-100 cursor-not-allowed"
@@ -95,7 +95,7 @@ export function EditorialProductCarousel({ products }: EditorialProductCarouselP
               onClick={() => scroll("right")}
               disabled={!canScrollRight}
               aria-label="다음 상품 보기"
-              className={`w-9 h-9 rounded-full border border-zinc-200 flex items-center justify-center transition-all ${
+              className={`w-9 h-9 rounded-none border border-zinc-200 flex items-center justify-center transition-all ${
                 canScrollRight 
                   ? "text-zinc-900 hover:border-zinc-900 hover:bg-zinc-900 hover:text-white" 
                   : "text-zinc-300 border-zinc-100 cursor-not-allowed"
@@ -125,9 +125,9 @@ export function EditorialProductCarousel({ products }: EditorialProductCarouselP
       </div>
 
       {/* Minimal Scroll Progress Bar */}
-      <div className="w-full bg-zinc-100 h-[2px] rounded-full overflow-hidden mt-4">
+      <div className="w-full bg-zinc-100 h-[2px] rounded-none overflow-hidden mt-4">
         <div
-          className="bg-zinc-900 h-full transition-all duration-300 rounded-full"
+          className="bg-zinc-900 h-full transition-all duration-300 rounded-none"
           style={{ width: `${Math.max(15, scrollProgress)}%` }}
         />
       </div>

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
@@ -81,7 +81,7 @@ export function EditorialJournalCarousel({ articles }: EditorialJournalCarouselP
               onClick={() => scroll("left")}
               disabled={!canScrollLeft}
               aria-label="이전 이야기 보기"
-              className={`w-9 h-9 rounded-full border border-zinc-200 flex items-center justify-center transition-all ${
+              className={`w-9 h-9 rounded-none border border-zinc-200 flex items-center justify-center transition-all ${
                 canScrollLeft
                   ? "text-zinc-900 hover:border-zinc-900 hover:bg-zinc-900 hover:text-white"
                   : "text-zinc-300 border-zinc-100 cursor-not-allowed"
@@ -93,7 +93,7 @@ export function EditorialJournalCarousel({ articles }: EditorialJournalCarouselP
               onClick={() => scroll("right")}
               disabled={!canScrollRight}
               aria-label="다음 이야기 보기"
-              className={`w-9 h-9 rounded-full border border-zinc-200 flex items-center justify-center transition-all ${
+              className={`w-9 h-9 rounded-none border border-zinc-200 flex items-center justify-center transition-all ${
                 canScrollRight
                   ? "text-zinc-900 hover:border-zinc-900 hover:bg-zinc-900 hover:text-white"
                   : "text-zinc-300 border-zinc-100 cursor-not-allowed"
@@ -118,7 +118,7 @@ export function EditorialJournalCarousel({ articles }: EditorialJournalCarouselP
             href={item.link}
             className="shrink-0 w-[300px] sm:w-[380px] md:w-[420px] snap-start group block space-y-4"
           >
-            <div className="relative aspect-[16/11] overflow-hidden rounded-2xl bg-zinc-200 shadow-xs">
+            <div className="relative aspect-[16/11] overflow-hidden rounded-none border border-zinc-200 bg-zinc-100 shadow-xs">
               <img
                 src={item.image}
                 alt={item.title}
@@ -141,9 +141,9 @@ export function EditorialJournalCarousel({ articles }: EditorialJournalCarouselP
       </div>
 
       {/* Minimal Scroll Progress Bar */}
-      <div className="w-full bg-zinc-200/60 h-[2px] rounded-full overflow-hidden mt-2">
+      <div className="w-full bg-zinc-200/60 h-[2px] rounded-none overflow-hidden mt-2">
         <div
-          className="bg-zinc-900 h-full transition-all duration-300 rounded-full"
+          className="bg-zinc-900 h-full transition-all duration-300 rounded-none"
           style={{ width: `${Math.max(20, scrollProgress)}%` }}
         />
       </div>
