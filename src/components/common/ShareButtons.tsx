@@ -78,107 +78,55 @@ export function ShareButtons({ title, description = "", url, className = "" }: S
   };
 
   return (
-    <div className={`p-4 bg-zinc-50 border rounded-2xl ${className}`}>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-white border rounded-lg text-zinc-700 shadow-2xs">
-            <Share2 className="w-4 h-4" />
-          </div>
-          <div>
-            <span className="text-xs font-bold text-zinc-900 block">이 콘텐츠 공유하기</span>
-            <span className="text-[10px] text-zinc-400">지인이나 SNS에 유용한 정보를 공유해보세요</span>
-          </div>
-        </div>
+    <div className={`pt-4 flex flex-wrap items-center justify-between gap-3 text-zinc-400 text-xs font-light ${className}`}>
+      <span className="text-zinc-400">이 콘텐츠 공유하기</span>
 
-        {/* Buttons Grid */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Kakao / Native Share */}
-          <button
-            type="button"
-            onClick={handleNativeOrKakaoShare}
-            className="px-3 py-1.5 bg-[#FEE500] hover:bg-[#FDD835] text-[#191919] rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer"
-            title="카카오톡 및 모바일 공유"
-          >
-            <MessageCircle className="w-3.5 h-3.5 fill-[#191919]" />
-            카카오톡 공유
-          </button>
-
-          {/* Naver Share */}
-          <button
-            type="button"
-            onClick={handleShareNaver}
-            className="px-3 py-1.5 bg-[#03C75A] hover:bg-[#02B150] text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1 shadow-2xs cursor-pointer"
-            title="네이버 블로그 / 카페 공유"
-          >
-            <span className="font-black text-xs">N</span>
-            네이버
-          </button>
-
-          {/* Instagram Share */}
-          <button
-            type="button"
-            onClick={() => {
-              handleCopyLink();
-              if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-                // Open Instagram App on Mobile
-                window.location.href = "instagram://app";
-                setTimeout(() => {
-                  window.open("https://www.instagram.com", "_blank");
-                }, 1000);
-              } else {
-                window.open("https://www.instagram.com", "_blank");
-              }
-            }}
-            className="px-3 py-1.5 bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#FCB045] hover:opacity-90 text-white rounded-xl text-xs font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1"
-            title="인스타그램 스토리 / 피드 / DM 공유"
-          >
-            <span className="text-[11px] font-bold">📸 인스타그램</span>
-          </button>
-
-          {/* X / Twitter Share */}
-          <button
-            type="button"
-            onClick={handleShareTwitter}
-            className="p-2 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-xs font-bold transition-colors shadow-2xs cursor-pointer"
-            title="X (트위터) 공유"
-          >
-            <span className="font-mono text-xs px-0.5">𝕏</span>
-          </button>
-
-          {/* Facebook Share */}
-          <button
-            type="button"
-            onClick={handleShareFacebook}
-            className="px-2.5 py-1.5 bg-[#1877F2] hover:bg-[#0C63D4] text-white rounded-xl text-xs font-bold transition-colors shadow-2xs cursor-pointer"
-            title="페이스북 공유"
-          >
-            <span className="font-bold text-xs">f</span>
-          </button>
-
-          {/* Copy Link Button */}
-          <button
-            type="button"
-            onClick={handleCopyLink}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 cursor-pointer ${
-              copied
-                ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
-                : "bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-100"
-            }`}
-            title="URL 링크 복사"
-          >
-            {copied ? (
-              <>
-                <Check className="w-3.5 h-3.5" />
-                복사 완료!
-              </>
-            ) : (
-              <>
-                <LinkIcon className="w-3.5 h-3.5 text-zinc-500" />
-                링크 복사
-              </>
-            )}
-          </button>
-        </div>
+      <div className="flex flex-wrap items-center gap-3 text-zinc-400">
+        <button
+          type="button"
+          onClick={handleCopyLink}
+          className="hover:text-zinc-900 transition-colors cursor-pointer inline-flex items-center gap-1"
+        >
+          {copied ? (
+            <span className="text-zinc-900 font-medium inline-flex items-center gap-1">
+              <Check className="w-3 h-3" /> 복사됨
+            </span>
+          ) : (
+            "링크 복사"
+          )}
+        </button>
+        <span className="text-zinc-200">·</span>
+        <button
+          type="button"
+          onClick={handleNativeOrKakaoShare}
+          className="hover:text-zinc-900 transition-colors cursor-pointer"
+        >
+          카카오톡
+        </button>
+        <span className="text-zinc-200">·</span>
+        <button
+          type="button"
+          onClick={handleShareNaver}
+          className="hover:text-zinc-900 transition-colors cursor-pointer"
+        >
+          네이버
+        </button>
+        <span className="text-zinc-200">·</span>
+        <button
+          type="button"
+          onClick={handleShareTwitter}
+          className="hover:text-zinc-900 transition-colors cursor-pointer"
+        >
+          X(트위터)
+        </button>
+        <span className="text-zinc-200">·</span>
+        <button
+          type="button"
+          onClick={handleShareFacebook}
+          className="hover:text-zinc-900 transition-colors cursor-pointer"
+        >
+          페이스북
+        </button>
       </div>
     </div>
   );
