@@ -111,13 +111,13 @@ export function EditorialProductCarousel({ products }: EditorialProductCarouselP
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex gap-6 sm:gap-8 overflow-x-auto snap-x snap-mandatory scrollbar-none scroll-smooth pb-4 pt-2 -mx-6 px-6 sm:mx-0 sm:px-0"
+        className="flex gap-4 sm:gap-6 lg:gap-8 overflow-x-auto snap-x snap-mandatory scrollbar-none scroll-smooth pb-4 pt-2 -mx-4 sm:mx-0 px-4 sm:px-0"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {products.map((product) => (
           <div
             key={product.id}
-            className="shrink-0 w-[270px] sm:w-[320px] md:w-[350px] snap-start"
+            className="shrink-0 w-[72vw] max-w-[290px] sm:w-[320px] md:w-[350px] snap-start"
           >
             <EditorialProductCard {...product} />
           </div>

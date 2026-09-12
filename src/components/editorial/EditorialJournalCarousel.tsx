@@ -109,14 +109,14 @@ export function EditorialJournalCarousel({ articles }: EditorialJournalCarouselP
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex gap-6 sm:gap-8 overflow-x-auto snap-x snap-mandatory scrollbar-none scroll-smooth pb-4 pt-2 -mx-6 px-6 sm:mx-0 sm:px-0"
+        className="flex gap-4 sm:gap-6 lg:gap-8 overflow-x-auto snap-x snap-mandatory scrollbar-none scroll-smooth pb-4 pt-2 -mx-4 sm:mx-0 px-4 sm:px-0"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {articles.map((item) => (
           <Link
             key={item.id}
             href={item.link}
-            className="shrink-0 w-[300px] sm:w-[380px] md:w-[420px] snap-start group block space-y-4"
+            className="shrink-0 w-[78vw] max-w-[340px] sm:w-[360px] md:w-[400px] snap-start group block space-y-3 sm:space-y-4"
           >
             <div className="relative aspect-[16/11] overflow-hidden rounded-none border border-zinc-200 bg-zinc-100 shadow-xs">
               <img
@@ -126,10 +126,10 @@ export function EditorialJournalCarousel({ articles }: EditorialJournalCarouselP
               />
             </div>
             <div className="space-y-1.5 pt-1">
-              <div className="text-[11px] font-mono text-zinc-400 tracking-wider">
+              <div className="text-[10px] sm:text-[11px] font-mono text-zinc-400 tracking-wider">
                 {item.issue}
               </div>
-              <h3 className="font-serif text-base sm:text-lg text-zinc-900 group-hover:text-zinc-600 transition-colors break-keep leading-snug">
+              <h3 className="font-serif text-sm sm:text-base md:text-lg text-zinc-900 group-hover:text-zinc-600 transition-colors break-keep leading-snug">
                 {item.title}
               </h3>
               <p className="text-xs text-zinc-500 font-light line-clamp-2 leading-relaxed break-keep">

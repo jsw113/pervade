@@ -165,8 +165,8 @@ export function Navbar({
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         {/* Top utility bar */}
-        <div className="bg-zinc-950 text-white text-[11px] py-1.5 px-4">
-          <div className="max-w-6xl mx-auto flex justify-between items-center">
+        <div className="bg-zinc-950 text-white text-[11px] py-1.5 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto flex justify-between items-center w-full">
             <div className="flex items-center gap-3">
               {topBannerEnabled && (
                 <span className="font-medium text-zinc-300 transition-all">
@@ -218,7 +218,7 @@ export function Navbar({
         </div>
 
         {/* Main Navbar */}
-        <div className="max-w-6xl mx-auto flex h-16 items-center justify-between px-4">
+        <div className="max-w-6xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8 w-full">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2">
               {logoUrl ? (

@@ -295,42 +295,42 @@ export default async function Home() {
       </section>
 
       {/* 2. Editorial Narrative / Brand Philosophy Section */}
-      <section className="py-24 sm:py-36 px-6 max-w-6xl mx-auto text-center">
-        <div className="space-y-6 sm:space-y-8">
-          <span className="text-[11px] font-mono tracking-[0.3em] uppercase text-zinc-400">
+      <section className="py-16 sm:py-24 md:py-32 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto text-center w-full">
+        <div className="space-y-4 sm:space-y-6 md:space-y-8">
+          <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.3em] uppercase text-zinc-400">
             Brand Philosophy
           </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-normal text-zinc-900 leading-snug tracking-tight break-keep max-w-4xl mx-auto">
+          <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-normal text-zinc-900 leading-snug tracking-tight break-keep max-w-4xl mx-auto">
             깨끗함이란 인공적인 향으로 덮는 것이 아니라,<br className="hidden sm:inline" />
             가장 맑은 본래의 상태로 되돌리는 것.
           </h2>
-          <div className="w-12 h-[1px] bg-zinc-300 mx-auto my-6" />
-          <p className="text-xs sm:text-sm md:text-base text-zinc-500 font-light leading-loose max-w-2xl mx-auto break-keep">
+          <div className="w-12 h-[1px] bg-zinc-300 mx-auto my-4 sm:my-6" />
+          <p className="text-xs sm:text-sm md:text-base text-zinc-500 font-light leading-relaxed sm:leading-loose max-w-2xl mx-auto break-keep">
             퍼베이드는 눈에 띄는 화려한 포장 대신 미니멀한 실루엣을,<br className="hidden sm:inline" />
             독한 화학 계면활성제 대신 식물 유래 세정 성분을 선택했습니다.<br className="hidden sm:inline" />
             주방의 기름때부터 욕실의 물때까지, 표면을 상하게 하지 않고 자연스럽게 스며듭니다.
           </p>
         </div>
 
-        {/* 3 Pillars Editorial Grid (Sharp Rectangular Cards) */}
-        <div className="flex md:grid md:grid-cols-3 gap-6 sm:gap-8 pt-16 sm:pt-20 text-left overflow-x-auto snap-x snap-mandatory scrollbar-none -mx-6 px-6 md:mx-0 md:px-0">
-          <div className="shrink-0 w-[260px] sm:w-[300px] md:w-auto snap-start space-y-3 p-6 sm:p-8 bg-white rounded-none border border-zinc-200 hover:border-zinc-900 transition-colors shadow-xs">
+        {/* 3 Pillars: Clean Responsive Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 pt-12 sm:pt-16 lg:pt-20 text-left">
+          <div className="space-y-3 p-6 sm:p-8 bg-white rounded-none border border-zinc-200 hover:border-zinc-900 transition-colors shadow-xs">
             <span className="text-xs font-mono text-zinc-400">01 / SAFETY</span>
-            <h3 className="font-serif text-lg text-zinc-900 font-medium">자연 유래 안심 성분</h3>
+            <h3 className="font-serif text-base sm:text-lg text-zinc-900 font-medium">자연 유래 안심 성분</h3>
             <p className="text-xs text-zinc-500 leading-relaxed font-light break-keep">
               코코넛과 옥수수에서 추출한 식물 유래 계면활성제로 아이와 반려동물이 머무는 공간에도 안심하고 사용할 수 있습니다.
             </p>
           </div>
-          <div className="shrink-0 w-[260px] sm:w-[300px] md:w-auto snap-start space-y-3 p-6 sm:p-8 bg-white rounded-none border border-zinc-200 hover:border-zinc-900 transition-colors shadow-xs">
+          <div className="space-y-3 p-6 sm:p-8 bg-white rounded-none border border-zinc-200 hover:border-zinc-900 transition-colors shadow-xs">
             <span className="text-xs font-mono text-zinc-400">02 / AESTHETIC</span>
-            <h3 className="font-serif text-lg text-zinc-900 font-medium">공간과 조화로운 미학</h3>
+            <h3 className="font-serif text-base sm:text-lg text-zinc-900 font-medium">공간과 조화로운 미학</h3>
             <p className="text-xs text-zinc-500 leading-relaxed font-light break-keep">
               숨기고 싶은 청소 도구가 아닌, 선반 위에 오브제처럼 자연스럽게 놓여 감각적인 인테리어를 완성합니다.
             </p>
           </div>
-          <div className="shrink-0 w-[260px] sm:w-[300px] md:w-auto snap-start space-y-3 p-6 sm:p-8 bg-white rounded-none border border-zinc-200 hover:border-zinc-900 transition-colors shadow-xs">
+          <div className="space-y-3 p-6 sm:p-8 bg-white rounded-none border border-zinc-200 hover:border-zinc-900 transition-colors shadow-xs">
             <span className="text-xs font-mono text-zinc-400">03 / SUSTAINABLE</span>
-            <h3 className="font-serif text-lg text-zinc-900 font-medium">지속 가능한 순환</h3>
+            <h3 className="font-serif text-base sm:text-lg text-zinc-900 font-medium">지속 가능한 순환</h3>
             <p className="text-xs text-zinc-500 leading-relaxed font-light break-keep">
               플라스틱 소비를 70% 이상 줄일 수 있는 대용량 에코 리필 파우치 시스템을 통해 환경에 대한 책임을 실천합니다.
             </p>
@@ -339,39 +339,39 @@ export default async function Home() {
       </section>
 
       {/* 3. Horizontal Curated Product Carousel (Fluid Smooth Flow) */}
-      <section className="py-20 sm:py-28 px-6 bg-white border-y border-zinc-200/60 overflow-hidden">
+      <section className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8 bg-white border-y border-zinc-200/60 overflow-hidden w-full">
         <div className="container mx-auto max-w-6xl">
           <EditorialProductCarousel products={displayProducts} />
         </div>
       </section>
 
       {/* 4. Full-Width Split Editorial Visual & Routine */}
-      <section className="py-24 sm:py-36 px-6 max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 sm:gap-16 items-center">
+      <section className="py-16 sm:py-24 md:py-32 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
           {/* Left: Atmospheric Living Scene */}
-          <div className="relative aspect-[4/5] rounded-none overflow-hidden border border-zinc-200 shadow-xl group">
+          <div className="relative aspect-[4/3] sm:aspect-[4/5] rounded-none overflow-hidden border border-zinc-200 shadow-xl group">
             <img
               src="https://images.unsplash.com/photo-1507652313519-d4e9174996dd?q=80&w=1200&auto=format&fit=crop"
               alt="Pervade Morning Routine"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 rounded-none"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-            <div className="absolute bottom-8 left-8 right-8 text-white">
+            <div className="absolute bottom-6 left-6 right-6 sm:bottom-8 sm:left-8 sm:right-8 text-white">
               <span className="text-[10px] font-mono tracking-widest uppercase opacity-80 block mb-1">
                 Aesthetic Routine
               </span>
-              <p className="font-serif text-xl sm:text-2xl font-light">
+              <p className="font-serif text-lg sm:text-2xl font-light">
                 “청소는 고된 노동이 아니라, 나의 공간을 환대하는 가장 다정한 의식입니다.”
               </p>
             </div>
           </div>
 
           {/* Right: Narrative Detail */}
-          <div className="space-y-6 sm:space-y-8 lg:pl-6">
-            <span className="text-[11px] font-mono tracking-[0.3em] uppercase text-zinc-400">
+          <div className="space-y-6 sm:space-y-8 lg:pl-4">
+            <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.3em] uppercase text-zinc-400">
               Care Routine
             </span>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-light text-zinc-900 tracking-tight leading-tight break-keep">
+            <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-light text-zinc-900 tracking-tight leading-tight break-keep">
               매일 아침 햇살과 함께<br className="hidden sm:inline" />
               시작하는 10분의 정돈
             </h2>
@@ -383,20 +383,20 @@ export default async function Home() {
               <div className="flex items-start gap-4">
                 <span className="font-mono text-xs text-zinc-400 pt-0.5">01</span>
                 <div>
-                  <h4 className="text-sm font-medium text-zinc-900 font-serif">주방 인덕션 & 상판 케어</h4>
+                  <h4 className="text-sm font-medium text-zinc-900 font-serif">주방 인덕션 &amp; 상판 케어</h4>
                   <p className="text-xs text-zinc-500 font-light break-keep">찌든 기름때 위에 분무 후 30초 뒤 극세사 타월로 부드럽게 닦아냅니다.</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
                 <span className="font-mono text-xs text-zinc-400 pt-0.5">02</span>
                 <div>
-                  <h4 className="text-sm font-medium text-zinc-900 font-serif">욕실 거울 & 수전 광택</h4>
+                  <h4 className="text-sm font-medium text-zinc-900 font-serif">욕실 거울 &amp; 수전 광택</h4>
                   <p className="text-xs text-zinc-500 font-light break-keep">유리 표면의 얼룩과 물때를 지우고 오염 재착색 방지 코팅막을 형성합니다.</p>
                 </div>
               </div>
             </div>
 
-            <div className="pt-4">
+            <div className="pt-2 sm:pt-4">
               <Link
                 href="/guide"
                 className="inline-flex items-center gap-2 text-xs font-serif tracking-widest uppercase text-zinc-900 hover:text-zinc-600 border-b border-zinc-900 pb-1"
@@ -409,7 +409,7 @@ export default async function Home() {
       </section>
 
       {/* 5. Living Journal (Horizontal Flowing Carousel) */}
-      <section className="py-24 bg-white border-t border-zinc-200/70 px-6 overflow-hidden">
+      <section className="py-16 sm:py-24 bg-white border-t border-zinc-200/70 px-4 sm:px-6 lg:px-8 overflow-hidden w-full">
         <div className="container mx-auto max-w-6xl">
           <EditorialJournalCarousel articles={displayArticles} />
         </div>
