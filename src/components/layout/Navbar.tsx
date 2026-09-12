@@ -284,21 +284,18 @@ export function Navbar({
                 </span>
               )}
             </Link>
-            <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-              <Link href="/shop" className="hover:text-primary/80 transition-colors font-semibold">
-                Shop
+            <nav className="hidden md:flex items-center gap-7 text-xs font-semibold tracking-widest uppercase">
+              <Link href="/about" className="hover:text-zinc-950 transition-colors text-zinc-700">
+                BRAND
               </Link>
-              <Link href="/guide" className="hover:text-primary/80 transition-colors text-amber-600 font-bold">
-                사용가이드
+              <Link href="/journal" className="hover:text-zinc-950 transition-colors text-zinc-700">
+                JOURNAL
               </Link>
-              <Link href="/about" className="hover:text-primary/80 transition-colors">
-                브랜드 스토리
+              <Link href="/shop" className="hover:text-zinc-950 transition-colors text-zinc-900 font-bold">
+                SHOP
               </Link>
-              <Link href="/journal" className="hover:text-primary/80 transition-colors">
-                저널
-              </Link>
-              <Link href="/cs" className="hover:text-primary/80 transition-colors text-muted-foreground">
-                고객센터
+              <Link href="/cs" className="hover:text-zinc-950 transition-colors text-zinc-700">
+                CUSTOMER
               </Link>
             </nav>
           </div>
@@ -349,13 +346,11 @@ export function Navbar({
         {/* Mobile Navigation Drawer */}
         {isMenuOpen && (
           <div className="md:hidden border-t bg-background px-4 pt-2 pb-6 space-y-4 shadow-lg">
-            <nav className="flex flex-col space-y-3 text-sm font-medium">
-              <Link href="/shop" onClick={() => setIsMenuOpen(false)} className="font-bold text-base">전체 상품</Link>
-              <Link href="/guide" onClick={() => setIsMenuOpen(false)} className="text-amber-600 font-bold">사용가이드</Link>
-              <Link href="/about" onClick={() => setIsMenuOpen(false)}>브랜드 스토리</Link>
-              <Link href="/cs" onClick={() => setIsMenuOpen(false)}>고객센터</Link>
-              <Link href="/faq" onClick={() => setIsMenuOpen(false)} className="text-zinc-500 pl-2 text-xs">↳ 자주 묻는 질문 (FAQ)</Link>
-              <Link href="/qna" onClick={() => setIsMenuOpen(false)} className="text-zinc-500 pl-2 text-xs">↳ 1:1 Q&amp;A 문의</Link>
+            <nav className="flex flex-col space-y-3.5 text-sm font-medium tracking-wider uppercase">
+              <Link href="/about" onClick={() => setIsMenuOpen(false)} className="font-semibold text-zinc-900">BRAND</Link>
+              <Link href="/journal" onClick={() => setIsMenuOpen(false)} className="font-semibold text-zinc-900">JOURNAL</Link>
+              <Link href="/shop" onClick={() => setIsMenuOpen(false)} className="font-bold text-zinc-950">SHOP</Link>
+              <Link href="/cs" onClick={() => setIsMenuOpen(false)} className="font-semibold text-zinc-900">CUSTOMER</Link>
             </nav>
             <div className="pt-4 border-t flex flex-col gap-2">
               {user ? (
