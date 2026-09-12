@@ -49,8 +49,8 @@ export default async function Home() {
     });
 
     journalPosts = await prisma.post.findMany({
-      where: { type: "JOURNAL", published: true },
-      take: 4,
+      where: { published: true },
+      take: 8,
       orderBy: { createdAt: "desc" }
     });
 
@@ -240,11 +240,11 @@ export default async function Home() {
     ? [
         ...journalPosts.map((post, idx) => ({
           id: post.id,
-          issue: `ISSUE 0${idx + 1} / LIVING JOURNAL`,
+          issue: post.type === 'ABOUT' ? 'BRAND STORY' : post.type === 'NOTICE' ? 'NOTICE' : `ISSUE 0${idx + 1} / LIVING JOURNAL`,
           title: post.title,
           desc: post.content.replace(/[#*`]/g, '').substring(0, 70),
-          image: defaultCuratedArticles[idx % defaultCuratedArticles.length].image,
-          link: `/journal/${post.id}`
+          image: post.imageUrl || defaultCuratedArticles[idx % defaultCuratedArticles.length].image,
+          link: post.type === 'ABOUT' ? '/about' : post.type === 'NOTICE' ? `/notice/${post.id}` : `/journal/${post.id}`
         })),
         ...featuredGuides.map((guide, idx) => ({
           id: guide.id,
@@ -254,7 +254,7 @@ export default async function Home() {
           image: guide.thumbnailUrl || defaultCuratedArticles[(idx + 2) % defaultCuratedArticles.length].image,
           link: `/guide/${guide.id}`
         }))
-      ].slice(0, 6)
+      ].slice(0, 8)
     : defaultCuratedArticles;
 
   return (

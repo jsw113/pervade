@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Trash2, ArrowLeft, Eye, Sparkles } from "lucide-react";
+import { Check, Trash2, ArrowLeft, Eye, Sparkles, Upload, Image as ImageIcon, X } from "lucide-react";
 import Link from "next/link";
+import { optimizeImageFile } from "@/lib/utils/imageOptimizer";
 
 interface PostEditorProps {
   initialData?: {
@@ -11,6 +12,7 @@ interface PostEditorProps {
     title?: string;
     type?: string;
     content?: string;
+    imageUrl?: string | null;
     published?: boolean;
   };
 }
@@ -20,11 +22,31 @@ export function PostEditor({ initialData }: PostEditorProps) {
   const [title, setTitle] = useState(initialData?.title || "");
   const [type, setType] = useState(initialData?.type || "JOURNAL");
   const [content, setContent] = useState(initialData?.content || "");
+  const [imageUrl, setImageUrl] = useState(initialData?.imageUrl || "");
+  const [imageSourceType, setImageSourceType] = useState<"FILE" | "URL">("FILE");
+  const [isImageUploading, setIsImageUploading] = useState(false);
   const [published, setPublished] = useState(initialData?.published !== false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const isEditMode = !!initialData?.id;
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsImageUploading(true);
+    try {
+      // 1600x1200 high-res optimization
+      const dataUrl = await optimizeImageFile(file, 1600, 1200, 0.85);
+      setImageUrl(dataUrl);
+    } catch (err: any) {
+      console.error(err);
+      alert("이미지 처리 중 오류가 발생했습니다: " + (err?.message || ""));
+    } finally {
+      setIsImageUploading(false);
+    }
+  };
 
   async function handleSubmit(e: React.FormEvent, shouldPublish: boolean) {
     e.preventDefault();
@@ -45,7 +67,8 @@ export function PostEditor({ initialData }: PostEditorProps) {
         body: JSON.stringify({ 
           title, 
           type, 
-          content, 
+          content,
+          imageUrl: imageUrl || null,
           published: shouldPublish 
         }),
       });
@@ -90,7 +113,7 @@ export function PostEditor({ initialData }: PostEditorProps) {
 
   return (
     <form className="space-y-6 max-w-4xl bg-white p-6 sm:p-8 rounded-2xl border shadow-xs">
-      <div className="space-y-4">
+      <div className="space-y-5">
         <div>
           <label className="block text-xs font-bold text-zinc-700 mb-1">콘텐츠 제목 *</label>
           <input 
@@ -133,6 +156,96 @@ export function PostEditor({ initialData }: PostEditorProps) {
             </div>
           </div>
         </div>
+
+        {/* Cover / Thumbnail Image Upload Section */}
+        <div className="p-4 bg-zinc-50 rounded-2xl border space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <label className="block text-xs font-bold text-zinc-900 flex items-center gap-1.5">
+                <ImageIcon className="w-4 h-4 text-amber-500" />
+                대표 커버 / 썸네일 이미지 (메인 및 리스트에 노출)
+              </label>
+              <p className="text-[11px] text-zinc-500 mt-0.5">
+                메인 홈페이지 저널/스토리 카드 및 블로그 목록에 노출될 고화질 사진을 등록합니다.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <button
+                type="button"
+                onClick={() => setImageSourceType("FILE")}
+                className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
+                  imageSourceType === "FILE" 
+                    ? "bg-zinc-950 text-white shadow-2xs" 
+                    : "bg-white text-zinc-600 border"
+                }`}
+              >
+                직접 파일 업로드
+              </button>
+              <button
+                type="button"
+                onClick={() => setImageSourceType("URL")}
+                className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
+                  imageSourceType === "URL" 
+                    ? "bg-zinc-950 text-white shadow-2xs" 
+                    : "bg-white text-zinc-600 border"
+                }`}
+              >
+                이미지 URL 입력
+              </button>
+            </div>
+          </div>
+
+          {imageSourceType === "FILE" ? (
+            <div>
+              <label className="border-2 border-dashed border-zinc-200 hover:border-zinc-900 bg-white rounded-xl p-5 flex flex-col items-center justify-center cursor-pointer transition-colors group">
+                <Upload className="w-6 h-6 text-zinc-400 group-hover:text-zinc-900 transition-colors mb-1.5" />
+                <span className="text-xs font-bold text-zinc-700 group-hover:text-zinc-950">
+                  {isImageUploading ? "이미지 압축 최적화 중..." : "이미지 파일 선택하여 업로드하기"}
+                </span>
+                <span className="text-[10px] text-zinc-400 mt-0.5">JPG, PNG, WebP (자동 고화질 압축 처리)</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={isImageUploading}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          ) : (
+            <div>
+              <input
+                type="url"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="https://images.unsplash.com/... (또는 외부 이미지 링크)"
+                className="w-full p-2.5 bg-white border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              />
+            </div>
+          )}
+
+          {/* Image Preview & Delete */}
+          {imageUrl && (
+            <div className="relative rounded-xl overflow-hidden border bg-zinc-900 w-full max-w-sm aspect-16/10 shadow-xs group">
+              <img
+                src={imageUrl}
+                alt="Post Thumbnail Preview"
+                className="w-full h-full object-cover"
+              />
+              <button
+                type="button"
+                onClick={() => setImageUrl("")}
+                className="absolute top-2 right-2 p-1.5 bg-red-600/90 text-white rounded-full hover:bg-red-700 transition-colors shadow-md"
+                title="이미지 제거"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+              <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-xs px-2.5 py-1 rounded text-[10px] text-white font-medium">
+                등록된 대표 이미지
+              </div>
+            </div>
+          )}
+        </div>
         
         <div>
           <div className="flex justify-between items-center mb-1">
@@ -143,7 +256,7 @@ export function PostEditor({ initialData }: PostEditorProps) {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             required
-            rows={16}
+            rows={14}
             className="w-full p-4 bg-zinc-50 border rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-zinc-900 leading-relaxed"
             placeholder="여기에 브랜드 스토리, 저널 아티클, 소개 글을 작성하세요..."
           />

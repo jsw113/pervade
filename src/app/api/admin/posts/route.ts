@@ -30,7 +30,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, type, content, published } = body;
+    const { title, type, content, published, imageUrl } = body;
 
     let adminUser = await prisma.user.findFirst({ where: { role: "ADMIN" } });
     
@@ -50,6 +50,7 @@ export async function POST(request: Request) {
         title,
         type: type || "JOURNAL",
         content,
+        imageUrl: imageUrl || null,
         published: published !== undefined ? !!published : true,
         authorId: adminUser.id
       }

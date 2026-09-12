@@ -116,25 +116,28 @@ export function EditorialJournalCarousel({ articles }: EditorialJournalCarouselP
           <Link
             key={item.id}
             href={item.link}
-            className="shrink-0 w-[78vw] max-w-[340px] sm:w-[360px] md:w-[400px] snap-start group block space-y-3 sm:space-y-4"
+            className="shrink-0 w-[72vw] max-w-[290px] sm:w-[320px] md:w-[350px] snap-start group block"
           >
-            <div className="relative aspect-[16/11] overflow-hidden rounded-none border border-zinc-200 bg-zinc-100 shadow-xs">
+            <div className="relative aspect-[3/4] overflow-hidden rounded-none border border-zinc-200 bg-zinc-900 shadow-sm">
               <img
                 src={item.image}
                 alt={item.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
-            </div>
-            <div className="space-y-1.5 pt-1">
-              <div className="text-[10px] sm:text-[11px] font-mono text-zinc-400 tracking-wider">
-                {item.issue}
+              {/* Bottom Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent pointer-events-none" />
+
+              {/* Title embedded inside bottom-left of image */}
+              <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 text-white space-y-2 z-10">
+                {item.issue && (
+                  <span className="text-[10px] font-mono tracking-widest uppercase text-white/70 block">
+                    {item.issue}
+                  </span>
+                )}
+                <h3 className="font-serif text-base sm:text-lg font-light text-white leading-snug tracking-tight break-keep group-hover:underline underline-offset-4 line-clamp-2">
+                  {item.title}
+                </h3>
               </div>
-              <h3 className="font-serif text-sm sm:text-base md:text-lg text-zinc-900 group-hover:text-zinc-600 transition-colors break-keep leading-snug">
-                {item.title}
-              </h3>
-              <p className="text-xs text-zinc-500 font-light line-clamp-2 leading-relaxed break-keep">
-                {item.desc}
-              </p>
             </div>
           </Link>
         ))}

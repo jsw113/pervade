@@ -51,6 +51,7 @@ model Post {
   id        String   @id @default(uuid())
   title     String
   content   String   // Rich text or Markdown
+  imageUrl  String?  // Main / cover thumbnail image URL
   type      String   // "ABOUT" or "PRODUCT" or "JOURNAL"
   published Boolean  @default(false)
   createdAt DateTime @default(now())
