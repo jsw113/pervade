@@ -351,7 +351,7 @@ export default async function Home() {
 
       case "brand_story":
         return (
-          <section key="brand_story" className="py-8 sm:py-12 bg-white">
+          <section key="brand_story" className="py-8 sm:py-12 bg-zinc-100/60">
             <div className="max-w-6xl mx-auto px-4">
               <div className="bg-zinc-950 text-white rounded-3xl p-8 sm:p-14 lg:p-16 shadow-2xl text-center space-y-12">
                 {/* Centered Section Header */}
