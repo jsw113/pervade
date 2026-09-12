@@ -215,21 +215,35 @@ export function ProductEditForm({ product }: { product: any }) {
         compressedDetailImages.push(await optimizeDataUrl(dUrl, 860, 0.78));
       }
 
+      const parsedPriceNum = parseInt(String(price || "").replace(/[^0-9]/g, ""), 10);
+      if (isNaN(parsedPriceNum) || parsedPriceNum <= 0) {
+        alert("판매가를 0보다 큰 숫자로 입력해주세요.");
+        setIsSaving(false);
+        return;
+      }
+
+      const parsedOrigPriceNum = originalPrice && String(originalPrice).trim() !== ""
+        ? parseInt(String(originalPrice).replace(/[^0-9]/g, ""), 10)
+        : null;
+
       const payload = { 
-        name, 
-        description, 
+        name: String(name).trim(), 
+        description: String(description).trim(), 
         category,
         subCategory,
-        price: parseInt(price), 
-        originalPrice: originalPrice ? parseInt(originalPrice) : null,
-        shippingFee: parseInt(shippingFee) || 0,
-        stock: parseInt(stock), 
-        safetyStock: parseInt(safetyStock),
+        price: parsedPriceNum, 
+        originalPrice: isNaN(parsedOrigPriceNum as number) ? null : parsedOrigPriceNum,
+        shippingFee: parseInt(String(shippingFee || "3000").replace(/[^0-9]/g, ""), 10) || 0,
+        stock: parseInt(String(stock || "100").replace(/[^0-9]/g, ""), 10) || 0, 
+        safetyStock: parseInt(String(safetyStock || "10").replace(/[^0-9]/g, ""), 10) || 0,
         imageUrl: compressedGalleryImages[0], 
         images: compressedGalleryImages,
         detailContent,
         detailImages: compressedDetailImages,
-        options: options.length > 0 ? options : null,
+        options: options.length > 0 ? options.map(opt => ({
+          ...opt,
+          extraPrice: parseInt(String(opt.extraPrice || 0).replace(/[^0-9]/g, ""), 10) || 0
+        })) : null,
         legalInfo: {
           legalUsageForm,
           legalExpiryDate,

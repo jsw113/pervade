@@ -40,7 +40,7 @@ export async function POST(request: Request) {
   try {
     const admin = await getAdminUser(request);
     if (!admin) {
-      return NextResponse.json({ error: "관리자 권한이 필요합니다." }, { status: 403 });
+      return NextResponse.json({ error: "관리자 로그인 인증이 필요합니다. 다시 로그인해주세요." }, { status: 403 });
     }
 
     const body = await request.json();
@@ -63,29 +63,47 @@ export async function POST(request: Request) {
       isVisible 
     } = body;
 
-    if (!name || !description || price === undefined) {
-      return NextResponse.json({ error: "제품명, 설명, 판매가는 필수입니다." }, { status: 400 });
+    if (!name || !name.trim()) {
+      return NextResponse.json({ error: "제품명을 입력해주세요." }, { status: 400 });
     }
 
-    const parsedPrice = parseInt(price);
-    const parsedStock = parseInt(stock || "0");
-    const parsedSafetyStock = parseInt(safetyStock || "0");
-    const parsedShippingFee = parseInt(shippingFee || "0");
+    const parsedPrice = parseInt(String(price ?? ""), 10);
+    if (isNaN(parsedPrice) || parsedPrice < 0) {
+      return NextResponse.json({ error: "판매가를 올바른 숫자로 입력해주세요." }, { status: 400 });
+    }
+
+    const parsedOriginalPrice = originalPrice !== null && originalPrice !== undefined && String(originalPrice).trim() !== ""
+      ? parseInt(String(originalPrice), 10)
+      : null;
+
+    const parsedStock = !isNaN(parseInt(String(stock), 10)) ? parseInt(String(stock), 10) : 100;
+    const parsedSafetyStock = !isNaN(parseInt(String(safetyStock), 10)) ? parseInt(String(safetyStock), 10) : 10;
+    const parsedShippingFee = !isNaN(parseInt(String(shippingFee), 10)) ? parseInt(String(shippingFee), 10) : 3000;
+
+    // Sanitize options if array
+    let sanitizedOptions = options;
+    if (Array.isArray(options)) {
+      sanitizedOptions = options.map((opt: any) => ({
+        ...opt,
+        extraPrice: !isNaN(parseInt(String(opt.extraPrice), 10)) ? parseInt(String(opt.extraPrice), 10) : 0,
+        stock: !isNaN(parseInt(String(opt.stock), 10)) ? parseInt(String(opt.stock), 10) : undefined,
+      }));
+    }
 
     const product = await prisma.product.create({
       data: {
-        name,
-        description,
-        category: category || "BATHROOM",
-        subCategory: subCategory || "",
+        name: name.trim(),
+        description: description ? description.trim() : "프리미엄 공간 케어 솔루션",
+        category: category || "세정제류",
+        subCategory: subCategory || "다목적/올인원",
         price: parsedPrice,
-        originalPrice: originalPrice ? parseInt(originalPrice) : null,
+        originalPrice: isNaN(parsedOriginalPrice as number) ? null : parsedOriginalPrice,
         shippingFee: parsedShippingFee,
-        imageUrl: imageUrl || "",
+        imageUrl: imageUrl || (Array.isArray(images) && images.length > 0 ? images[0] : ""),
         images: images ? (typeof images === "string" ? images : JSON.stringify(images)) : null,
         detailContent: detailContent || "",
         detailImages: detailImages ? (typeof detailImages === "string" ? detailImages : JSON.stringify(detailImages)) : null,
-        options: options ? (typeof options === "string" ? options : JSON.stringify(options)) : null,
+        options: sanitizedOptions ? (typeof sanitizedOptions === "string" ? sanitizedOptions : JSON.stringify(sanitizedOptions)) : null,
         legalInfo: legalInfo ? (typeof legalInfo === "string" ? legalInfo : JSON.stringify(legalInfo)) : null,
         stock: parsedStock,
         safetyStock: parsedSafetyStock,
@@ -94,23 +112,37 @@ export async function POST(request: Request) {
     });
 
     if (parsedStock > 0) {
-      await prisma.inventoryLog.create({
-        data: {
-          productId: product.id,
-          type: "IN",
-          quantity: parsedStock,
-          balance: parsedStock,
-          reason: "신규 제품 최초 등록 입고"
-        }
-      });
+      try {
+        await prisma.inventoryLog.create({
+          data: {
+            productId: product.id,
+            type: "IN",
+            quantity: parsedStock,
+            balance: parsedStock,
+            reason: "신규 제품 최초 등록 입고"
+          }
+        });
+      } catch (logErr) {
+        console.warn("InventoryLog warning:", logErr);
+      }
     }
 
-    revalidatePath("/shop");
-    revalidatePath("/admin/products");
+    try {
+      revalidatePath("/");
+      revalidatePath("/shop");
+      revalidatePath("/admin/products");
+    } catch (revErr) {
+      console.warn("Revalidate warning:", revErr);
+    }
 
-    return NextResponse.json(product);
-  } catch (error) {
+    return NextResponse.json({
+      success: true,
+      product
+    });
+  } catch (error: any) {
     console.error("Failed to create product:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ 
+      error: error?.message || "제품 등록 처리 중 데이터베이스 오류가 발생했습니다." 
+    }, { status: 500 });
   }
 }

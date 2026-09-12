@@ -32,45 +32,67 @@ export async function PATCH(
 
     const current = await prisma.product.findUnique({ where: { id } });
     if (!current) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+      return NextResponse.json({ error: "해당 제품을 찾을 수 없습니다." }, { status: 404 });
     }
 
-    const newStock = stock !== undefined ? parseInt(stock) : current.stock;
+    const newStock = stock !== undefined && !isNaN(parseInt(String(stock), 10))
+      ? parseInt(String(stock), 10)
+      : current.stock;
     const stockDiff = newStock - current.stock;
+
+    const parsedPrice = price !== undefined && !isNaN(parseInt(String(price), 10))
+      ? parseInt(String(price), 10)
+      : undefined;
+
+    const parsedOriginalPrice = originalPrice !== undefined
+      ? (originalPrice !== null && String(originalPrice).trim() !== "" ? parseInt(String(originalPrice), 10) : null)
+      : undefined;
+
+    const parsedShippingFee = shippingFee !== undefined && !isNaN(parseInt(String(shippingFee), 10))
+      ? parseInt(String(shippingFee), 10)
+      : undefined;
+
+    const parsedSafetyStock = safetyStock !== undefined && !isNaN(parseInt(String(safetyStock), 10))
+      ? parseInt(String(safetyStock), 10)
+      : undefined;
 
     const product = await prisma.product.update({
       where: { id },
       data: {
-        ...(name !== undefined && { name }),
-        ...(description !== undefined && { description }),
+        ...(name !== undefined && { name: String(name).trim() }),
+        ...(description !== undefined && { description: String(description).trim() }),
         ...(category !== undefined && { category }),
         ...(subCategory !== undefined && { subCategory }),
-        ...(price !== undefined && { price: parseInt(price) }),
-        ...(originalPrice !== undefined && { originalPrice: originalPrice ? parseInt(originalPrice) : null }),
-        ...(shippingFee !== undefined && { shippingFee: parseInt(shippingFee) }),
+        ...(parsedPrice !== undefined && { price: parsedPrice }),
+        ...(parsedOriginalPrice !== undefined && { originalPrice: parsedOriginalPrice }),
+        ...(parsedShippingFee !== undefined && { shippingFee: parsedShippingFee }),
         ...(imageUrl !== undefined && { imageUrl }),
         ...(images !== undefined && { images: Array.isArray(images) ? JSON.stringify(images) : images }),
         ...(detailContent !== undefined && { detailContent }),
         ...(detailImages !== undefined && { detailImages: Array.isArray(detailImages) ? JSON.stringify(detailImages) : detailImages }),
         ...(options !== undefined && { options: Array.isArray(options) ? JSON.stringify(options) : options }),
         ...(legalInfo !== undefined && { legalInfo: typeof legalInfo === "string" ? legalInfo : JSON.stringify(legalInfo) }),
-        ...(stock !== undefined && { stock: newStock }),
-        ...(safetyStock !== undefined && { safetyStock: parseInt(safetyStock) }),
+        stock: newStock,
+        ...(parsedSafetyStock !== undefined && { safetyStock: parsedSafetyStock }),
         ...(isVisible !== undefined && { isVisible: !!isVisible }),
       },
     });
 
     // Record inventory log if stock changed directly in edit form
     if (stockDiff !== 0) {
-      await prisma.inventoryLog.create({
-        data: {
-          productId: id,
-          type: stockDiff > 0 ? "IN" : "OUT",
-          quantity: Math.abs(stockDiff),
-          balance: newStock,
-          reason: "제품 정보 수정 페이지에서 재고 직접 수정"
-        }
-      });
+      try {
+        await prisma.inventoryLog.create({
+          data: {
+            productId: id,
+            type: stockDiff > 0 ? "IN" : "OUT",
+            quantity: Math.abs(stockDiff),
+            balance: newStock,
+            reason: "제품 정보 수정 페이지에서 재고 직접 수정"
+          }
+        });
+      } catch (logErr) {
+        console.warn("InventoryLog update warning:", logErr);
+      }
     }
 
     // Revalidate paths for instant reflect
@@ -85,9 +107,9 @@ export async function PATCH(
     }
 
     return NextResponse.json(product);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to update product:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: error?.message || "제품 수정 중 오류가 발생했습니다." }, { status: 500 });
   }
 }
 
@@ -104,6 +126,7 @@ export async function DELETE(
     await prisma.wishlist.deleteMany({ where: { productId: id } });
     await prisma.review.deleteMany({ where: { productId: id } });
     await prisma.question.deleteMany({ where: { productId: id } });
+    await prisma.order.updateMany({ where: { productId: id }, data: { productId: null } });
     await prisma.product.delete({ where: { id } });
 
     try {
@@ -115,8 +138,8 @@ export async function DELETE(
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to delete product:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: error?.message || "제품 삭제 중 오류가 발생했습니다." }, { status: 500 });
   }
 }
