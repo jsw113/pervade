@@ -130,83 +130,87 @@ export default async function Home() {
       case "hero":
         if (!heroVisible) return null;
         return (
-          <section key="hero" className="relative w-full h-[85vh] min-h-[580px] flex flex-col items-center justify-center bg-zinc-950 overflow-hidden">
-            {/* Dynamic Overlay Masking (0% = totally transparent / no mask, 100% = solid black) */}
-            {(() => {
-              const num = Number(heroOverlayOpacity);
-              const opacityVal = isNaN(num) ? 0.45 : Math.max(0, Math.min(100, num)) / 100;
-              if (opacityVal <= 0) return null;
-              return (
-                <div 
-                  className="absolute inset-0 bg-black z-10 transition-opacity duration-300 pointer-events-none" 
-                  style={{ opacity: opacityVal }} 
-                />
-              );
-            })()}
-            
-            {/* Dynamic Background: Video vs Image */}
-            {heroBgType === "VIDEO" && heroBgUrl ? (
-              <video 
-                key={heroBgUrl}
-                autoPlay 
-                loop 
-                muted 
-                playsInline 
-                preload="auto"
-                className="absolute inset-0 w-full h-full object-cover z-0"
-              >
-                <source src={heroBgUrl} type="video/mp4" />
-                <source src={heroBgUrl} type="video/webm" />
-              </video>
-            ) : (
-              <div 
-                className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-700 will-change-transform bg-zinc-950"
-                style={{ 
-                  backgroundImage: activeBgUrl ? `url(${activeBgUrl})` : "none",
-                  backgroundPosition: "center center",
-                  backgroundRepeat: "no-repeat",
-                  backgroundSize: "cover",
-                  imageRendering: "auto",
-                  transform: "translate3d(0, 0, 0)",
-                  WebkitBackfaceVisibility: "hidden",
-                }}
-              />
-            )}
-            
-            {/* Main Headline Content Area (Upper / Center) */}
-            {heroShowText && (
-              <div className="container relative z-20 mx-auto px-4 text-center text-white pb-20 md:pb-24">
-                <span className="text-xs md:text-sm font-bold tracking-widest uppercase mb-4 inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-white shadow-xs">
-                  Pervade Premium Clean Living
-                </span>
-                <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight mb-5 max-w-4xl mx-auto leading-tight whitespace-pre-line drop-shadow-lg">
-                  {heroTitle}
-                </h1>
-                <p className="text-sm sm:text-base md:text-lg text-white/90 max-w-2xl mx-auto whitespace-pre-line leading-relaxed drop-shadow-md font-light">
-                  {heroSubtitle}
-                </p>
-              </div>
-            )}
+          <section key="hero" className="w-full bg-zinc-100/60 py-4 sm:py-6">
+            <div className="max-w-6xl mx-auto px-4">
+              <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden aspect-[16/9] min-h-[380px] sm:min-h-[460px] md:min-h-[520px] max-h-[620px] flex flex-col items-center justify-center bg-zinc-950 shadow-xl">
+                {/* Dynamic Overlay Masking (0% = totally transparent / no mask, 100% = solid black) */}
+                {(() => {
+                  const num = Number(heroOverlayOpacity);
+                  const opacityVal = isNaN(num) ? 0.45 : Math.max(0, Math.min(100, num)) / 100;
+                  if (opacityVal <= 0) return null;
+                  return (
+                    <div 
+                      className="absolute inset-0 bg-black z-10 transition-opacity duration-300 pointer-events-none" 
+                      style={{ opacity: opacityVal }} 
+                    />
+                  );
+                })()}
+                
+                {/* Dynamic Background: Video vs Image */}
+                {heroBgType === "VIDEO" && heroBgUrl ? (
+                  <video 
+                    key={heroBgUrl}
+                    autoPlay 
+                    loop 
+                    muted 
+                    playsInline 
+                    preload="auto"
+                    className="absolute inset-0 w-full h-full object-cover z-0"
+                  >
+                    <source src={heroBgUrl} type="video/mp4" />
+                    <source src={heroBgUrl} type="video/webm" />
+                  </video>
+                ) : (
+                  <div 
+                    className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-700 will-change-transform bg-zinc-950"
+                    style={{ 
+                      backgroundImage: activeBgUrl ? `url(${activeBgUrl})` : "none",
+                      backgroundPosition: "center center",
+                      backgroundRepeat: "no-repeat",
+                      backgroundSize: "cover",
+                      imageRendering: "auto",
+                      transform: "translate3d(0, 0, 0)",
+                      WebkitBackfaceVisibility: "hidden",
+                    }}
+                  />
+                )}
+                
+                {/* Main Headline Content Area (Upper / Center) */}
+                {heroShowText && (
+                  <div className="container relative z-20 mx-auto px-4 text-center text-white pb-16 md:pb-20">
+                    <span className="text-xs md:text-sm font-bold tracking-widest uppercase mb-3 sm:mb-4 inline-block px-4 py-1.5 bg-white/20 backdrop-blur-md rounded-full text-white shadow-xs">
+                      Pervade Premium Clean Living
+                    </span>
+                    <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-4 max-w-3xl mx-auto leading-tight whitespace-pre-line drop-shadow-lg">
+                      {heroTitle}
+                    </h1>
+                    <p className="text-xs sm:text-sm md:text-base text-white/90 max-w-xl mx-auto whitespace-pre-line leading-relaxed drop-shadow-md font-light">
+                      {heroSubtitle}
+                    </p>
+                  </div>
+                )}
 
-            {/* Repositioned CTA Buttons: Lower 1/4 Center */}
-            {heroShowCta && (
-              <div className="absolute bottom-10 sm:bottom-12 md:bottom-14 left-0 right-0 z-20 px-4">
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-md sm:max-w-xl mx-auto">
-                  <Link 
-                    href="/shop" 
-                    className="w-full sm:w-auto px-8 py-3.5 sm:py-4 bg-white text-zinc-950 rounded-full font-bold flex items-center justify-center gap-2 hover:bg-zinc-100 transition-all shadow-2xl hover:scale-105 active:scale-95 text-xs sm:text-sm"
-                  >
-                    제품 둘러보기 <ArrowRight className="w-4 h-4" />
-                  </Link>
-                  <Link 
-                    href="/guide" 
-                    className="w-full sm:w-auto px-8 py-3.5 sm:py-4 bg-black/40 text-white rounded-full font-bold flex items-center justify-center border border-white/50 hover:bg-white/20 transition-all backdrop-blur-md shadow-2xl hover:scale-105 active:scale-95 text-xs sm:text-sm"
-                  >
-                    사용 가이드 확인
-                  </Link>
-                </div>
+                {/* Repositioned CTA Buttons: Lower 1/4 Center */}
+                {heroShowCta && (
+                  <div className="absolute bottom-6 sm:bottom-8 md:bottom-10 left-0 right-0 z-20 px-4">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-md sm:max-w-xl mx-auto">
+                      <Link 
+                        href="/shop" 
+                        className="w-full sm:w-auto px-8 py-3.5 bg-white text-zinc-950 rounded-full font-bold flex items-center justify-center gap-2 hover:bg-zinc-100 transition-all shadow-2xl hover:scale-105 active:scale-95 text-xs sm:text-sm"
+                      >
+                        제품 둘러보기 <ArrowRight className="w-4 h-4" />
+                      </Link>
+                      <Link 
+                        href="/guide" 
+                        className="w-full sm:w-auto px-8 py-3.5 bg-black/40 text-white rounded-full font-bold flex items-center justify-center border border-white/50 hover:bg-white/20 transition-all backdrop-blur-md shadow-2xl hover:scale-105 active:scale-95 text-xs sm:text-sm"
+                      >
+                        사용 가이드 확인
+                      </Link>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </section>
         );
 
