@@ -267,15 +267,6 @@ export default async function Home() {
             퍼베이드는 자연에서 온 순수한 성분과 절제된 미학으로<br className="hidden sm:inline" />
             당신의 매일 머무는 공간에 고요한 휴식을 선사합니다.
           </p>
-
-          <div className="pt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/shop"
-              className="px-8 py-3.5 bg-white text-zinc-950 text-xs font-serif tracking-widest uppercase rounded-none hover:bg-zinc-100 transition-all shadow-lg active:scale-95"
-            >
-              Discover Collection
-            </Link>
-          </div>
         </div>
 
         {/* Scroll Indicator */}

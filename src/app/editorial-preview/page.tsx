@@ -140,7 +140,7 @@ export default function EditorialPreviewPage() {
 
         {/* Hero Typography */}
         <div className="relative z-10 text-center text-white px-6 max-w-4xl mx-auto space-y-6 pt-16">
-          <p className="text-xs sm:text-sm font-light tracking-[0.3em] uppercase opacity-90">
+          <p className="text-xs sm:text-sm font-mono tracking-[0.3em] uppercase opacity-90">
             Silence in Cleanliness
           </p>
           <h1 className="text-3xl sm:text-5xl md:text-7xl font-serif font-light tracking-tight leading-[1.15]">
@@ -150,15 +150,6 @@ export default function EditorialPreviewPage() {
             퍼베이드는 자연에서 온 순수한 성분과 절제된 미학으로<br className="hidden sm:inline" />
             당신의 매일 머무는 공간에 고요한 휴식을 선사합니다.
           </p>
-
-          <div className="pt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/shop"
-              className="px-8 py-3.5 bg-white text-zinc-950 text-xs font-medium tracking-widest uppercase rounded-full hover:bg-zinc-100 transition-all shadow-lg hover:scale-105 active:scale-95"
-            >
-              Discover Collection
-            </Link>
-          </div>
         </div>
 
         {/* Scroll Indicator */}
