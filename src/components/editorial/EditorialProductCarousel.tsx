@@ -114,7 +114,7 @@ export function EditorialProductCarousel({ products }: EditorialProductCarouselP
         {products.map((product) => (
           <div
             key={product.id}
-            className="shrink-0 w-[72vw] max-w-[290px] sm:w-[320px] md:w-[350px] snap-start"
+            className="shrink-0 w-[75vw] sm:w-[320px] md:w-[360px] lg:w-[30%] xl:w-[29.5%] 2xl:w-[440px] snap-start"
           >
             <EditorialProductCard {...product} />
           </div>

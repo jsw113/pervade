@@ -472,8 +472,8 @@ export default async function Home() {
 
       case "brand_story": {
         return (
-          <section key="brand_story" className="py-16 sm:py-24 bg-white border-t border-zinc-200/70 px-4 sm:px-6 lg:px-8 overflow-hidden w-full">
-            <div className="container mx-auto max-w-6xl">
+          <section key="brand_story" className="py-16 sm:py-24 bg-white border-t border-zinc-200/70 px-4 sm:px-8 lg:px-12 overflow-hidden w-full">
+            <div className="container mx-auto max-w-[1500px]">
               <EditorialJournalCarousel
                 title="BRAND STORY"
                 moreLink="/about"
@@ -487,8 +487,8 @@ export default async function Home() {
 
       case "products": {
         return (
-          <section key="products" className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8 bg-white border-t border-zinc-200/60 overflow-hidden w-full">
-            <div className="container mx-auto max-w-6xl">
+          <section key="products" className="py-16 sm:py-24 lg:py-28 px-4 sm:px-8 lg:px-12 bg-white border-t border-zinc-200/60 overflow-hidden w-full">
+            <div className="container mx-auto max-w-[1500px]">
               <EditorialProductCarousel products={displayProducts} />
             </div>
           </section>
@@ -497,8 +497,8 @@ export default async function Home() {
 
       case "journal": {
         return (
-          <section key="journal" className="py-16 sm:py-24 bg-white border-t border-zinc-200/70 px-4 sm:px-6 lg:px-8 overflow-hidden w-full">
-            <div className="container mx-auto max-w-6xl">
+          <section key="journal" className="py-16 sm:py-24 bg-white border-t border-zinc-200/70 px-4 sm:px-8 lg:px-12 overflow-hidden w-full">
+            <div className="container mx-auto max-w-[1500px]">
               <EditorialJournalCarousel
                 title="JOURNAL"
                 moreLink="/journal"
@@ -513,8 +513,8 @@ export default async function Home() {
       case "news":
       case "notice": {
         return (
-          <section key="news" className="py-16 sm:py-24 bg-white border-t border-zinc-200/70 px-4 sm:px-6 lg:px-8 overflow-hidden w-full">
-            <div className="container mx-auto max-w-6xl">
+          <section key="news" className="py-16 sm:py-24 bg-white border-t border-zinc-200/70 px-4 sm:px-8 lg:px-12 overflow-hidden w-full">
+            <div className="container mx-auto max-w-[1500px]">
               <EditorialJournalCarousel
                 title="NEWS"
                 moreLink="/journal"
