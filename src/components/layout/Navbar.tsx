@@ -284,7 +284,7 @@ export function Navbar({
                 </span>
               )}
             </Link>
-            <nav className="hidden md:flex items-center gap-7 text-xs font-semibold tracking-widest uppercase">
+            <nav className="hidden md:flex items-center gap-8 lg:gap-10 text-[14.5px] font-semibold tracking-[0.12em] uppercase">
               <Link href="/about" className="hover:text-zinc-950 transition-colors text-zinc-700">
                 BRAND
               </Link>
@@ -346,11 +346,11 @@ export function Navbar({
         {/* Mobile Navigation Drawer */}
         {isMenuOpen && (
           <div className="md:hidden border-t bg-background px-4 pt-2 pb-6 space-y-4 shadow-lg">
-            <nav className="flex flex-col space-y-3.5 text-sm font-medium tracking-wider uppercase">
-              <Link href="/about" onClick={() => setIsMenuOpen(false)} className="font-semibold text-zinc-900">BRAND</Link>
-              <Link href="/journal" onClick={() => setIsMenuOpen(false)} className="font-semibold text-zinc-900">JOURNAL</Link>
-              <Link href="/shop" onClick={() => setIsMenuOpen(false)} className="font-bold text-zinc-950">SHOP</Link>
-              <Link href="/cs" onClick={() => setIsMenuOpen(false)} className="font-semibold text-zinc-900">CUSTOMER</Link>
+            <nav className="flex flex-col space-y-4 text-base font-semibold tracking-wider uppercase">
+              <Link href="/about" onClick={() => setIsMenuOpen(false)} className="text-zinc-900 py-1">BRAND</Link>
+              <Link href="/journal" onClick={() => setIsMenuOpen(false)} className="text-zinc-900 py-1">JOURNAL</Link>
+              <Link href="/shop" onClick={() => setIsMenuOpen(false)} className="text-zinc-950 font-bold py-1">SHOP</Link>
+              <Link href="/cs" onClick={() => setIsMenuOpen(false)} className="text-zinc-900 py-1">CUSTOMER</Link>
             </nav>
             <div className="pt-4 border-t flex flex-col gap-2">
               {user ? (
