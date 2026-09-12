@@ -211,11 +211,11 @@ export default async function Home() {
 
       case "promotion":
         return (
-          <section key="promotion" className="py-20 bg-amber-500/5 border-y border-amber-500/20">
-            <div className="container mx-auto px-4 max-w-6xl">
+          <section key="promotion" className="w-full bg-white py-4 sm:py-6">
+            <div className="max-w-6xl mx-auto px-4">
               {isPromoActive && activePromoData ? (
                 /* 1. Ongoing Active Promotion Banner */
-                <div className="bg-white rounded-3xl border border-amber-200 p-8 sm:p-12 shadow-xl relative overflow-hidden flex flex-col md:flex-row items-center gap-8 md:gap-12">
+                <div className="bg-amber-500/5 rounded-3xl border border-amber-200 p-8 sm:p-12 shadow-xl relative overflow-hidden flex flex-col md:flex-row items-center gap-8 md:gap-12">
                   <div className="flex-1 space-y-4 text-center md:text-left">
                     <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
                       <span className="px-3 py-1 bg-amber-500 text-white text-[11px] font-black rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
@@ -277,24 +277,24 @@ export default async function Home() {
                 </div>
               ) : (
                 /* 2. Ended / Past Promotion Archive State */
-                <div className="bg-zinc-100/80 rounded-3xl border border-zinc-200 p-8 sm:p-10 text-center space-y-4 max-w-2xl mx-auto">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-zinc-200 text-zinc-600 rounded-full text-xs font-bold">
+                <div className="bg-amber-500/5 rounded-3xl border border-amber-200/80 p-8 sm:p-12 text-center space-y-4 shadow-sm w-full">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold">
                     <Clock className="w-3.5 h-3.5" />
                     프로모션 시즌 준비중 (지난 이벤트 종료)
                   </div>
-                  <h3 className="text-xl font-bold text-zinc-800">
+                  <h3 className="text-xl sm:text-2xl font-bold text-zinc-900">
                     현재 진행 중인 특별 프로모션이 마감되었습니다
                   </h3>
-                  <p className="text-xs text-zinc-500 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed max-w-xl mx-auto">
                     퍼베이드는 정기적인 시즌 페스티벌과 웰니스 클린 이벤트를 준비하고 있습니다.<br />
                     신규 회원 가입 시 기본 3,000P 적립 혜택은 상시 적용 중입니다.
                   </p>
-                  <div className="pt-2">
+                  <div className="pt-3">
                     <Link
                       href="/shop"
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-950 text-white rounded-full font-bold text-xs hover:bg-zinc-800 transition-colors shadow-sm"
+                      className="inline-flex items-center gap-2 px-8 py-3.5 bg-zinc-950 text-white rounded-full font-bold text-xs hover:bg-zinc-800 transition-all shadow-md hover:scale-105"
                     >
-                      전체 상품 둘러보기 <ArrowRight className="w-3.5 h-3.5" />
+                      전체 상품 둘러보기 <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>
                 </div>
