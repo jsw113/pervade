@@ -41,7 +41,7 @@ export function Footer() {
   return (
     <footer className="w-full bg-white py-8 sm:py-12 text-xs">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="bg-zinc-900 text-zinc-300 rounded-3xl p-8 sm:p-12 shadow-xl space-y-12">
+        <div className="bg-zinc-900 text-zinc-300 rounded-none p-8 sm:p-12 shadow-xl space-y-12">
           {/* Top Navigation Links */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-8 border-b border-zinc-800">
           <div className="md:col-span-1 space-y-3">
@@ -144,7 +144,7 @@ export function Footer() {
           </div>
 
           {/* Escrow Purchase Safety Service Notice (전자상거래법 제24조 제2항) */}
-          <div className="p-4 bg-zinc-800/80 border border-zinc-700 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-zinc-300">
+          <div className="p-4 bg-zinc-800/80 border border-zinc-700 rounded-none flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-zinc-300">
             <div className="flex items-center gap-2.5">
               <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
               <span>
@@ -155,7 +155,7 @@ export function Footer() {
               href="https://pg.tosspayments.com"
               target="_blank"
               rel="noreferrer"
-              className="px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 rounded-lg text-[10px] font-bold text-white shrink-0 transition-colors"
+              className="px-3 py-1.5 bg-zinc-700 hover:bg-zinc-600 rounded-none text-[10px] font-bold text-white shrink-0 transition-colors"
             >
               서비스 가입사실 확인
             </a>

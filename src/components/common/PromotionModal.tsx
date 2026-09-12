@@ -62,14 +62,14 @@ export function PromotionModal({ promotion }: PromotionModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">
       {/* Modal Container */}
       <div 
-        className="relative w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl border border-zinc-100 animate-scaleUp text-zinc-900"
+        className="relative w-full max-w-md bg-white rounded-none overflow-hidden shadow-2xl border border-zinc-200 animate-scaleUp text-zinc-900"
         role="dialog"
         aria-modal="true"
       >
         {/* Close Button Top Right */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-black/40 hover:bg-black/70 text-white flex items-center justify-center transition-colors cursor-pointer"
+          className="absolute top-4 right-4 z-20 w-8 h-8 rounded-none bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-colors cursor-pointer"
           aria-label="팝업 닫기"
         >
           <X className="w-4 h-4" />
@@ -77,29 +77,28 @@ export function PromotionModal({ promotion }: PromotionModalProps) {
 
         {/* Promotion Image (if available) */}
         {promotion.imageUrl ? (
-          <div className="relative aspect-[16/10] w-full bg-zinc-100 overflow-hidden">
+          <div className="relative aspect-[16/10] w-full bg-zinc-100 overflow-hidden rounded-none">
             <img
               src={promotion.imageUrl}
               alt={promotion.title}
               className="w-full h-full object-cover"
             />
             {promotion.badgeText && (
-              <span className="absolute top-4 left-4 px-3 py-1 bg-amber-500 text-white text-[11px] font-black rounded-full uppercase tracking-wider shadow-md flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+              <span className="absolute top-4 left-4 px-3 py-1 bg-zinc-950 text-white text-[10px] font-mono rounded-none uppercase tracking-wider shadow-md flex items-center gap-1.5">
                 {promotion.badgeText}
               </span>
             )}
           </div>
         ) : (
-          <div className="p-6 bg-gradient-to-r from-amber-500 to-amber-600 text-white flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
+          <div className="p-6 bg-zinc-950 text-white flex items-center gap-3 rounded-none">
+            <div className="w-10 h-10 rounded-none bg-white/10 flex items-center justify-center shrink-0">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold tracking-widest bg-white/20 px-2 py-0.5 rounded-md inline-block mb-1">
+              <span className="text-[10px] uppercase font-mono tracking-widest bg-white/10 px-2 py-0.5 rounded-none inline-block mb-1">
                 {promotion.badgeText || "SPECIAL EVENT"}
               </span>
-              <h3 className="font-bold text-base leading-tight">퍼베이드 특별 프로모션</h3>
+              <h3 className="font-serif text-base leading-tight">퍼베이드 특별 프로모션</h3>
             </div>
           </div>
         )}
@@ -107,26 +106,26 @@ export function PromotionModal({ promotion }: PromotionModalProps) {
         {/* Modal Body */}
         <div className="p-6 space-y-4">
           <div className="space-y-1.5">
-            <h2 className="text-xl font-extrabold text-zinc-950 tracking-tight leading-snug">
+            <h2 className="text-xl font-serif font-light text-zinc-950 tracking-tight leading-snug">
               {promotion.title}
             </h2>
             {promotion.subtitle && (
-              <p className="text-xs text-zinc-600 font-medium leading-relaxed">
+              <p className="text-xs text-zinc-600 font-light leading-relaxed">
                 {promotion.subtitle}
               </p>
             )}
           </div>
 
           {promotion.discountText && (
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-center">
-              <span className="text-sm font-black text-amber-800">
-                🎉 {promotion.discountText}
+            <div className="bg-stone-50 border border-zinc-200 rounded-none p-3 text-center">
+              <span className="text-xs font-mono font-medium text-zinc-900">
+                {promotion.discountText}
               </span>
             </div>
           )}
 
           {promotion.content && (
-            <p className="text-xs text-zinc-500 leading-relaxed whitespace-pre-line border-t border-zinc-100 pt-3">
+            <p className="text-xs text-zinc-500 font-light leading-relaxed whitespace-pre-line border-t border-zinc-100 pt-3">
               {promotion.content}
             </p>
           )}
@@ -136,10 +135,10 @@ export function PromotionModal({ promotion }: PromotionModalProps) {
             <Link
               href={promotion.linkUrl || "/shop"}
               onClick={handleClose}
-              className="w-full py-3.5 bg-zinc-950 hover:bg-zinc-800 text-white font-bold text-xs rounded-full flex items-center justify-center gap-2 transition-all shadow-md hover:scale-[1.02] active:scale-[0.98]"
+              className="w-full py-3.5 bg-zinc-950 hover:bg-zinc-800 text-white font-serif tracking-widest uppercase text-xs rounded-none flex items-center justify-center gap-2 transition-colors shadow-md"
             >
               {promotion.buttonText || "혜택 바로가기"}
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
