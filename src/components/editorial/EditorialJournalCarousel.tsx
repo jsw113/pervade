@@ -118,7 +118,7 @@ export function EditorialJournalCarousel({
           <Link
             key={item.id}
             href={item.link}
-            className="shrink-0 w-[75vw] sm:w-[320px] md:w-[360px] lg:w-[30%] xl:w-[29.5%] 2xl:w-[440px] snap-start group block"
+            className="shrink-0 w-[75vw] sm:w-[340px] md:w-[400px] lg:w-[440px] xl:w-[480px] 2xl:w-[500px] snap-start group block"
           >
             <div className="relative aspect-[3/4] overflow-hidden rounded-none bg-zinc-900">
               <img
