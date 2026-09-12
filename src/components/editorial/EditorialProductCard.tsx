@@ -47,7 +47,7 @@ export function EditorialProductCard({
     >
       <Link href={`/shop/${id}`} className="block relative">
         {/* Image Container with Editorial Aspect Ratio (4:5) */}
-        <div className="relative aspect-[4/5] bg-stone-100 overflow-hidden rounded-none border border-zinc-200 group-hover:border-zinc-900 transition-colors duration-500">
+        <div className="relative aspect-[4/5] bg-stone-100 overflow-hidden rounded-none">
           {/* Primary Image */}
           <img
             src={primaryImage}

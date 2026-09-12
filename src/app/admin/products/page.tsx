@@ -37,7 +37,7 @@ export default async function AdminProductsPage({
 
     products = await prisma.product.findMany({
       where,
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
     });
 
     totalCount = await prisma.product.count();
@@ -106,9 +106,10 @@ export default async function AdminProductsPage({
           <table className="w-full text-left text-xs">
             <thead className="bg-zinc-50 border-b text-zinc-500 font-bold uppercase">
               <tr>
+                <th className="px-5 py-3.5 w-16">순서</th>
                 <th className="px-5 py-3.5">이미지</th>
                 <th className="px-5 py-3.5">2단계 계열 분류</th>
-                <th className="px-5 py-3.5">제품명 & 요약</th>
+                <th className="px-5 py-3.5">제품명 & 배지</th>
                 <th className="px-5 py-3.5">판매가</th>
                 <th className="px-5 py-3.5">구매 옵션 구성</th>
                 <th className="px-5 py-3.5">재고 현황</th>
@@ -119,7 +120,7 @@ export default async function AdminProductsPage({
             <tbody className="divide-y">
               {products.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-zinc-400">
+                  <td colSpan={9} className="px-6 py-12 text-center text-zinc-400">
                     <Package className="w-8 h-8 mx-auto mb-2 text-zinc-300" />
                     선택한 분류에 등록된 제품이 없습니다.
                   </td>
@@ -133,6 +134,11 @@ export default async function AdminProductsPage({
 
                   return (
                     <tr key={product.id} className="hover:bg-zinc-50/80 transition-colors">
+                      <td className="px-5 py-4">
+                        <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-zinc-100 text-zinc-900 font-black text-xs border border-zinc-200 shadow-2xs">
+                          {product.order ?? 0}
+                        </span>
+                      </td>
                       <td className="px-5 py-4">
                         <div className="w-14 h-14 bg-zinc-100 rounded-xl overflow-hidden border">
                           {product.imageUrl ? (
@@ -154,6 +160,18 @@ export default async function AdminProductsPage({
                         </div>
                       </td>
                       <td className="px-5 py-4 max-w-xs">
+                        <div className="flex items-center gap-1.5 flex-wrap mb-1">
+                          {product.badge && (
+                            <span className="px-1.5 py-0.5 bg-amber-100 text-amber-900 border border-amber-300 rounded text-[9px] font-black uppercase tracking-wider">
+                              ★ {product.badge}
+                            </span>
+                          )}
+                          {product.tag && (
+                            <span className="px-1.5 py-0.5 bg-zinc-100 text-zinc-700 border border-zinc-200 rounded text-[9px] font-bold">
+                              #{product.tag}
+                            </span>
+                          )}
+                        </div>
                         <div className="font-bold text-zinc-900 line-clamp-1">{product.name}</div>
                         <div className="text-[11px] text-zinc-500 line-clamp-1 mt-0.5">{product.description}</div>
                       </td>

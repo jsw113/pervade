@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { Search, ShoppingBag, Sparkles, Layers, Tag } from "lucide-react";
+import { ShoppingBag, Tag } from "lucide-react";
 import { getDynamicProductCategories, getSubCategoriesByMainCategory } from "@/lib/constants/categories";
+import { EditorialProductCard } from "@/components/editorial/EditorialProductCard";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,7 @@ export default async function ShopPage({
     categoriesList = [];
   }
 
-  // 1. Calculate live product counts for each category & subcategory (Toss Payments review compliance)
+  // 1. Calculate live product counts for each category & subcategory
   let categoryCounts: Record<string, number> = {};
   let subCategoryCounts: Record<string, Record<string, number>> = {};
   let allActiveProducts: any[] = [];
@@ -72,7 +73,10 @@ export default async function ShopPage({
   try {
     dbProducts = await prisma.product.findMany({
       where,
-      orderBy: { createdAt: "desc" }
+      orderBy: [
+        { order: "asc" },
+        { createdAt: "desc" }
+      ]
     });
     totalAllCount = allActiveProducts.length || await prisma.product.count({ where: { isVisible: true } });
   } catch (e) {
@@ -88,36 +92,26 @@ export default async function ShopPage({
   const activeSubs = rawSubs.filter((sub) => (subCategoryCounts[effectiveCategory || ""]?.[sub] || 0) > 0);
 
   return (
-    <div className="container mx-auto px-4 py-16 max-w-6xl min-h-[75vh]">
-      {/* Centered Header */}
-      <div className="text-center mb-10 space-y-3 max-w-2xl mx-auto">
-        <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest inline-flex items-center gap-1.5 px-3 py-1 bg-zinc-100 rounded-full">
-          <Sparkles className="w-3.5 h-3.5 text-zinc-500" />
-          Pervade Collections
-        </span>
-        <h1 className="text-3xl md:text-5xl font-black tracking-tight text-zinc-950">
-          {search ? `'${search}' 검색 결과` : effectiveCategory && effectiveCategory !== "ALL" ? effectiveCategory : "전체 컬렉션"}
-        </h1>
-        <p className="text-zinc-500 text-xs sm:text-sm leading-relaxed">
-          {search 
-            ? `총 ${dbProducts.length}개의 상품이 검색되었습니다.` 
-            : "퍼베이드의 프리미엄 친환경 세정 및 라이프스타일 전 제품 라인업을 만나보세요."}
-        </p>
-      </div>
+    <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 py-10 sm:py-16 min-h-[75vh]">
+      {/* Header: Clean unified 'PRODUCTS' title & Category Navigation */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-8 sm:mb-12 border-b border-zinc-200/70 pb-6">
+        <div>
+          <h1 className="text-2xl sm:text-4xl font-serif text-zinc-900 font-light tracking-tight uppercase">
+            {search ? `SEARCH: "${search}"` : effectiveCategory && effectiveCategory !== "ALL" ? `PRODUCTS / ${effectiveCategory}` : "PRODUCTS"}
+          </h1>
+        </div>
 
-      {/* 2-Tier Category Navigation (Empty categories are strictly hidden) */}
-      <div className="mb-12 space-y-3 max-w-4xl mx-auto">
-        {/* 1st Depth: 대분류 (제품 계열) */}
-        <div className="flex flex-wrap justify-center items-center gap-2">
+        {/* 1st Depth: Minimal Category Filter */}
+        <div className="flex flex-wrap items-center gap-2">
           <Link
             href={`/shop${search ? `?search=${encodeURIComponent(search)}` : ""}`}
-            className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${
+            className={`px-3.5 py-1.5 rounded-none text-xs tracking-wider font-medium transition-all ${
               !effectiveCategory || effectiveCategory === "ALL"
-                ? "bg-zinc-950 text-white shadow-md scale-105"
+                ? "bg-zinc-950 text-white font-bold"
                 : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
             }`}
           >
-            전체 ({totalAllCount})
+            ALL ({totalAllCount})
           </Link>
           {visibleCategories.map((cat) => {
             const isSelected = effectiveCategory === cat.name;
@@ -126,143 +120,103 @@ export default async function ShopPage({
               <Link
                 key={cat.id}
                 href={`/shop?category=${encodeURIComponent(cat.name)}${search ? `&search=${encodeURIComponent(search)}` : ""}`}
-                className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${
+                className={`px-3.5 py-1.5 rounded-none text-xs tracking-wider font-medium transition-all ${
                   isSelected
-                    ? "bg-zinc-950 text-white shadow-md scale-105"
+                    ? "bg-zinc-950 text-white font-bold"
                     : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
                 }`}
               >
-                {cat.name} ({count})
+                {cat.name.toUpperCase()} ({count})
               </Link>
             );
           })}
         </div>
-
-        {/* 2nd Depth: 중/소분류 (용처별 칩 - 상품이 존재하는 용처만 노출) */}
-        {activeSubs.length > 0 && (
-          <div className="pt-2 flex flex-wrap justify-center items-center gap-1.5 border-t border-zinc-100 animate-in fade-in">
-            <span className="text-[11px] font-bold text-zinc-400 mr-1 flex items-center gap-1">
-              <Tag className="w-3 h-3 text-amber-600" /> 용처별:
-            </span>
-            <Link
-              href={`/shop?category=${encodeURIComponent(effectiveCategory!)}${search ? `&search=${encodeURIComponent(search)}` : ""}`}
-              className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all ${
-                !subCategory || subCategory === "ALL"
-                  ? "bg-amber-600 text-white shadow-xs"
-                  : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
-              }`}
-            >
-              전체 ({categoryCounts[effectiveCategory!] || 0})
-            </Link>
-            {activeSubs.map((sub) => {
-              const isSubSelected = subCategory === sub;
-              const subCount = subCategoryCounts[effectiveCategory!]?.[sub] || 0;
-              return (
-                <Link
-                  key={sub}
-                  href={`/shop?category=${encodeURIComponent(effectiveCategory!)}&subCategory=${encodeURIComponent(sub)}${search ? `&search=${encodeURIComponent(search)}` : ""}`}
-                  className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all ${
-                    isSubSelected
-                      ? "bg-amber-600 text-white shadow-xs"
-                      : "bg-zinc-50 border border-zinc-200/80 text-zinc-700 hover:bg-zinc-100"
-                  }`}
-                >
-                  {sub} ({subCount})
-                </Link>
-              );
-            })}
-          </div>
-        )}
       </div>
 
-      {/* Product Cards */}
+      {/* 2nd Depth: Subcategories (용처별 칩 - 상품이 존재하는 경우만 표시) */}
+      {activeSubs.length > 0 && (
+        <div className="mb-10 flex flex-wrap items-center gap-2 animate-in fade-in">
+          <span className="text-xs font-mono text-zinc-400 mr-1 flex items-center gap-1">
+            <Tag className="w-3 h-3 text-stone-600" /> CATEGORY:
+          </span>
+          <Link
+            href={`/shop?category=${encodeURIComponent(effectiveCategory!)}${search ? `&search=${encodeURIComponent(search)}` : ""}`}
+            className={`px-3 py-1 text-xs transition-all ${
+              !subCategory || subCategory === "ALL"
+                ? "bg-stone-900 text-white font-bold"
+                : "bg-stone-100 text-stone-700 hover:bg-stone-200"
+            }`}
+          >
+            ALL ({categoryCounts[effectiveCategory!] || 0})
+          </Link>
+          {activeSubs.map((sub) => {
+            const isSubSelected = subCategory === sub;
+            const subCount = subCategoryCounts[effectiveCategory!]?.[sub] || 0;
+            return (
+              <Link
+                key={sub}
+                href={`/shop?category=${encodeURIComponent(effectiveCategory!)}&subCategory=${encodeURIComponent(sub)}${search ? `&search=${encodeURIComponent(search)}` : ""}`}
+                className={`px-3 py-1 text-xs transition-all ${
+                  isSubSelected
+                    ? "bg-stone-900 text-white font-bold"
+                    : "bg-stone-100 text-stone-700 hover:bg-stone-200"
+                }`}
+              >
+                {sub} ({subCount})
+              </Link>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Unboxed & Large Product Cards Grid (3 Columns on Desktop) */}
       {dbProducts.length === 0 ? (
-        <div className="py-20 text-center space-y-4 max-w-md mx-auto bg-zinc-50 rounded-3xl border p-8">
-          <div className="w-16 h-16 bg-white border rounded-full flex items-center justify-center mx-auto text-zinc-400 shadow-sm">
+        <div className="py-24 text-center space-y-4 max-w-md mx-auto bg-stone-50 rounded-none border border-stone-200 p-8">
+          <div className="w-16 h-16 bg-white border rounded-full flex items-center justify-center mx-auto text-zinc-400 shadow-xs">
             <ShoppingBag className="w-8 h-8" />
           </div>
-          <h2 className="text-xl font-bold text-zinc-800">해당 분류의 상품이 없습니다</h2>
-          <p className="text-xs text-zinc-500 leading-relaxed">
+          <h2 className="text-xl font-serif text-zinc-900">해당 분류의 상품이 없습니다</h2>
+          <p className="text-xs text-zinc-500 leading-relaxed font-light">
             다른 카테고리를 선택하시거나 전체 상품 목록을 확인해 보세요.
           </p>
           <Link
             href="/shop"
-            className="inline-block px-6 py-2.5 bg-zinc-950 text-white rounded-full text-xs font-bold hover:bg-zinc-800 transition-colors shadow-sm"
+            className="inline-block px-6 py-2.5 bg-zinc-950 text-white rounded-none text-xs font-bold hover:bg-zinc-800 transition-colors"
           >
             전체 상품 목록 보기
           </Link>
         </div>
       ) : (
-        <div className="flex flex-wrap justify-center gap-6 max-w-5xl mx-auto">
-          {dbProducts.map((product) => (
-            <Link 
-              href={`/shop/${product.id}`} 
-              key={product.id} 
-              className="group bg-white rounded-3xl overflow-hidden border shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col w-full sm:w-[280px] md:w-[290px]"
-            >
-              {/* Image Area */}
-              <div className="h-60 bg-zinc-50 relative overflow-hidden shrink-0 flex items-center justify-center p-4 border-b">
-                {product.imageUrl ? (
-                  <img 
-                    src={product.imageUrl} 
-                    alt={product.name} 
-                    className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300" 
-                  />
-                ) : (
-                  <span className="text-xs text-zinc-400">[제품 이미지 준비중]</span>
-                )}
-                
-                {product.stock <= 0 ? (
-                  <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center text-white font-bold text-xs">
-                    일시 품절
-                  </div>
-                ) : product.originalPrice && product.originalPrice > product.price ? (
-                  <span className="absolute top-3 right-3 bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">
-                    {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
-                  </span>
-                ) : null}
-              </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-14">
+          {dbProducts.map((product) => {
+            let pImg = product.imageUrl;
+            let sImg = "";
+            if (product.images) {
+              try {
+                const arr = JSON.parse(product.images);
+                if (Array.isArray(arr) && arr.length > 0) {
+                  if (!pImg) pImg = arr[0];
+                  if (arr.length > 1) sImg = arr[1];
+                }
+              } catch (e) {}
+            }
 
-              {/* Info Area */}
-              <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
-                <div className="space-y-1.5">
-                  {/* 2-Depth Category Badge */}
-                  <div className="flex items-center gap-1.5 text-[10px] font-extrabold text-amber-700">
-                    <span className="px-1.5 py-0.5 bg-amber-50 rounded border border-amber-200">
-                      {product.category || "세정제류"}
-                    </span>
-                    <span className="text-zinc-300">·</span>
-                    <span className="text-zinc-500 font-medium">
-                      {product.subCategory || "다목적/올인원"}
-                    </span>
-                  </div>
-
-                  <h3 className="font-bold text-sm text-zinc-900 group-hover:text-zinc-600 transition-colors line-clamp-1">
-                    {product.name}
-                  </h3>
-                  <p className="text-[11px] text-zinc-500 line-clamp-2 leading-relaxed">
-                    {product.description}
-                  </p>
-                </div>
-
-                <div className="pt-2 border-t flex justify-between items-baseline">
-                  <div>
-                    {product.originalPrice && product.originalPrice > product.price && (
-                      <span className="text-[10px] text-zinc-400 line-through mr-1.5">
-                        ₩{product.originalPrice.toLocaleString()}
-                      </span>
-                    )}
-                    <span className="font-black text-sm text-zinc-950">
-                      ₩{product.price.toLocaleString()}원
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-zinc-400">
-                    {product.shippingFee === 0 ? "무료배송" : `배송비 ${product.shippingFee?.toLocaleString()}원`}
-                  </span>
-                </div>
-              </div>
-            </Link>
-          ))}
+            return (
+              <EditorialProductCard
+                key={product.id}
+                id={product.id}
+                name={product.name}
+                subTitle={product.description}
+                volume="500ml / 16.9 fl.oz"
+                price={product.price}
+                originalPrice={product.originalPrice || undefined}
+                primaryImage={pImg}
+                secondaryImage={sImg || pImg}
+                badge={product.badge || undefined}
+                tag={product.tag || undefined}
+              />
+            );
+          })}
         </div>
       )}
     </div>

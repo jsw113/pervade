@@ -54,7 +54,10 @@ export default async function Home() {
       prisma.product.findMany({
         where: { isVisible: true },
         take: 8,
-        orderBy: { createdAt: "desc" }
+        orderBy: [
+          { order: "asc" },
+          { createdAt: "desc" }
+        ]
       }),
       prisma.post.findMany({
         where: { type: "ABOUT", published: true },
@@ -246,8 +249,8 @@ export default async function Home() {
           originalPrice: prod.originalPrice || undefined,
           primaryImage: pImg || defaultCuratedProducts[idx % defaultCuratedProducts.length].primaryImage,
           secondaryImage: sImg || defaultCuratedProducts[idx % defaultCuratedProducts.length].secondaryImage,
-          badge: idx === 0 ? "Signature" : undefined,
-          tag: idx === 1 ? "Best Seller" : undefined,
+          badge: prod.badge || (idx === 0 ? "Signature" : undefined),
+          tag: prod.tag || (idx === 1 ? "Best Seller" : undefined),
         };
       })
     : defaultCuratedProducts;

@@ -25,6 +25,9 @@ export function ProductEditForm({ product }: { product: any }) {
   const [safetyStock, setSafetyStock] = useState(product.safetyStock !== undefined ? product.safetyStock : "10");
   const [shippingFee, setShippingFee] = useState(product.shippingFee !== undefined ? product.shippingFee : "3000");
   const [isVisible, setIsVisible] = useState(product.isVisible !== false);
+  const [order, setOrder] = useState(product.order !== undefined ? product.order : 0);
+  const [badge, setBadge] = useState(product.badge || "");
+  const [tag, setTag] = useState(product.tag || "");
 
   // Images state
   let parsedImages: string[] = [];
@@ -256,7 +259,10 @@ export function ProductEditForm({ product }: { product: any }) {
           legalSafetyCertNo,
           legalCsPhone,
         },
-        isVisible 
+        isVisible,
+        order: parseInt(String(order || "0").replace(/[^0-9]/g, ""), 10) || 0,
+        badge: badge ? String(badge).trim() : null,
+        tag: tag ? String(tag).trim() : null,
       };
 
       const payloadStr = JSON.stringify(payload);
@@ -333,6 +339,113 @@ export function ProductEditForm({ product }: { product: any }) {
             placeholder="예: 퍼베이드 올인원 다목적 세정제 500ml"
             className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900"
           />
+        </div>
+
+        {/* Display Order & Badges (시그니처, 베스트셀러, 노출 순서) */}
+        <div className="p-4 bg-amber-50/70 border border-amber-200 rounded-2xl space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-amber-950 flex items-center gap-1.5">
+              <span>🌟 노출 순서 및 대표 배지 (시그니처 / 베스트셀러) 설정</span>
+            </span>
+            <span className="text-[10px] font-bold text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded">
+              메인 / 쇼핑몰 노출
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+            {/* Display Order */}
+            <div>
+              <label className="block text-[11px] font-bold text-zinc-800 mb-1">
+                노출 우선순위 (Order)
+              </label>
+              <input 
+                type="number"
+                min="0"
+                value={order}
+                onChange={e => setOrder(e.target.value)}
+                placeholder="0"
+                className="w-full p-2.5 bg-white border border-amber-300 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-600"
+              />
+              <span className="text-[10px] text-zinc-500 mt-1 block">
+                숫자가 작을수록(1, 2, 3...) 먼저 노출됩니다.
+              </span>
+            </div>
+
+            {/* Badge Selection */}
+            <div>
+              <label className="block text-[11px] font-bold text-zinc-800 mb-1">
+                대표 배지 (Main Badge)
+              </label>
+              <div className="space-y-1.5">
+                <input 
+                  type="text"
+                  value={badge}
+                  onChange={e => setBadge(e.target.value)}
+                  placeholder="예: Signature, Best Seller"
+                  className="w-full p-2.5 bg-white border border-amber-300 rounded-xl text-xs font-bold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-amber-600"
+                />
+                <div className="flex flex-wrap gap-1">
+                  {[
+                    { label: "없음", val: "" },
+                    { label: "Signature", val: "Signature" },
+                    { label: "Best Seller", val: "Best Seller" },
+                    { label: "New", val: "New" },
+                    { label: "Limited", val: "Limited" },
+                  ].map(b => (
+                    <button
+                      key={b.val}
+                      type="button"
+                      onClick={() => setBadge(b.val)}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors cursor-pointer ${
+                        badge === b.val 
+                          ? "bg-amber-600 text-white border-amber-600" 
+                          : "bg-white text-zinc-600 border-zinc-200 hover:bg-amber-100"
+                      }`}
+                    >
+                      {b.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Tag Selection */}
+            <div>
+              <label className="block text-[11px] font-bold text-zinc-800 mb-1">
+                서브 하이라이트 태그 (Tag)
+              </label>
+              <div className="space-y-1.5">
+                <input 
+                  type="text"
+                  value={tag}
+                  onChange={e => setTag(e.target.value)}
+                  placeholder="예: Essential, Shine & Clean"
+                  className="w-full p-2.5 bg-white border border-amber-300 rounded-xl text-xs font-bold text-zinc-900 focus:outline-none focus:ring-2 focus:ring-amber-600"
+                />
+                <div className="flex flex-wrap gap-1">
+                  {[
+                    { label: "없음", val: "" },
+                    { label: "Essential", val: "Essential" },
+                    { label: "Shine & Clean", val: "Shine & Clean" },
+                    { label: "Eco Friendly", val: "Eco Friendly" },
+                  ].map(t => (
+                    <button
+                      key={t.val}
+                      type="button"
+                      onClick={() => setTag(t.val)}
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors cursor-pointer ${
+                        tag === t.val 
+                          ? "bg-zinc-900 text-white border-zinc-900" 
+                          : "bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-100"
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* 2-Depth Category Select */}

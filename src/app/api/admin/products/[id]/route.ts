@@ -27,7 +27,10 @@ export async function PATCH(
       legalInfo,
       stock, 
       safetyStock, 
-      isVisible 
+      isVisible,
+      order,
+      badge,
+      tag
     } = body;
 
     const current = await prisma.product.findUnique({ where: { id } });
@@ -56,6 +59,10 @@ export async function PATCH(
       ? parseInt(String(safetyStock), 10)
       : undefined;
 
+    const parsedOrder = order !== undefined && !isNaN(parseInt(String(order), 10))
+      ? parseInt(String(order), 10)
+      : undefined;
+
     const product = await prisma.product.update({
       where: { id },
       data: {
@@ -75,6 +82,9 @@ export async function PATCH(
         stock: newStock,
         ...(parsedSafetyStock !== undefined && { safetyStock: parsedSafetyStock }),
         ...(isVisible !== undefined && { isVisible: !!isVisible }),
+        ...(parsedOrder !== undefined && { order: parsedOrder }),
+        ...(badge !== undefined && { badge: badge ? String(badge).trim() : null }),
+        ...(tag !== undefined && { tag: tag ? String(tag).trim() : null }),
       },
     });
 

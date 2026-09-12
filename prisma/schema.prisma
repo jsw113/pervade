@@ -181,6 +181,9 @@ model Product {
   stock         Int      @default(100)
   safetyStock   Int      @default(10)
   isVisible     Boolean  @default(true)
+  order         Int      @default(0)
+  badge         String?
+  tag           String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

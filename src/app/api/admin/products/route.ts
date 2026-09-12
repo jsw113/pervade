@@ -21,7 +21,10 @@ export async function GET(request: Request) {
 
     const products = await prisma.product.findMany({
       where,
-      orderBy: { createdAt: "desc" },
+      orderBy: [
+        { order: "asc" },
+        { createdAt: "desc" }
+      ],
       include: {
         inventoryLogs: {
           take: 5,
@@ -60,7 +63,10 @@ export async function POST(request: Request) {
       legalInfo,
       stock, 
       safetyStock, 
-      isVisible 
+      isVisible,
+      order,
+      badge,
+      tag
     } = body;
 
     if (!name || !name.trim()) {
@@ -79,6 +85,7 @@ export async function POST(request: Request) {
     const parsedStock = !isNaN(parseInt(String(stock), 10)) ? parseInt(String(stock), 10) : 100;
     const parsedSafetyStock = !isNaN(parseInt(String(safetyStock), 10)) ? parseInt(String(safetyStock), 10) : 10;
     const parsedShippingFee = !isNaN(parseInt(String(shippingFee), 10)) ? parseInt(String(shippingFee), 10) : 3000;
+    const parsedOrder = !isNaN(parseInt(String(order), 10)) ? parseInt(String(order), 10) : 0;
 
     // Sanitize options if array
     let sanitizedOptions = options;
@@ -108,6 +115,9 @@ export async function POST(request: Request) {
         stock: parsedStock,
         safetyStock: parsedSafetyStock,
         isVisible: isVisible !== undefined ? !!isVisible : true,
+        order: parsedOrder,
+        badge: badge ? String(badge).trim() : null,
+        tag: tag ? String(tag).trim() : null,
       }
     });
 
