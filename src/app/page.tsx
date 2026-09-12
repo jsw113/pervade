@@ -74,6 +74,26 @@ export default async function Home() {
   const heroSubtitle = getPolicy("HERO_SUBTITLE", "");
   const activeBgUrl = heroBgUrl || "https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=2000&auto=format&fit=crop";
 
+  // Brand Philosophy & 3 Pillars Policy Settings (Synced with CMS /admin/theme)
+  const whyTitle = getPolicy("WHY_TITLE", "깨끗함이란 인공적인 향으로 덮는 것이 아니라,\n가장 맑은 본래의 상태로 되돌리는 것.");
+  const whySubtitle = getPolicy("WHY_SUBTITLE", "퍼베이드는 눈에 띄는 화려한 포장 대신 미니멀한 실루엣을,\n독한 화학 계면활성제 대신 식물 유래 세정 성분을 선택했습니다.\n주방의 기름때부터 욕실의 물때까지, 표면을 상하게 하지 않고 자연스럽게 스며듭니다.");
+  const whyCard1Title = getPolicy("WHY_CARD1_TITLE", "자연 유래 안심 성분");
+  const whyCard1Desc = getPolicy("WHY_CARD1_DESC", "코코넛과 옥수수에서 추출한 식물 유래 계면활성제로 아이와 반려동물이 머무는 공간에도 안심하고 사용할 수 있습니다.");
+  const whyCard2Title = getPolicy("WHY_CARD2_TITLE", "공간과 조화로운 미학");
+  const whyCard2Desc = getPolicy("WHY_CARD2_DESC", "숨기고 싶은 청소 도구가 아닌, 선반 위에 오브제처럼 자연스럽게 놓여 감각적인 인테리어를 완성합니다.");
+  const whyCard3Title = getPolicy("WHY_CARD3_TITLE", "지속 가능한 순환");
+  const whyCard3Desc = getPolicy("WHY_CARD3_DESC", "플라스틱 소비를 70% 이상 줄일 수 있는 대용량 에코 리필 파우치 시스템을 통해 환경에 대한 책임을 실천합니다.");
+
+  const homeSectionsOrder = getPolicy("HOME_SECTIONS_ORDER", "");
+  let isWhyVisible = true;
+  if (homeSectionsOrder) {
+    try {
+      const parsed = JSON.parse(homeSectionsOrder);
+      const whySec = parsed.find((s: any) => s.id === "why" || s.id === "philosophy");
+      if (whySec && whySec.visible === false) isWhyVisible = false;
+    } catch(e) {}
+  }
+
   // Fallback curated products merged with DB products
   const defaultCuratedProducts = [
     {
@@ -294,49 +314,48 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 2. Editorial Narrative / Brand Philosophy Section */}
-      <section className="py-16 sm:py-24 md:py-32 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto text-center w-full">
-        <div className="space-y-4 sm:space-y-6 md:space-y-8">
-          <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.3em] uppercase text-zinc-400">
-            Brand Philosophy
-          </span>
-          <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-normal text-zinc-900 leading-snug tracking-tight break-keep max-w-4xl mx-auto">
-            깨끗함이란 인공적인 향으로 덮는 것이 아니라,<br className="hidden sm:inline" />
-            가장 맑은 본래의 상태로 되돌리는 것.
-          </h2>
-          <div className="w-12 h-[1px] bg-zinc-300 mx-auto my-4 sm:my-6" />
-          <p className="text-xs sm:text-sm md:text-base text-zinc-500 font-light leading-relaxed sm:leading-loose max-w-2xl mx-auto break-keep">
-            퍼베이드는 눈에 띄는 화려한 포장 대신 미니멀한 실루엣을,<br className="hidden sm:inline" />
-            독한 화학 계면활성제 대신 식물 유래 세정 성분을 선택했습니다.<br className="hidden sm:inline" />
-            주방의 기름때부터 욕실의 물때까지, 표면을 상하게 하지 않고 자연스럽게 스며듭니다.
-          </p>
-        </div>
+      {/* 2. Editorial Narrative / Brand Philosophy Section (Fully Synced with CMS) */}
+      {isWhyVisible && (
+        <section className="py-16 sm:py-24 md:py-32 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto text-center w-full">
+          <div className="space-y-4 sm:space-y-6 md:space-y-8">
+            <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.3em] uppercase text-zinc-400">
+              Brand Philosophy
+            </span>
+            <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-normal text-zinc-900 leading-snug tracking-tight break-keep max-w-4xl mx-auto whitespace-pre-line">
+              {whyTitle}
+            </h2>
+            <div className="w-12 h-[1px] bg-zinc-300 mx-auto my-4 sm:my-6" />
+            <p className="text-xs sm:text-sm md:text-base text-zinc-500 font-light leading-relaxed sm:leading-loose max-w-2xl mx-auto break-keep whitespace-pre-line">
+              {whySubtitle}
+            </p>
+          </div>
 
-        {/* 3 Pillars: Clean Responsive Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 pt-12 sm:pt-16 lg:pt-20 text-left">
-          <div className="space-y-3 p-6 sm:p-8 bg-white rounded-none border border-zinc-200 hover:border-zinc-900 transition-colors shadow-xs">
-            <span className="text-xs font-mono text-zinc-400">01 / SAFETY</span>
-            <h3 className="font-serif text-base sm:text-lg text-zinc-900 font-medium">자연 유래 안심 성분</h3>
-            <p className="text-xs text-zinc-500 leading-relaxed font-light break-keep">
-              코코넛과 옥수수에서 추출한 식물 유래 계면활성제로 아이와 반려동물이 머무는 공간에도 안심하고 사용할 수 있습니다.
-            </p>
+          {/* 3 Pillars: Clean Responsive Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 pt-12 sm:pt-16 lg:pt-20 text-left">
+            <div className="space-y-3 p-6 sm:p-8 bg-white rounded-none border border-zinc-200 hover:border-zinc-900 transition-colors shadow-xs">
+              <span className="text-xs font-mono text-zinc-400">01 / SAFETY</span>
+              <h3 className="font-serif text-base sm:text-lg text-zinc-900 font-medium">{whyCard1Title}</h3>
+              <p className="text-xs text-zinc-500 leading-relaxed font-light break-keep whitespace-pre-line">
+                {whyCard1Desc}
+              </p>
+            </div>
+            <div className="space-y-3 p-6 sm:p-8 bg-white rounded-none border border-zinc-200 hover:border-zinc-900 transition-colors shadow-xs">
+              <span className="text-xs font-mono text-zinc-400">02 / AESTHETIC</span>
+              <h3 className="font-serif text-base sm:text-lg text-zinc-900 font-medium">{whyCard2Title}</h3>
+              <p className="text-xs text-zinc-500 leading-relaxed font-light break-keep whitespace-pre-line">
+                {whyCard2Desc}
+              </p>
+            </div>
+            <div className="space-y-3 p-6 sm:p-8 bg-white rounded-none border border-zinc-200 hover:border-zinc-900 transition-colors shadow-xs">
+              <span className="text-xs font-mono text-zinc-400">03 / SUSTAINABLE</span>
+              <h3 className="font-serif text-base sm:text-lg text-zinc-900 font-medium">{whyCard3Title}</h3>
+              <p className="text-xs text-zinc-500 leading-relaxed font-light break-keep whitespace-pre-line">
+                {whyCard3Desc}
+              </p>
+            </div>
           </div>
-          <div className="space-y-3 p-6 sm:p-8 bg-white rounded-none border border-zinc-200 hover:border-zinc-900 transition-colors shadow-xs">
-            <span className="text-xs font-mono text-zinc-400">02 / AESTHETIC</span>
-            <h3 className="font-serif text-base sm:text-lg text-zinc-900 font-medium">공간과 조화로운 미학</h3>
-            <p className="text-xs text-zinc-500 leading-relaxed font-light break-keep">
-              숨기고 싶은 청소 도구가 아닌, 선반 위에 오브제처럼 자연스럽게 놓여 감각적인 인테리어를 완성합니다.
-            </p>
-          </div>
-          <div className="space-y-3 p-6 sm:p-8 bg-white rounded-none border border-zinc-200 hover:border-zinc-900 transition-colors shadow-xs">
-            <span className="text-xs font-mono text-zinc-400">03 / SUSTAINABLE</span>
-            <h3 className="font-serif text-base sm:text-lg text-zinc-900 font-medium">지속 가능한 순환</h3>
-            <p className="text-xs text-zinc-500 leading-relaxed font-light break-keep">
-              플라스틱 소비를 70% 이상 줄일 수 있는 대용량 에코 리필 파우치 시스템을 통해 환경에 대한 책임을 실천합니다.
-            </p>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* 3. Horizontal Curated Product Carousel (Fluid Smooth Flow) */}
       <section className="py-16 sm:py-24 lg:py-28 px-4 sm:px-6 lg:px-8 bg-white border-y border-zinc-200/60 overflow-hidden w-full">

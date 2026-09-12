@@ -147,15 +147,15 @@ export default function ThemeAdminPage() {
   const [logoSourceType, setLogoSourceType] = useState<"URL" | "FILE">("URL");
   const [isLogoUploading, setIsLogoUploading] = useState(false);
 
-  // 'Why PERVADE?' (Features) Section States
-  const [whyTitle, setWhyTitle] = useState("왜 퍼베이드인가요?");
-  const [whySubtitle, setWhySubtitle] = useState("단 하나의 세정제로 경험하는 프리미엄 공간의 변화");
-  const [whyCard1Title, setWhyCard1Title] = useState("강력한 오염 분해력");
-  const [whyCard1Desc, setWhyCard1Desc] = useState("주방의 찌든 기름때부터 욕실의 완고한 물때까지 표면 손상 없이 깊숙이 침투하여 즉각 분해합니다.");
-  const [whyCard2Title, setWhyCard2Title] = useState("안전한 성분 설계");
-  const [whyCard2Desc, setWhyCard2Desc] = useState("식물 유래 계면활성제와 자연 유래 추출물로 가족 모두가 머무는 공간에 자극 없이 안전합니다.");
-  const [whyCard3Title, setWhyCard3Title] = useState("지속되는 광택 & 향기");
-  const [whyCard3Desc, setWhyCard3Desc] = useState("세정 후 끈적임 없는 보호막을 형성하여 오염 재착색을 방지하고 은은한 잔향을 남깁니다.");
+  // 'Why PERVADE?' / Brand Philosophy Section States
+  const [whyTitle, setWhyTitle] = useState("깨끗함이란 인공적인 향으로 덮는 것이 아니라,\n가장 맑은 본래의 상태로 되돌리는 것.");
+  const [whySubtitle, setWhySubtitle] = useState("퍼베이드는 눈에 띄는 화려한 포장 대신 미니멀한 실루엣을,\n독한 화학 계면활성제 대신 식물 유래 세정 성분을 선택했습니다.\n주방의 기름때부터 욕실의 물때까지, 표면을 상하게 하지 않고 자연스럽게 스며듭니다.");
+  const [whyCard1Title, setWhyCard1Title] = useState("자연 유래 안심 성분");
+  const [whyCard1Desc, setWhyCard1Desc] = useState("코코넛과 옥수수에서 추출한 식물 유래 계면활성제로 아이와 반려동물이 머무는 공간에도 안심하고 사용할 수 있습니다.");
+  const [whyCard2Title, setWhyCard2Title] = useState("공간과 조화로운 미학");
+  const [whyCard2Desc, setWhyCard2Desc] = useState("숨기고 싶은 청소 도구가 아닌, 선반 위에 오브제처럼 자연스럽게 놓여 감각적인 인테리어를 완성합니다.");
+  const [whyCard3Title, setWhyCard3Title] = useState("지속 가능한 순환");
+  const [whyCard3Desc, setWhyCard3Desc] = useState("플라스틱 소비를 70% 이상 줄일 수 있는 대용량 에코 리필 파우치 시스템을 통해 환경에 대한 책임을 실천합니다.");
   
   const [sections, setSections] = useState<Section[]>(DEFAULT_SECTIONS);
   const [loading, setLoading] = useState(true);
@@ -1232,16 +1232,16 @@ export default function ThemeAdminPage() {
 
       </div>
 
-      {/* 3. 'Why PERVADE?' Features Customization */}
+      {/* 3. 'Why PERVADE?' / Brand Philosophy Features Customization */}
       <div className="bg-white rounded-2xl border p-6 space-y-6 shadow-xs">
         <div className="flex justify-between items-center border-b pb-4">
           <div>
             <h2 className="text-base font-bold text-zinc-900 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-amber-500" />
-              3. &apos;왜 퍼베이드인가요?&apos; (3대 핵심 특장점) 문구 편집
+              3. 브랜드 철학 &amp; 3대 핵심 가치 (Brand Philosophy) 문구 편집
             </h2>
             <p className="text-xs text-zinc-500 mt-0.5">
-              메인 홈페이지에 노출되는 대표 타이틀 및 3개 핵심 특장점 카드의 제목과 상세 문구를 원하는 내용으로 직접 수정합니다.
+              메인 홈페이지 상단에 노출되는 대표 철학 타이틀 및 3개 핵심 가치 카드의 제목과 설명 문구를 원하는 내용으로 직접 수정합니다. (줄바꿈 지원)
             </p>
           </div>
         </div>
@@ -1249,23 +1249,23 @@ export default function ThemeAdminPage() {
         {/* Section Header Inputs */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-zinc-50 p-4 rounded-xl border">
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-zinc-700">섹션 메인 타이틀</label>
-            <input
-              type="text"
+            <label className="block text-xs font-bold text-zinc-700">섹션 메인 타이틀 (줄바꿈 가능)</label>
+            <textarea
+              rows={3}
               value={whyTitle}
               onChange={(e) => setWhyTitle(e.target.value)}
-              placeholder="왜 퍼베이드인가요?"
-              className="w-full px-3.5 py-2 bg-white rounded-lg border text-xs font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              placeholder="깨끗함이란 인공적인 향으로 덮는 것이 아니라,&#10;가장 맑은 본래의 상태로 되돌리는 것."
+              className="w-full px-3.5 py-2 bg-white rounded-lg border text-xs font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900 leading-relaxed"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="block text-xs font-bold text-zinc-700">섹션 서브 타이틀 (한 줄 설명)</label>
-            <input
-              type="text"
+            <label className="block text-xs font-bold text-zinc-700">섹션 서브 설명 문구 (줄바꿈 가능)</label>
+            <textarea
+              rows={3}
               value={whySubtitle}
               onChange={(e) => setWhySubtitle(e.target.value)}
-              placeholder="단 하나의 세정제로 경험하는 프리미엄 공간의 변화"
-              className="w-full px-3.5 py-2 bg-white rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              placeholder="퍼베이드는 눈에 띄는 화려한 포장 대신 미니멀한 실루엣을,&#10;독한 화학 계면활성제 대신 식물 유래 세정 성분을 선택했습니다."
+              className="w-full px-3.5 py-2 bg-white rounded-lg border text-xs focus:outline-none focus:ring-2 focus:ring-zinc-900 leading-relaxed"
             />
           </div>
         </div>
@@ -1276,7 +1276,7 @@ export default function ThemeAdminPage() {
           <div className="p-4 rounded-xl border bg-white space-y-3 shadow-2xs">
             <div className="flex items-center gap-2">
               <span className="w-6 h-6 rounded-full bg-zinc-950 text-white flex items-center justify-center text-[10px] font-bold">1</span>
-              <span className="font-bold text-xs text-zinc-800">특장점 카드 1 (오염 분해)</span>
+              <span className="font-bold text-xs text-zinc-800">핵심 가치 1 (01 / SAFETY)</span>
             </div>
             <div className="space-y-1.5">
               <label className="block text-[11px] font-medium text-zinc-500">카드 제목</label>
@@ -1284,7 +1284,7 @@ export default function ThemeAdminPage() {
                 type="text"
                 value={whyCard1Title}
                 onChange={(e) => setWhyCard1Title(e.target.value)}
-                placeholder="강력한 오염 분해력"
+                placeholder="자연 유래 안심 성분"
                 className="w-full px-3 py-1.5 bg-zinc-50 rounded-lg border text-xs font-bold focus:outline-none focus:ring-1 focus:ring-zinc-900"
               />
             </div>
@@ -1294,7 +1294,7 @@ export default function ThemeAdminPage() {
                 rows={3}
                 value={whyCard1Desc}
                 onChange={(e) => setWhyCard1Desc(e.target.value)}
-                placeholder="주방의 찌든 기름때부터 욕실의 완고한 물때까지 표면 손상 없이 깊숙이 침투하여 즉각 분해합니다."
+                placeholder="코코넛과 옥수수에서 추출한 식물 유래 계면활성제로 아이와 반려동물이 머무는 공간에도 안심하고 사용할 수 있습니다."
                 className="w-full px-3 py-1.5 bg-zinc-50 rounded-lg border text-xs leading-relaxed focus:outline-none focus:ring-1 focus:ring-zinc-900"
               />
             </div>
@@ -1304,7 +1304,7 @@ export default function ThemeAdminPage() {
           <div className="p-4 rounded-xl border bg-white space-y-3 shadow-2xs">
             <div className="flex items-center gap-2">
               <span className="w-6 h-6 rounded-full bg-zinc-950 text-white flex items-center justify-center text-[10px] font-bold">2</span>
-              <span className="font-bold text-xs text-zinc-800">특장점 카드 2 (성분 안전)</span>
+              <span className="font-bold text-xs text-zinc-800">핵심 가치 2 (02 / AESTHETIC)</span>
             </div>
             <div className="space-y-1.5">
               <label className="block text-[11px] font-medium text-zinc-500">카드 제목</label>
@@ -1312,7 +1312,7 @@ export default function ThemeAdminPage() {
                 type="text"
                 value={whyCard2Title}
                 onChange={(e) => setWhyCard2Title(e.target.value)}
-                placeholder="안전한 성분 설계"
+                placeholder="공간과 조화로운 미학"
                 className="w-full px-3 py-1.5 bg-zinc-50 rounded-lg border text-xs font-bold focus:outline-none focus:ring-1 focus:ring-zinc-900"
               />
             </div>
@@ -1322,7 +1322,7 @@ export default function ThemeAdminPage() {
                 rows={3}
                 value={whyCard2Desc}
                 onChange={(e) => setWhyCard2Desc(e.target.value)}
-                placeholder="식물 유래 계면활성제와 자연 유래 추출물로 가족 모두가 머무는 공간에 자극 없이 안전합니다."
+                placeholder="숨기고 싶은 청소 도구가 아닌, 선반 위에 오브제처럼 자연스럽게 놓여 감각적인 인테리어를 완성합니다."
                 className="w-full px-3 py-1.5 bg-zinc-50 rounded-lg border text-xs leading-relaxed focus:outline-none focus:ring-1 focus:ring-zinc-900"
               />
             </div>
@@ -1332,7 +1332,7 @@ export default function ThemeAdminPage() {
           <div className="p-4 rounded-xl border bg-white space-y-3 shadow-2xs">
             <div className="flex items-center gap-2">
               <span className="w-6 h-6 rounded-full bg-zinc-950 text-white flex items-center justify-center text-[10px] font-bold">3</span>
-              <span className="font-bold text-xs text-zinc-800">특장점 카드 3 (광택 & 잔향)</span>
+              <span className="font-bold text-xs text-zinc-800">핵심 가치 3 (03 / SUSTAINABLE)</span>
             </div>
             <div className="space-y-1.5">
               <label className="block text-[11px] font-medium text-zinc-500">카드 제목</label>
@@ -1340,7 +1340,7 @@ export default function ThemeAdminPage() {
                 type="text"
                 value={whyCard3Title}
                 onChange={(e) => setWhyCard3Title(e.target.value)}
-                placeholder="지속되는 광택 & 향기"
+                placeholder="지속 가능한 순환"
                 className="w-full px-3 py-1.5 bg-zinc-50 rounded-lg border text-xs font-bold focus:outline-none focus:ring-1 focus:ring-zinc-900"
               />
             </div>
@@ -1350,7 +1350,7 @@ export default function ThemeAdminPage() {
                 rows={3}
                 value={whyCard3Desc}
                 onChange={(e) => setWhyCard3Desc(e.target.value)}
-                placeholder="세정 후 끈적임 없는 보호막을 형성하여 오염 재착색을 방지하고 은은한 잔향을 남깁니다."
+                placeholder="플라스틱 소비를 70% 이상 줄일 수 있는 대용량 에코 리필 파우치 시스템을 통해 환경에 대한 책임을 실천합니다."
                 className="w-full px-3 py-1.5 bg-zinc-50 rounded-lg border text-xs leading-relaxed focus:outline-none focus:ring-1 focus:ring-zinc-900"
               />
             </div>
