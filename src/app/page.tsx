@@ -22,7 +22,7 @@ export default async function Home() {
           in: [
             "HERO_TITLE", "HERO_SUBTITLE", "HERO_BG_TYPE", "HERO_BG_URL", "HERO_VISIBLE", 
             "HERO_SHOW_TEXT", "HERO_SHOW_CTA", "HOME_SECTIONS_ORDER", "HERO_OVERLAY_OPACITY",
-            "WHY_TITLE", "WHY_SUBTITLE", "WHY_CARD1_TITLE", "WHY_CARD1_DESC", 
+            "WHY_VISIBLE", "WHY_TITLE", "WHY_SUBTITLE", "WHY_CARD1_TITLE", "WHY_CARD1_DESC", 
             "WHY_CARD2_TITLE", "WHY_CARD2_DESC", "WHY_CARD3_TITLE", "WHY_CARD3_DESC"
           ]
         }
@@ -84,12 +84,13 @@ export default async function Home() {
   const whyCard3Title = getPolicy("WHY_CARD3_TITLE", "지속 가능한 순환");
   const whyCard3Desc = getPolicy("WHY_CARD3_DESC", "플라스틱 소비를 70% 이상 줄일 수 있는 대용량 에코 리필 파우치 시스템을 통해 환경에 대한 책임을 실천합니다.");
 
+  const whyVisiblePolicy = getPolicy("WHY_VISIBLE", "true");
   const homeSectionsOrder = getPolicy("HOME_SECTIONS_ORDER", "");
-  let isWhyVisible = true;
+  let isWhyVisible = whyVisiblePolicy !== "false";
   if (homeSectionsOrder) {
     try {
       const parsed = JSON.parse(homeSectionsOrder);
-      const whySec = parsed.find((s: any) => s.id === "why" || s.id === "philosophy");
+      const whySec = parsed.find((s: any) => s.id === "why" || s.id === "features" || s.id === "brand_story" || s.id === "philosophy");
       if (whySec && whySec.visible === false) isWhyVisible = false;
     } catch(e) {}
   }

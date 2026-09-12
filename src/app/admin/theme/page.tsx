@@ -148,6 +148,7 @@ export default function ThemeAdminPage() {
   const [isLogoUploading, setIsLogoUploading] = useState(false);
 
   // 'Why PERVADE?' / Brand Philosophy Section States
+  const [whyVisible, setWhyVisible] = useState(true);
   const [whyTitle, setWhyTitle] = useState("깨끗함이란 인공적인 향으로 덮는 것이 아니라,\n가장 맑은 본래의 상태로 되돌리는 것.");
   const [whySubtitle, setWhySubtitle] = useState("퍼베이드는 눈에 띄는 화려한 포장 대신 미니멀한 실루엣을,\n독한 화학 계면활성제 대신 식물 유래 세정 성분을 선택했습니다.\n주방의 기름때부터 욕실의 물때까지, 표면을 상하게 하지 않고 자연스럽게 스며듭니다.");
   const [whyCard1Title, setWhyCard1Title] = useState("자연 유래 안심 성분");
@@ -293,6 +294,9 @@ export default function ThemeAdminPage() {
         if (data.WHY_CARD2_DESC) setWhyCard2Desc(data.WHY_CARD2_DESC);
         if (data.WHY_CARD3_TITLE) setWhyCard3Title(data.WHY_CARD3_TITLE);
         if (data.WHY_CARD3_DESC) setWhyCard3Desc(data.WHY_CARD3_DESC);
+        if (data.WHY_VISIBLE !== undefined && data.WHY_VISIBLE !== "") {
+          setWhyVisible(data.WHY_VISIBLE !== "false");
+        }
 
         if (data.HOME_SECTIONS_ORDER) {
           try {
@@ -316,6 +320,12 @@ export default function ThemeAdminPage() {
             if (data.HERO_VISIBLE !== undefined) {
               const heroSec = mapped.find((s: any) => s.id === "hero");
               if (heroSec) heroSec.visible = data.HERO_VISIBLE !== "false";
+            }
+
+            // Sync why visible from WHY_VISIBLE policy if present
+            if (data.WHY_VISIBLE !== undefined) {
+              const whySec = mapped.find((s: any) => s.id === "features" || s.id === "why" || s.id === "brand_story");
+              if (whySec) whySec.visible = data.WHY_VISIBLE !== "false";
             }
 
             setSections(mapped);
@@ -353,12 +363,21 @@ export default function ThemeAdminPage() {
     if (newSections[index].id === "hero") {
       setHeroVisible(newSections[index].visible);
     }
+    if (newSections[index].id === "features" || newSections[index].id === "why" || newSections[index].id === "brand_story") {
+      setWhyVisible(newSections[index].visible);
+    }
     setSections(newSections);
   };
 
   const handleHeroVisibleToggle = (visible: boolean) => {
     setHeroVisible(visible);
     const newSections = sections.map(s => s.id === "hero" ? { ...s, visible } : s);
+    setSections(newSections);
+  };
+
+  const handleWhyVisibleToggle = (visible: boolean) => {
+    setWhyVisible(visible);
+    const newSections = sections.map(s => (s.id === "features" || s.id === "why" || s.id === "brand_story") ? { ...s, visible } : s);
     setSections(newSections);
   };
 
@@ -378,7 +397,7 @@ export default function ThemeAdminPage() {
     try {
       const orderToSave = sections.map(s => ({
         id: s.id,
-        visible: s.id === "hero" ? heroVisible : s.visible
+        visible: s.id === "hero" ? heroVisible : (s.id === "features" || s.id === "why" || s.id === "brand_story") ? whyVisible : s.visible
       }));
       
       const payload = {
@@ -399,6 +418,7 @@ export default function ThemeAdminPage() {
         LOGO_URL: logoUrl || "",
         LOGO_FONT: logoFont || "'Inter', sans-serif",
         HOME_SECTIONS_ORDER: JSON.stringify(orderToSave),
+        WHY_VISIBLE: whyVisible ? "true" : "false",
         WHY_TITLE: whyTitle,
         WHY_SUBTITLE: whySubtitle,
         WHY_CARD1_TITLE: whyCard1Title,
@@ -1233,7 +1253,7 @@ export default function ThemeAdminPage() {
       </div>
 
       {/* 3. 'Why PERVADE?' / Brand Philosophy Features Customization */}
-      <div className="bg-white rounded-2xl border p-6 space-y-6 shadow-xs">
+      <div className={`bg-white rounded-2xl border p-6 space-y-6 shadow-xs transition-all ${!whyVisible ? "opacity-75 bg-zinc-50" : ""}`}>
         <div className="flex justify-between items-center border-b pb-4">
           <div>
             <h2 className="text-base font-bold text-zinc-900 flex items-center gap-2">
@@ -1243,6 +1263,43 @@ export default function ThemeAdminPage() {
             <p className="text-xs text-zinc-500 mt-0.5">
               메인 홈페이지 상단에 노출되는 대표 철학 타이틀 및 3개 핵심 가치 카드의 제목과 설명 문구를 원하는 내용으로 직접 수정합니다. (줄바꿈 지원)
             </p>
+          </div>
+          <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${whyVisible ? "bg-emerald-100 text-emerald-800 border border-emerald-200" : "bg-zinc-200 text-zinc-700"}`}>
+            {whyVisible ? "🟢 화면 노출 중" : "⚪ 숨김 상태"}
+          </span>
+        </div>
+
+        {/* SECTION VISIBILITY TOGGLE (노출 / 숨김 선택) */}
+        <div className="p-3.5 bg-zinc-50 border rounded-xl space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-xs font-bold text-zinc-900 block">브랜드 철학 섹션 노출 여부</span>
+              <span className="text-[10px] text-zinc-500">메인 홈페이지에서 해당 영역을 완전히 숨기거나 노출합니다.</span>
+            </div>
+            <div className="flex gap-1.5">
+              <button
+                type="button"
+                onClick={() => handleWhyVisibleToggle(true)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                  whyVisible
+                    ? "bg-zinc-950 text-white shadow-xs"
+                    : "bg-white text-zinc-600 border hover:bg-zinc-100"
+                }`}
+              >
+                <Eye className="w-3.5 h-3.5 text-emerald-400" /> 노출 (보이기)
+              </button>
+              <button
+                type="button"
+                onClick={() => handleWhyVisibleToggle(false)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                  !whyVisible
+                    ? "bg-rose-600 text-white shadow-xs"
+                    : "bg-white text-zinc-600 border hover:bg-zinc-100"
+                }`}
+              >
+                <EyeOff className="w-3.5 h-3.5" /> 숨김 (안보이게)
+              </button>
+            </div>
           </div>
         </div>
 
