@@ -332,10 +332,10 @@ export default async function Home() {
 
   // Map Brand Stories
   const displayBrandStories = brandStoryPosts.length > 0
-    ? brandStoryPosts.map((post) => ({
+    ? brandStoryPosts.map((post, idx) => ({
         id: post.id,
         title: post.title,
-        image: post.imageUrl || defaultBrandStories[0].image,
+        image: post.imageUrl || defaultBrandStories[idx % defaultBrandStories.length].image,
         link: `/journal/${post.id}`
       }))
     : defaultBrandStories;
@@ -343,16 +343,16 @@ export default async function Home() {
   // Map Journals
   const displayJournals = (journalPosts.length > 0 || featuredGuides.length > 0)
     ? [
-        ...journalPosts.map((post) => ({
+        ...journalPosts.map((post, idx) => ({
           id: post.id,
           title: post.title,
-          image: post.imageUrl || defaultJournalArticles[0].image,
+          image: post.imageUrl || defaultJournalArticles[idx % defaultJournalArticles.length].image,
           link: `/journal/${post.id}`
         })),
-        ...featuredGuides.map((guide) => ({
+        ...featuredGuides.map((guide, idx) => ({
           id: guide.id,
           title: guide.title,
-          image: guide.thumbnailUrl || defaultJournalArticles[0].image,
+          image: guide.thumbnailUrl || defaultJournalArticles[(idx + 2) % defaultJournalArticles.length].image,
           link: `/guide/${guide.id}`
         }))
       ].slice(0, 8)
@@ -360,10 +360,10 @@ export default async function Home() {
 
   // Map News
   const displayNews = newsPosts.length > 0
-    ? newsPosts.map((post) => ({
+    ? newsPosts.map((post, idx) => ({
         id: post.id,
         title: post.title,
-        image: post.imageUrl || defaultNewsArticles[0].image,
+        image: post.imageUrl || defaultNewsArticles[idx % defaultNewsArticles.length].image,
         link: `/journal/${post.id}`
       }))
     : defaultNewsArticles;
