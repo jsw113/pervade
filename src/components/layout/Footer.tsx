@@ -39,10 +39,10 @@ export function Footer() {
   const rawBizNum = policies.BIZ_REG_NUMBER ? policies.BIZ_REG_NUMBER.replace(/[^0-9]/g, "") : "1234567890";
 
   return (
-    <footer className="w-full bg-[#ECE7DF] border-t border-[#DDD6CA] py-12 sm:py-16 md:py-20 text-xs text-stone-800">
+    <footer className="w-full bg-[#F6F4EE] border-t border-[#E7E2D8] py-12 sm:py-16 md:py-20 text-xs text-stone-800">
       <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 space-y-8 sm:space-y-12">
         {/* Top Navigation Links */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 pb-8 border-b border-[#DDD6CA]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 pb-8 border-b border-[#E7E2D8]">
           <div className="md:col-span-1 space-y-3">
             <h3 className="font-bold text-lg text-stone-950 tracking-tight">PERVADE</h3>
             <p className="text-stone-600 leading-relaxed text-xs">
@@ -143,7 +143,7 @@ export function Footer() {
           </div>
 
           {/* Escrow Purchase Safety Service Notice (전자상거래법 제24조 제2항) */}
-          <div className="p-4 bg-[#DFD9CE]/70 border border-[#CDC4B5] rounded-none flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-stone-800">
+          <div className="p-4 bg-[#ECE8E0]/70 border border-[#DDD7CD] rounded-none flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-stone-800">
             <div className="flex items-center gap-2.5">
               <ShieldCheck className="w-5 h-5 text-emerald-700 shrink-0" />
               <span>
