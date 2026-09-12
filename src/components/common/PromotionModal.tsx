@@ -29,20 +29,39 @@ export function PromotionModal({ promotion }: PromotionModalProps) {
   useEffect(() => {
     if (!promotion || !promotion.id) return;
 
-    // Check if user dismissed today
+    // 1. Client-side active period check
+    const now = new Date();
+    if (promotion.startDate && new Date(promotion.startDate) > now) {
+      setIsOpen(false);
+      return;
+    }
+    if (promotion.endDate && new Date(promotion.endDate) < now) {
+      setIsOpen(false);
+      return;
+    }
+
+    // 2. Check if user dismissed permanently ("다시 보지 않기")
+    const neverShowKey = `pervade_never_show_promo_${promotion.id}`;
+    if (localStorage.getItem(neverShowKey) === "true" || localStorage.getItem("pervade_never_show_all_promos") === "true") {
+      setIsOpen(false);
+      return;
+    }
+
+    // 3. Check if user dismissed today ("오늘 하루 보지 않기")
     const hideKey = `pervade_hide_promo_${promotion.id}`;
     const hiddenDate = localStorage.getItem(hideKey);
     const todayStr = new Date().toISOString().split("T")[0];
 
     if (hiddenDate === todayStr) {
       setIsOpen(false);
-    } else {
-      // Small delay for smooth entry after page load
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-      }, 500);
-      return () => clearTimeout(timer);
+      return;
     }
+
+    // Smooth entry after page load
+    const timer = setTimeout(() => {
+      setIsOpen(true);
+    }, 500);
+    return () => clearTimeout(timer);
   }, [promotion]);
 
   if (!isOpen || !promotion) return null;
@@ -52,9 +71,19 @@ export function PromotionModal({ promotion }: PromotionModalProps) {
   };
 
   const handleHideToday = () => {
-    const hideKey = `pervade_hide_promo_${promotion.id}`;
-    const todayStr = new Date().toISOString().split("T")[0];
-    localStorage.setItem(hideKey, todayStr);
+    if (promotion?.id) {
+      const hideKey = `pervade_hide_promo_${promotion.id}`;
+      const todayStr = new Date().toISOString().split("T")[0];
+      localStorage.setItem(hideKey, todayStr);
+    }
+    setIsOpen(false);
+  };
+
+  const handleNeverShow = () => {
+    if (promotion?.id) {
+      const neverShowKey = `pervade_never_show_promo_${promotion.id}`;
+      localStorage.setItem(neverShowKey, "true");
+    }
     setIsOpen(false);
   };
 
@@ -143,18 +172,27 @@ export function PromotionModal({ promotion }: PromotionModalProps) {
           </div>
         </div>
 
-        {/* Footer Actions: 오늘 하루 보지 않기 / 닫기 */}
-        <div className="bg-zinc-50 border-t border-zinc-100 px-6 py-3 flex items-center justify-between text-xs text-zinc-500">
-          <button
-            onClick={handleHideToday}
-            className="hover:text-zinc-900 transition-colors font-medium flex items-center gap-1.5 cursor-pointer"
-          >
-            <Clock className="w-3.5 h-3.5 text-zinc-400" />
-            오늘 하루 보지 않기
-          </button>
+        {/* Footer Actions: 오늘 하루 보지 않기 / 다시 보지 않기 / 닫기 */}
+        <div className="bg-zinc-50 border-t border-zinc-200 px-5 py-3 flex items-center justify-between text-xs text-zinc-500">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleHideToday}
+              className="hover:text-zinc-950 transition-colors font-medium flex items-center gap-1.5 cursor-pointer text-[11px] sm:text-xs"
+            >
+              <Clock className="w-3.5 h-3.5 text-zinc-400" />
+              오늘 하루 보지 않기
+            </button>
+            <span className="text-zinc-300">|</span>
+            <button
+              onClick={handleNeverShow}
+              className="hover:text-zinc-950 transition-colors font-medium cursor-pointer text-[11px] sm:text-xs"
+            >
+              다시 보지 않기
+            </button>
+          </div>
           <button
             onClick={handleClose}
-            className="hover:text-zinc-900 font-bold transition-colors cursor-pointer"
+            className="hover:text-zinc-950 font-bold transition-colors cursor-pointer text-[11px] sm:text-xs px-2.5 py-1 bg-zinc-200 hover:bg-zinc-300 rounded-none text-zinc-800"
           >
             닫기
           </button>

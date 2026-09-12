@@ -29,8 +29,16 @@ export default async function Home() {
       }
     });
 
+    const now = new Date();
     latestPromotion = await prisma.promotion.findFirst({
-      where: { isActive: true },
+      where: { 
+        isActive: true,
+        startDate: { lte: now },
+        OR: [
+          { endDate: null },
+          { endDate: { gte: now } }
+        ]
+      },
       orderBy: { order: "asc" }
     });
 
