@@ -50,14 +50,14 @@ export function Footer() {
               일상의 공간을 더 안전하고 아름답게 만듭니다.
             </p>
             <div className="pt-2 text-stone-600">
-              <span className="block text-[11px] text-stone-500 font-bold uppercase">Customer Support</span>
+              <span className="block text-[11px] text-stone-500 font-bold uppercase">고객센터</span>
               <span className="text-base font-extrabold text-stone-950">{policies.CS_PHONE}</span>
               <span className="block text-[11px] text-stone-500">{policies.CS_HOURS}</span>
             </div>
           </div>
           
           <div>
-            <h4 className="font-bold text-stone-950 mb-3 text-xs uppercase tracking-wider">Shop &amp; Guide</h4>
+            <h4 className="font-bold text-stone-950 mb-3 text-xs uppercase tracking-wider">쇼핑 &amp; 콘텐츠</h4>
             <ul className="space-y-2 text-stone-600">
               <li><Link href="/shop" className="hover:text-stone-950 transition-colors">전체상품</Link></li>
               <li><Link href="/guide" className="hover:text-stone-950 transition-colors">사용가이드</Link></li>
@@ -79,7 +79,7 @@ export function Footer() {
           </div>
           
           <div>
-            <h4 className="font-bold text-stone-950 mb-3 text-xs uppercase tracking-wider">Customer Care</h4>
+            <h4 className="font-bold text-stone-950 mb-3 text-xs uppercase tracking-wider">고객지원</h4>
             <ul className="space-y-2 text-stone-600">
               <li>
                 <a 
@@ -95,12 +95,12 @@ export function Footer() {
               <li><Link href="/faq" className="hover:text-stone-950 transition-colors">자주 묻는 질문 (FAQ)</Link></li>
               <li><Link href="/qna" className="hover:text-stone-950 transition-colors">1:1 문의 게시판</Link></li>
               <li><Link href="/shipping" className="hover:text-stone-950 transition-colors">배송 / 교환 / 반품 안내</Link></li>
-              <li><Link href="/contact" className="hover:text-stone-950 transition-colors">대량구매 & 제휴문의</Link></li>
+              <li><Link href="/contact" className="hover:text-stone-950 transition-colors">대량구매 &amp; 제휴문의</Link></li>
             </ul>
           </div>
           
           <div>
-            <h4 className="font-bold text-stone-950 mb-3 text-xs uppercase tracking-wider">Terms & Policy</h4>
+            <h4 className="font-bold text-stone-950 mb-3 text-xs uppercase tracking-wider">이용약관 및 정책</h4>
             <ul className="space-y-2 text-stone-600">
               <li><Link href="/terms" className="hover:text-stone-950 transition-colors font-medium">이용약관</Link></li>
               <li><Link href="/privacy" className="hover:text-stone-950 transition-colors font-bold text-stone-950 underline">개인정보처리방침</Link></li>
