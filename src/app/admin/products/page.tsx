@@ -10,24 +10,40 @@ export default async function AdminProductsPage({
 }: {
   searchParams: Promise<{ category?: string; subCategory?: string }>;
 }) {
-  const { category, subCategory } = await searchParams;
+  let category: string | undefined;
+  let subCategory: string | undefined;
 
-  const categoriesList = await getDynamicProductCategories();
-
-  const where: any = {};
-  if (category && category !== "ALL") {
-    where.category = category;
+  try {
+    const resolvedParams = (await searchParams) || {};
+    category = resolvedParams.category;
+    subCategory = resolvedParams.subCategory;
+  } catch (e) {
+    category = undefined;
+    subCategory = undefined;
   }
-  if (subCategory && subCategory !== "ALL") {
-    where.subCategory = subCategory;
+
+  let categoriesList = await getDynamicProductCategories().catch(() => []);
+  let products: any[] = [];
+  let totalCount = 0;
+
+  try {
+    const where: any = {};
+    if (category && category !== "ALL") {
+      where.category = category;
+    }
+    if (subCategory && subCategory !== "ALL") {
+      where.subCategory = subCategory;
+    }
+
+    products = await prisma.product.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+    });
+
+    totalCount = await prisma.product.count();
+  } catch (err) {
+    console.error("AdminProductsPage DB error:", err);
   }
-
-  const products = await prisma.product.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-  });
-
-  const totalCount = await prisma.product.count();
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-12">

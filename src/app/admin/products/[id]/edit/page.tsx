@@ -6,11 +6,24 @@ import { ProductEditForm } from "@/components/admin/ProductEditForm";
 export const dynamic = "force-dynamic";
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+  let id = "";
+  try {
+    const resolved = (await params) || { id: "" };
+    id = resolved.id || "";
+  } catch (e) {
+    id = "";
+  }
   
-  const product = await prisma.product.findFirst({
-    where: { id }
-  });
+  let product: any = null;
+  try {
+    if (id) {
+      product = await prisma.product.findFirst({
+        where: { id }
+      });
+    }
+  } catch (e) {
+    console.error("EditProductPage query error:", e);
+  }
 
   if (!product) {
     return (
