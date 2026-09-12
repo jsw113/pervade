@@ -82,9 +82,9 @@ export default async function Home() {
   const heroSubtitle = getPolicy("HERO_SUBTITLE", "");
   const heroBgType = getPolicy("HERO_BG_TYPE", "IMAGE");
   const heroBgUrl = getPolicy("HERO_BG_URL", "");
-  const heroOverlayOpacity = getPolicy("HERO_OVERLAY_OPACITY", "0");
+  const heroOverlayOpacity = parseInt(getPolicy("HERO_OVERLAY_OPACITY", "0"), 10) || 0;
 
-  const fallbackDefaultBg = "";
+  const fallbackDefaultBg = "https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=2000&auto=format&fit=crop";
   const activeBgUrl = heroBgUrl || fallbackDefaultBg;
 
   // 'Why PERVADE?' (Features) Section Dynamic Policies

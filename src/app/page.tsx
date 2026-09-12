@@ -68,7 +68,10 @@ export default async function Home() {
 
   const heroBgType = getPolicy("HERO_BG_TYPE", "IMAGE");
   const heroBgUrl = getPolicy("HERO_BG_URL", "");
-  const heroOverlayOpacity = getPolicy("HERO_OVERLAY_OPACITY", "35");
+  const heroOverlayOpacity = parseInt(getPolicy("HERO_OVERLAY_OPACITY", "0"), 10) || 0;
+  const heroShowText = getPolicy("HERO_SHOW_TEXT", "false") === "true";
+  const heroTitle = getPolicy("HERO_TITLE", "");
+  const heroSubtitle = getPolicy("HERO_SUBTITLE", "");
   const activeBgUrl = heroBgUrl || "https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=2000&auto=format&fit=crop";
 
   // Fallback curated products merged with DB products
@@ -260,22 +263,29 @@ export default async function Home() {
           />
         )}
 
-        {/* Soft Ambient Shadow Overlay */}
-        <div className="absolute inset-0 bg-black/40 backdrop-brightness-90 pointer-events-none" />
+        {/* Dynamic Overlay Mask (Only if opacity > 0 in Backoffice) */}
+        {heroOverlayOpacity > 0 && (
+          <div 
+            className="absolute inset-0 bg-black pointer-events-none transition-opacity" 
+            style={{ opacity: heroOverlayOpacity / 100 }}
+          />
+        )}
 
-        {/* Hero Typography */}
-        <div className="relative z-10 text-center text-white px-6 max-w-4xl mx-auto space-y-6 pt-16">
-          <p className="text-xs sm:text-sm font-mono tracking-[0.3em] uppercase opacity-90">
-            Silence in Cleanliness
-          </p>
-          <h1 className="text-3xl sm:text-5xl md:text-7xl font-serif font-light tracking-tight leading-[1.15]">
-            공간을 비우고,<br />본질을 채우는 시간
-          </h1>
-          <p className="text-xs sm:text-sm md:text-base text-zinc-200 font-light max-w-xl mx-auto leading-relaxed pt-2">
-            퍼베이드는 자연에서 온 순수한 성분과 절제된 미학으로<br className="hidden sm:inline" />
-            당신의 매일 머무는 공간에 고요한 휴식을 선사합니다.
-          </p>
-        </div>
+        {/* Hero Typography (Strictly controlled by Backoffice HERO_SHOW_TEXT setting) */}
+        {heroShowText && (heroTitle || heroSubtitle) && (
+          <div className="relative z-10 text-center text-white px-6 max-w-4xl mx-auto space-y-6 pt-16">
+            {heroTitle && (
+              <h1 className="text-3xl sm:text-5xl md:text-7xl font-serif font-light tracking-tight leading-[1.15] whitespace-pre-line">
+                {heroTitle}
+              </h1>
+            )}
+            {heroSubtitle && (
+              <p className="text-xs sm:text-sm md:text-base text-zinc-200 font-light max-w-xl mx-auto leading-relaxed pt-2 whitespace-pre-line">
+                {heroSubtitle}
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Scroll Indicator */}
         <div className="absolute bottom-8 left-0 right-0 z-10 flex flex-col items-center justify-center text-white/80 gap-2">

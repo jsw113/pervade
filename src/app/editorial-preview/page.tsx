@@ -135,8 +135,7 @@ export default function EditorialPreviewPage() {
             backgroundPosition: "center 40%"
           }}
         />
-        {/* Soft Ambient Shadow Overlay */}
-        <div className="absolute inset-0 bg-black/35 backdrop-brightness-90" />
+        {/* Soft Ambient Shadow Overlay (Clear) */}
 
         {/* Hero Typography */}
         <div className="relative z-10 text-center text-white px-6 max-w-4xl mx-auto space-y-6 pt-16">
