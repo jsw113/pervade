@@ -32,24 +32,22 @@ export default async function AboutPage() {
   const posts = dbPosts.length > 0 ? dbPosts : [DEFAULT_BRAND_STORY];
 
   return (
-    <div className="container mx-auto px-4 py-16 max-w-4xl space-y-16">
-      {/* Header */}
-      <div className="text-center space-y-3 max-w-2xl mx-auto">
-        <span className="text-xs font-bold text-amber-600 uppercase tracking-widest inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 rounded-full border border-amber-200">
-          <Sparkles className="w-3.5 h-3.5" />
-          Brand Story &amp; Philosophy
+    <div className="container mx-auto px-4 py-12 sm:py-20 max-w-6xl space-y-12">
+      {/* Top Breadcrumb */}
+      <div className="flex items-center justify-between pb-4">
+        <Link 
+          href="/" 
+          className="inline-flex items-center gap-1.5 text-zinc-400 hover:text-zinc-950 text-xs font-medium transition-colors"
+        >
+          <ArrowRight className="w-3.5 h-3.5 rotate-180" /> 홈으로 돌아가기
+        </Link>
+        <span className="text-[11px] font-mono tracking-widest text-zinc-400 uppercase">
+          PERVADE BRAND STORY
         </span>
-        <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-zinc-950">
-          공간의 질서와 호흡을 바꾸는<br/>
-          프리미엄 클리닝의 시작
-        </h1>
-        <p className="text-zinc-500 text-sm sm:text-base font-normal">
-          자연과 사람, 공간을 잇는 지속 가능한 클린 라이프스타일 솔루션
-        </p>
       </div>
 
       {/* Main Story Content */}
-      <div className="space-y-16">
+      <div className="space-y-20">
         {posts.map((post, idx) => {
           const defaultImages = [
             "https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200&auto=format&fit=crop",
@@ -62,7 +60,7 @@ export default async function AboutPage() {
             <article key={post.id} className="space-y-8">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
                 
-                {/* Left Column: Image */}
+                {/* Left Column: Sharp Image */}
                 <div className="lg:col-span-5 w-full lg:sticky lg:top-24">
                   <div className="relative aspect-[3/4] overflow-hidden bg-zinc-100">
                     <img
@@ -75,12 +73,12 @@ export default async function AboutPage() {
 
                 {/* Right Column: Article Text */}
                 <div className="lg:col-span-7 space-y-6">
-                  <div className="border-b border-zinc-200/60 pb-6 space-y-2">
-                    <h2 className="text-2xl sm:text-3xl font-serif font-light text-zinc-950 leading-tight break-keep">
+                  <div className="pb-6 space-y-2">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-light text-zinc-950 leading-tight break-keep">
                       {post.title}
-                    </h2>
+                    </h1>
                     <time className="text-xs text-zinc-400 block font-mono pt-1">
-                      발행일: {new Date(post.createdAt).toLocaleDateString()} · PERVADE Brand Editorial
+                      발행일: {new Date(post.createdAt).toLocaleDateString()} · PERVADE Brand Story
                     </time>
                   </div>
 
@@ -99,20 +97,20 @@ export default async function AboutPage() {
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </div>
+
+                  {/* Social Share Buttons */}
+                  <div className="pt-4">
+                    <ShareButtons 
+                      title={post.title}
+                      description={post.content.replace(/[#*`]/g, "").slice(0, 100)}
+                    />
+                  </div>
                 </div>
 
               </div>
             </article>
           );
         })}
-
-        {/* Social Share Buttons */}
-        <div className="pt-6 border-t border-zinc-200/60">
-          <ShareButtons 
-            title="PERVADE 브랜드 스토리 | 프리미엄 다목적 세정제"
-            description="퍼베이드가 만들어가는 새로운 일상의 기준과 친환경 클리닝 철학"
-          />
-        </div>
       </div>
     </div>
   );

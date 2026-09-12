@@ -78,56 +78,54 @@ export function ShareButtons({ title, description = "", url, className = "" }: S
   };
 
   return (
-    <div className={`pt-4 flex flex-wrap items-center justify-between gap-3 text-zinc-400 text-xs font-light ${className}`}>
-      <span className="text-zinc-400">이 콘텐츠 공유하기</span>
-
-      <div className="flex flex-wrap items-center gap-3 text-zinc-400">
-        <button
-          type="button"
-          onClick={handleCopyLink}
-          className="hover:text-zinc-900 transition-colors cursor-pointer inline-flex items-center gap-1"
-        >
-          {copied ? (
-            <span className="text-zinc-900 font-medium inline-flex items-center gap-1">
-              <Check className="w-3 h-3" /> 복사됨
-            </span>
-          ) : (
-            "링크 복사"
-          )}
-        </button>
-        <span className="text-zinc-200">·</span>
-        <button
-          type="button"
-          onClick={handleNativeOrKakaoShare}
-          className="hover:text-zinc-900 transition-colors cursor-pointer"
-        >
-          카카오톡
-        </button>
-        <span className="text-zinc-200">·</span>
-        <button
-          type="button"
-          onClick={handleShareNaver}
-          className="hover:text-zinc-900 transition-colors cursor-pointer"
-        >
-          네이버
-        </button>
-        <span className="text-zinc-200">·</span>
-        <button
-          type="button"
-          onClick={handleShareTwitter}
-          className="hover:text-zinc-900 transition-colors cursor-pointer"
-        >
-          X(트위터)
-        </button>
-        <span className="text-zinc-200">·</span>
-        <button
-          type="button"
-          onClick={handleShareFacebook}
-          className="hover:text-zinc-900 transition-colors cursor-pointer"
-        >
-          페이스북
-        </button>
-      </div>
+    <div className={`pt-4 flex flex-wrap items-center justify-end gap-3 text-[11px] text-zinc-400 font-normal ${className}`}>
+      <span>이 콘텐츠 공유하기</span>
+      <span className="text-zinc-300">·</span>
+      <button
+        type="button"
+        onClick={handleCopyLink}
+        className="hover:text-zinc-800 transition-colors cursor-pointer inline-flex items-center gap-1"
+      >
+        {copied ? (
+          <span className="text-zinc-900 font-medium inline-flex items-center gap-1">
+            <Check className="w-3 h-3" /> 복사됨
+          </span>
+        ) : (
+          "링크 복사"
+        )}
+      </button>
+      <span className="text-zinc-300">·</span>
+      <button
+        type="button"
+        onClick={handleNativeOrKakaoShare}
+        className="hover:text-zinc-800 transition-colors cursor-pointer"
+      >
+        카카오톡
+      </button>
+      <span className="text-zinc-300">·</span>
+      <button
+        type="button"
+        onClick={handleShareNaver}
+        className="hover:text-zinc-800 transition-colors cursor-pointer"
+      >
+        네이버
+      </button>
+      <span className="text-zinc-300">·</span>
+      <button
+        type="button"
+        onClick={handleShareTwitter}
+        className="hover:text-zinc-800 transition-colors cursor-pointer"
+      >
+        X
+      </button>
+      <span className="text-zinc-300">·</span>
+      <button
+        type="button"
+        onClick={handleShareFacebook}
+        className="hover:text-zinc-800 transition-colors cursor-pointer"
+      >
+        페이스북
+      </button>
     </div>
   );
 }

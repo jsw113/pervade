@@ -72,7 +72,7 @@ export default async function JournalDetailPage({ params }: { params: Promise<{ 
   return (
     <div className="container mx-auto px-4 py-12 sm:py-20 max-w-6xl space-y-10">
       {/* Top Breadcrumb / Return */}
-      <div className="flex items-center justify-between border-b border-zinc-200/60 pb-4">
+      <div className="flex items-center justify-between pb-4">
         <Link 
           href="/journal" 
           className="inline-flex items-center gap-1.5 text-zinc-400 hover:text-zinc-950 text-xs font-medium transition-colors"
@@ -100,7 +100,7 @@ export default async function JournalDetailPage({ params }: { params: Promise<{ 
 
         {/* Right Column: Article Flows Beside the Image */}
         <div className="lg:col-span-7 space-y-6">
-          <div className="space-y-2 border-b border-zinc-200/60 pb-6">
+          <div className="space-y-2 pb-6">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-light tracking-tight text-zinc-950 leading-tight break-keep">
               {post.title}
             </h1>
@@ -126,7 +126,7 @@ export default async function JournalDetailPage({ params }: { params: Promise<{ 
           </div>
 
           {/* Social Share (Minimalist Grey Text) */}
-          <div className="pt-4 border-t border-zinc-200/60">
+          <div className="pt-4">
             <ShareButtons 
               title={post.title}
               description={post.content.replace(/[#*`]/g, "").slice(0, 100)}

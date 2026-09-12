@@ -3,6 +3,7 @@ export interface EditorialPost {
   title: string;
   type: string;
   content: string;
+  imageUrl?: string | null;
   published: boolean;
   authorId?: string;
   createdAt: Date;

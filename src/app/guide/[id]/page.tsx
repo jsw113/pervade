@@ -48,150 +48,120 @@ export default async function GuideDetailPage({
   const sections = guide.content.split(/(?=### )/g);
 
   return (
-    <article className="container mx-auto px-4 py-12 max-w-4xl min-h-[80vh]">
-      {/* Back Button */}
-      <Link 
-        href="/guide" 
-        className="inline-flex items-center gap-2 text-zinc-500 hover:text-zinc-950 text-xs font-bold mb-8 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" /> 사용가이드 목록으로 돌아가기
-      </Link>
+    <div className="container mx-auto px-4 py-12 sm:py-20 max-w-6xl space-y-10">
+      {/* Top Breadcrumb / Return */}
+      <div className="flex items-center justify-between pb-4">
+        <Link 
+          href="/guide" 
+          className="inline-flex items-center gap-1.5 text-zinc-400 hover:text-zinc-950 text-xs font-medium transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" /> 가이드 목록으로 돌아가기
+        </Link>
+        <span className="text-[11px] font-mono tracking-widest text-zinc-400 uppercase">
+          PERVADE GUIDE · {guide.category}
+        </span>
+      </div>
 
-      {/* Header Info */}
-      <header className="space-y-4 border-b pb-8 mb-8">
-        <div className="flex items-center gap-3">
-          <span className="px-3 py-1 bg-zinc-950 text-white rounded-full text-xs font-bold">
-            {guide.category}
-          </span>
-          {guide.product && (
-            <span className="px-3 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-full text-xs font-bold flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-600" />
-              {guide.product.name} 추천 가이드
-            </span>
-          )}
-        </div>
-
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-zinc-950 leading-tight">
-          {guide.title}
-        </h1>
-
-        {guide.summary && (
-          <p className="text-base text-zinc-600 leading-relaxed font-normal bg-zinc-50 p-4 rounded-2xl border">
-            {guide.summary}
-          </p>
-        )}
-
-        <div className="flex justify-between items-center text-xs text-zinc-400 pt-2">
-          <div className="flex items-center gap-4">
-            <span>발행일: {new Date(guide.createdAt).toLocaleDateString()}</span>
-            <span>·</span>
-            <span className="flex items-center gap-1">
-              <Eye className="w-3.5 h-3.5" /> {guide.viewCount}회 조회
-            </span>
-          </div>
-          <span className="font-semibold text-zinc-600">PERVADE Clean Lab</span>
-        </div>
-      </header>
-
-      {/* Main Cover Image */}
-      {guide.thumbnailUrl && (
-        <div className="rounded-3xl overflow-hidden shadow-md mb-12 aspect-[16/9] bg-zinc-100 border">
-          <img 
-            src={guide.thumbnailUrl} 
-            alt={guide.title} 
-            className="w-full h-full object-cover"
-          />
-        </div>
-      )}
-
-      {/* Content Body */}
-      <div className="space-y-8 text-zinc-800 leading-relaxed">
-        {sections.map((sec, idx) => {
-          const isStep = sec.trim().startsWith("### ");
-          if (isStep) {
-            const lines = sec.trim().split("\n");
-            const stepTitle = lines[0].replace("### ", "");
-            const stepBody = lines.slice(1).join("\n");
-
-            return (
-              <div key={idx} className="bg-white border rounded-2xl p-6 sm:p-8 shadow-sm space-y-3">
-                <div className="flex items-center gap-3 border-b pb-3">
-                  <div className="w-8 h-8 rounded-full bg-zinc-950 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                    {idx + 1}
-                  </div>
-                  <h2 className="text-lg font-bold text-zinc-900">{stepTitle}</h2>
-                </div>
-                <p className="text-sm text-zinc-700 whitespace-pre-line leading-relaxed pt-1">
-                  {stepBody}
-                </p>
+      {/* Pure Editorial 2-Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-start">
+        {/* Left Column: Sharp Image */}
+        <div className="lg:col-span-5 w-full lg:sticky lg:top-24">
+          <div className="relative aspect-[3/4] overflow-hidden bg-zinc-100">
+            {guide.thumbnailUrl ? (
+              <img 
+                src={guide.thumbnailUrl} 
+                alt={guide.title} 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-zinc-300">
+                <BookOpen className="w-12 h-12" />
               </div>
-            );
-          }
+            )}
+          </div>
+        </div>
 
-          return (
-            <div key={idx} className="prose prose-zinc max-w-none text-sm leading-relaxed whitespace-pre-line">
-              {sec}
+        {/* Right Column: Guide Content Flows Beside Image */}
+        <div className="lg:col-span-7 space-y-8">
+          <div className="space-y-2 pb-6">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-light tracking-tight text-zinc-950 leading-tight break-keep">
+              {guide.title}
+            </h1>
+            <div className="flex items-center gap-3 text-xs text-zinc-400 font-mono pt-1">
+              <span>발행일: {new Date(guide.createdAt).toLocaleDateString()}</span>
+              <span>·</span>
+              <span>{guide.category} 케어 가이드</span>
             </div>
-          );
-        })}
-      </div>
-
-      {/* Pro Tips Alert Box */}
-      {guide.tips && (
-        <div className="mt-12 bg-amber-50/80 border border-amber-200 rounded-3xl p-6 sm:p-8 space-y-3">
-          <div className="flex items-center gap-2 text-amber-900 font-bold text-sm">
-            <Sparkles className="w-5 h-5 text-amber-600" />
-            <span>전문가 Pro Tips & 안심 케어 노하우</span>
           </div>
-          <p className="text-xs text-amber-950 whitespace-pre-line leading-relaxed">
-            {guide.tips}
-          </p>
-        </div>
-      )}
 
-      {/* Social Share Buttons */}
-      <div className="mt-8 mb-8">
-        <ShareButtons 
-          title={guide.title}
-          description={guide.summary || guide.content.substring(0, 100)}
-        />
-      </div>
+          {guide.summary && (
+            <p className="text-sm sm:text-base text-zinc-600 leading-relaxed font-light">
+              {guide.summary}
+            </p>
+          )}
 
-      {/* Connected Product Interactive Quick Buy & Cart Card */}
-      {guide.product && (
-        <div className="mt-8">
-          <GuideProductQuickBuy product={guide.product} />
-        </div>
-      )}
+          {/* Step-by-step Clean Content */}
+          <div className="space-y-8 text-zinc-700 font-light text-sm sm:text-base leading-relaxed">
+            {sections.map((sec, idx) => {
+              const isStep = sec.trim().startsWith("### ");
+              if (isStep) {
+                const lines = sec.trim().split("\n");
+                const stepTitle = lines[0].replace("### ", "");
+                const stepBody = lines.slice(1).join("\n");
 
-      {/* Related Guides */}
-      {relatedGuides.length > 0 && (
-        <div className="mt-16 pt-12 border-t space-y-6">
-          <h3 className="text-xl font-bold text-zinc-950">관련 공간 세정 가이드</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {relatedGuides.map((rg) => (
-              <Link
-                key={rg.id}
-                href={`/guide/${rg.id}`}
-                className="group p-5 border rounded-2xl bg-zinc-50 hover:bg-white hover:shadow-md transition-all flex gap-4 items-center"
-              >
-                {rg.thumbnailUrl && (
-                  <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-zinc-200">
-                    <img src={rg.thumbnailUrl} alt={rg.title} className="w-full h-full object-cover" />
+                return (
+                  <div key={idx} className="space-y-2">
+                    <h2 className="text-base font-semibold text-zinc-950 flex items-center gap-2">
+                      <span className="font-mono text-xs text-zinc-400">0{idx + 1}.</span>
+                      {stepTitle}
+                    </h2>
+                    <p className="whitespace-pre-line leading-relaxed text-zinc-700">
+                      {stepBody}
+                    </p>
                   </div>
-                )}
-                <div className="space-y-1 min-w-0">
-                  <span className="text-[10px] font-bold text-zinc-400">{rg.category}</span>
-                  <h4 className="font-bold text-sm text-zinc-900 group-hover:text-zinc-600 line-clamp-1">
-                    {rg.title}
-                  </h4>
-                  <p className="text-xs text-zinc-500 line-clamp-1">{rg.summary}</p>
+                );
+              }
+
+              return (
+                <div key={idx} className="whitespace-pre-line leading-relaxed">
+                  {sec}
                 </div>
-              </Link>
-            ))}
+              );
+            })}
+          </div>
+
+          {/* Pro Tips as Clean Section */}
+          {guide.tips && (
+            <div className="pt-6 space-y-2">
+              <h3 className="text-xs font-mono uppercase tracking-widest text-zinc-400">
+                PRO TIPS &amp; CARE NOTE
+              </h3>
+              <p className="text-xs text-zinc-600 whitespace-pre-line leading-relaxed font-light">
+                {guide.tips}
+              </p>
+            </div>
+          )}
+
+          {/* Bottom Right Product Link */}
+          <div className="pt-6 flex justify-end">
+            <Link
+              href={guide.productId ? `/shop/${guide.productId}` : "/shop"}
+              className="text-sm font-semibold tracking-tight text-zinc-900 hover:text-zinc-500 transition-colors inline-flex items-center gap-1 group"
+            >
+              관련제품
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+
+          {/* Social Share Buttons */}
+          <div className="pt-4">
+            <ShareButtons 
+              title={guide.title}
+              description={guide.summary || guide.content.substring(0, 100)}
+            />
           </div>
         </div>
-      )}
-    </article>
+      </div>
+    </div>
   );
 }

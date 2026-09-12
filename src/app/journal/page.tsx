@@ -25,62 +25,69 @@ export default async function JournalPage() {
 
   const posts: EditorialPost[] = dbPosts.length > 0 ? dbPosts : DEFAULT_JOURNAL_POSTS;
 
+  const defaultImages = [
+    "https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1200&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=1200&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1585670210693-e7fdd16b142e?q=80&w=1200&auto=format&fit=crop"
+  ];
+
   return (
-    <div className="container mx-auto px-4 py-16 max-w-5xl space-y-12">
+    <div className="container mx-auto px-4 py-12 sm:py-20 max-w-6xl space-y-12">
       {/* Header */}
-      <div className="text-center space-y-3 max-w-2xl mx-auto">
-        <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest inline-flex items-center gap-1.5 px-3 py-1 bg-zinc-100 rounded-full">
-          <BookOpen className="w-3.5 h-3.5 text-zinc-600" />
-          Living Journal &amp; Editorial
+      <div className="flex items-center justify-between pb-4">
+        <span className="text-[11px] font-mono tracking-widest text-zinc-400 uppercase">
+          PERVADE JOURNAL
         </span>
-        <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-zinc-950">
-          퍼베이드 저널 &amp; 라이프스타일
-        </h1>
-        <p className="text-zinc-500 text-sm leading-relaxed">
-          공간의 가치를 높이는 감각적인 클리닝 팁과 자연 유래 안심 포뮬러 이야기
-        </p>
+        <span className="text-xs text-zinc-400 font-light">
+          총 {posts.length}개의 아티클
+        </span>
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {posts.map((post) => {
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-12">
+        {posts.map((post, idx) => {
           const formattedDate = new Date(post.createdAt).toLocaleDateString();
           const cleanExcerpt = post.content.replace(/[#*`]/g, "").slice(0, 100);
+          const imgUrl = post.imageUrl || defaultImages[idx % defaultImages.length];
 
           return (
             <article 
               key={post.id} 
-              className="group bg-white rounded-3xl border overflow-hidden shadow-xs hover:shadow-xl hover:border-zinc-950 transition-all flex flex-col justify-between"
+              className="group flex flex-col justify-between space-y-4"
             >
-              <div className="aspect-[16/10] bg-zinc-900 flex flex-col items-center justify-center p-6 text-center text-white relative group-hover:bg-zinc-800 transition-colors">
-                <span className="px-2.5 py-1 bg-white/10 backdrop-blur-md rounded-lg text-[10px] font-bold tracking-widest uppercase mb-2">
-                  PERVADE Editorial
-                </span>
-                <span className="text-sm font-extrabold line-clamp-2 px-2">{post.title}</span>
-              </div>
+              <Link href={`/journal/${post.id}`} className="block space-y-4">
+                {/* Sharp Image */}
+                <div className="aspect-[3/4] bg-zinc-100 overflow-hidden relative">
+                  <img
+                    src={imgUrl}
+                    alt={post.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                </div>
 
-              <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                {/* Content */}
                 <div className="space-y-2">
                   <time className="text-[11px] text-zinc-400 font-mono block">
-                    {formattedDate}
+                    {formattedDate} · JOURNAL
                   </time>
-                  <h2 className="font-extrabold text-base text-zinc-900 group-hover:text-amber-700 transition-colors line-clamp-2 leading-snug">
+                  <h2 className="font-serif font-light text-lg sm:text-xl text-zinc-950 group-hover:text-zinc-600 transition-colors line-clamp-2 leading-snug">
                     {post.title}
                   </h2>
-                  <p className="text-xs text-zinc-500 line-clamp-3 leading-relaxed">
-                    {cleanExcerpt}...
+                  <p className="text-xs text-zinc-500 font-light line-clamp-2 leading-relaxed">
+                    {cleanExcerpt}
                   </p>
                 </div>
+              </Link>
 
-                <div className="pt-3 border-t">
-                  <Link 
-                    href={`/journal/${post.id}`} 
-                    className="text-xs font-bold text-zinc-900 group-hover:text-amber-700 inline-flex items-center gap-1.5 group-hover:translate-x-1 transition-all"
-                  >
-                    아티클 전문 읽기
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
+              <div className="pt-2">
+                <Link 
+                  href={`/journal/${post.id}`} 
+                  className="text-xs font-semibold text-zinc-900 group-hover:text-zinc-500 inline-flex items-center gap-1 transition-colors"
+                >
+                  아티클 읽기
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </Link>
               </div>
             </article>
           );
