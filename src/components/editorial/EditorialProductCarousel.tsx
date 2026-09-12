@@ -70,7 +70,7 @@ export function EditorialProductCarousel({ products }: EditorialProductCarouselP
             href="/shop"
             className="text-xs font-medium tracking-widest uppercase text-zinc-900 hover:text-zinc-500 transition-colors hidden sm:flex items-center gap-1 group"
           >
-            전체 컬렉션
+            VIEW ALL
             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
           </Link>
 

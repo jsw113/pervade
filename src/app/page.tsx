@@ -496,11 +496,9 @@ export default async function Home() {
           <section key="brand_story" className="py-16 sm:py-24 bg-white border-t border-zinc-200/70 px-4 sm:px-6 lg:px-8 overflow-hidden w-full">
             <div className="container mx-auto max-w-6xl">
               <EditorialJournalCarousel
-                categoryTag="BRAND STORY"
                 title="BRAND STORY"
-                subtitle="퍼베이드가 제안하는 맑은 공간의 미학과 지속 가능한 가치"
                 moreLink="/about"
-                moreLabel="스토리 전체보기"
+                moreLabel="VIEW ALL"
                 articles={displayBrandStories}
               />
             </div>
@@ -523,11 +521,9 @@ export default async function Home() {
           <section key="journal" className="py-16 sm:py-24 bg-white border-t border-zinc-200/70 px-4 sm:px-6 lg:px-8 overflow-hidden w-full">
             <div className="container mx-auto max-w-6xl">
               <EditorialJournalCarousel
-                categoryTag="EDITORIAL JOURNAL"
                 title="JOURNAL"
-                subtitle="공간 케어 노하우와 일상의 정돈 에세이"
                 moreLink="/journal"
-                moreLabel="저널 전체보기"
+                moreLabel="VIEW ALL"
                 articles={displayJournals}
               />
             </div>
@@ -541,11 +537,9 @@ export default async function Home() {
           <section key="news" className="py-16 sm:py-24 bg-white border-t border-zinc-200/70 px-4 sm:px-6 lg:px-8 overflow-hidden w-full">
             <div className="container mx-auto max-w-6xl">
               <EditorialJournalCarousel
-                categoryTag="NOTICE & NEWS"
                 title="NEWS"
-                subtitle="퍼베이드의 새로운 소식과 안내"
                 moreLink="/journal"
-                moreLabel="소식 전체보기"
+                moreLabel="VIEW ALL"
                 articles={displayNews}
               />
             </div>

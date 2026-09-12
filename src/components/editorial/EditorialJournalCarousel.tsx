@@ -67,19 +67,9 @@ export function EditorialJournalCarousel({
       {/* Header with Title & Left/Right Arrows */}
       <div className="flex items-end justify-between gap-4">
         <div>
-          {categoryTag && (
-            <span className="text-[11px] font-mono tracking-[0.3em] uppercase text-zinc-400 block mb-2">
-              {categoryTag}
-            </span>
-          )}
-          <h2 className="text-2xl sm:text-4xl font-serif font-light text-zinc-900 tracking-tight break-keep">
+          <h2 className="text-2xl sm:text-4xl font-serif font-light text-zinc-900 tracking-tight break-keep uppercase">
             {title}
           </h2>
-          {subtitle && (
-            <p className="text-xs sm:text-sm text-zinc-500 font-light mt-2 break-keep">
-              {subtitle}
-            </p>
-          )}
         </div>
 
         <div className="flex items-center gap-4">
@@ -88,7 +78,7 @@ export function EditorialJournalCarousel({
               href={moreLink}
               className="text-xs font-medium tracking-widest uppercase text-zinc-900 hover:text-zinc-500 transition-colors hidden sm:flex items-center gap-1 group"
             >
-              {moreLabel}
+              {moreLabel || "VIEW ALL"}
               <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
             </Link>
           )}
