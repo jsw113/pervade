@@ -351,46 +351,48 @@ export default async function Home() {
 
       case "brand_story":
         return (
-          <section key="brand_story" className="py-24 bg-zinc-950 text-white relative overflow-hidden">
-            <div className="container mx-auto px-4 max-w-6xl text-center space-y-12">
-              {/* Centered Section Header */}
-              <div className="space-y-4 max-w-2xl mx-auto">
-                <span className="text-xs font-bold text-amber-400 uppercase tracking-widest inline-flex items-center justify-center gap-1.5 px-3 py-1 bg-amber-400/10 rounded-full border border-amber-400/20">
-                  <Quote className="w-3.5 h-3.5" />
-                  Brand Philosophy
-                </span>
-                <h2 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight">
-                  {brandStoryPost?.title || "자연과 공간, 사람을 잇는 지속 가능한 클리닝"}
-                </h2>
-                <p className="text-zinc-300 text-sm leading-relaxed whitespace-pre-line font-light">
-                  {brandStoryPost?.content || 
-                    "퍼베이드(PERVADE)는 단순한 세정제를 넘어, 일상 공간의 질서를 바로잡고 삶의 품격을 높이는 라이프스타일 뷰티 솔루션을 제안합니다.\n\n불필요한 화학 성분을 덜어내고 꼭 필요한 순수 자연의 정화력만을 담았습니다. 매일 손닿는 공간에 가장 건강한 깨끗함을 선사합니다."}
-                </p>
-              </div>
+          <section key="brand_story" className="py-8 sm:py-12 bg-white">
+            <div className="max-w-6xl mx-auto px-4">
+              <div className="bg-zinc-950 text-white rounded-3xl p-8 sm:p-14 lg:p-16 shadow-2xl text-center space-y-12">
+                {/* Centered Section Header */}
+                <div className="space-y-4 max-w-2xl mx-auto">
+                  <span className="text-xs font-bold text-amber-400 uppercase tracking-widest inline-flex items-center justify-center gap-1.5 px-3 py-1 bg-amber-400/10 rounded-full border border-amber-400/20">
+                    <Quote className="w-3.5 h-3.5" />
+                    Brand Philosophy
+                  </span>
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight leading-tight">
+                    {brandStoryPost?.title || "자연과 공간, 사람을 잇는 지속 가능한 클리닝"}
+                  </h2>
+                  <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed whitespace-pre-line font-light max-w-2xl mx-auto">
+                    {brandStoryPost?.content || 
+                      "퍼베이드(PERVADE)는 단순한 세정제를 넘어, 일상 공간의 질서를 바로잡고 삶의 품격을 높이는 라이프스타일 뷰티 솔루션을 제안합니다.\n\n불필요한 화학 성분을 덜어내고 꼭 필요한 순수 자연의 정화력만을 담았습니다. 매일 손닿는 공간에 가장 건강한 깨끗함을 선사합니다."}
+                  </p>
+                </div>
 
-              {/* Centered Key Stats */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 bg-zinc-900/90 border border-zinc-800 rounded-3xl p-8 shadow-2xl">
-                <div className="space-y-1 text-center">
-                  <span className="text-3xl sm:text-4xl font-black text-white">99.9%</span>
-                  <p className="text-xs text-zinc-400">대장균 및 황색포도상구균 항균</p>
+                {/* Centered Key Stats */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 bg-zinc-900/90 border border-zinc-800 rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-inner max-w-4xl mx-auto">
+                  <div className="space-y-1 text-center">
+                    <span className="text-3xl sm:text-4xl font-black text-white">99.9%</span>
+                    <p className="text-xs text-zinc-400">대장균 및 황색포도상구균 항균</p>
+                  </div>
+                  <div className="space-y-1 text-center sm:border-x border-zinc-800">
+                    <span className="text-3xl sm:text-4xl font-black text-amber-300">0.00</span>
+                    <p className="text-xs text-zinc-400">피부 저자극 테스트 무자극 판정</p>
+                  </div>
+                  <div className="space-y-1 text-center">
+                    <span className="text-3xl sm:text-4xl font-black text-emerald-400">100%</span>
+                    <p className="text-xs text-zinc-400">생분해성 포뮬러 친환경 패키징</p>
+                  </div>
                 </div>
-                <div className="space-y-1 text-center sm:border-x border-zinc-800">
-                  <span className="text-3xl sm:text-4xl font-black text-amber-300">0.00</span>
-                  <p className="text-xs text-zinc-400">피부 저자극 테스트 무자극 판정</p>
-                </div>
-                <div className="space-y-1 text-center">
-                  <span className="text-3xl sm:text-4xl font-black text-emerald-400">100%</span>
-                  <p className="text-xs text-zinc-400">생분해성 포뮬러 친환경 패키징</p>
-                </div>
-              </div>
 
-              <div>
-                <Link
-                  href="/about"
-                  className="inline-flex items-center gap-2 px-8 py-3.5 bg-white text-zinc-950 rounded-full font-bold text-xs hover:bg-zinc-200 transition-colors shadow-lg"
-                >
-                  브랜드 스토리 전체보기 <ArrowRight className="w-4 h-4" />
-                </Link>
+                <div>
+                  <Link
+                    href="/about"
+                    className="inline-flex items-center gap-2 px-8 py-3.5 bg-white text-zinc-950 rounded-full font-bold text-xs hover:bg-zinc-200 transition-all shadow-lg hover:scale-105 active:scale-95"
+                  >
+                    브랜드 스토리 전체보기 <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
               </div>
             </div>
           </section>
