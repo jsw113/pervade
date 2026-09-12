@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Droplets, Sparkles, ShieldCheck, BookOpen, Quote, CheckCircle2, ShoppingBag, Megaphone, Calendar, Clock, Tag } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { PromotionModal } from "@/components/common/PromotionModal";
 
 export const dynamic = "force-dynamic";
 
@@ -210,98 +211,7 @@ export default async function Home() {
         );
 
       case "promotion":
-        return (
-          <section key="promotion" className="w-full bg-white py-4 sm:py-6">
-            <div className="max-w-6xl mx-auto px-4">
-              {isPromoActive && activePromoData ? (
-                /* 1. Ongoing Active Promotion Banner */
-                <div className="bg-amber-500/5 rounded-3xl border border-amber-200 p-8 sm:p-12 shadow-xl relative overflow-hidden flex flex-col md:flex-row items-center gap-8 md:gap-12">
-                  <div className="flex-1 space-y-4 text-center md:text-left">
-                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
-                      <span className="px-3 py-1 bg-amber-500 text-white text-[11px] font-black rounded-full uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
-                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
-                        {activePromoData.badgeText || "SPECIAL EVENT"}
-                      </span>
-                      {activePromoData.endDate && (
-                        <span className="px-3 py-1 bg-zinc-100 text-zinc-600 text-[11px] font-bold rounded-full flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5 text-amber-600" />
-                          {new Date(activePromoData.startDate).toLocaleDateString()} ~ {new Date(activePromoData.endDate).toLocaleDateString()}
-                        </span>
-                      )}
-                    </div>
-
-                    <h2 className="text-2xl sm:text-3xl font-black text-zinc-950 tracking-tight leading-tight">
-                      {activePromoData.title}
-                    </h2>
-
-                    {activePromoData.discountText && (
-                      <div className="inline-block bg-amber-50 border border-amber-200 px-3.5 py-1.5 rounded-xl">
-                        <span className="text-sm sm:text-base font-extrabold text-amber-800">
-                          🎉 {activePromoData.discountText}
-                        </span>
-                      </div>
-                    )}
-
-                    {activePromoData.subtitle && (
-                      <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed font-medium">
-                        {activePromoData.subtitle}
-                      </p>
-                    )}
-
-                    {activePromoData.content && (
-                      <div className="text-xs text-zinc-500 space-y-1 pt-1 whitespace-pre-line border-t border-zinc-100 pt-3">
-                        {activePromoData.content}
-                      </div>
-                    )}
-
-                    <div className="pt-2">
-                      <Link
-                        href={activePromoData.linkUrl || "/shop"}
-                        className="inline-flex items-center gap-2 px-8 py-4 bg-zinc-950 text-white rounded-full font-bold text-xs hover:bg-zinc-800 transition-all shadow-lg hover:scale-105"
-                      >
-                        {activePromoData.buttonText || "프로모션 혜택 바로가기"} <ArrowRight className="w-4 h-4" />
-                      </Link>
-                    </div>
-                  </div>
-
-                  {/* Promo Visual Image */}
-                  {activePromoData.imageUrl && (
-                    <div className="w-full md:w-[360px] aspect-[4/3] rounded-2xl overflow-hidden shrink-0 border border-zinc-200 shadow-md bg-zinc-100">
-                      <img
-                        src={activePromoData.imageUrl}
-                        alt={activePromoData.title}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-                </div>
-              ) : (
-                /* 2. Ended / Past Promotion Archive State */
-                <div className="bg-amber-500/5 rounded-3xl border border-amber-200/80 p-8 sm:p-12 text-center space-y-4 shadow-sm w-full">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-bold">
-                    <Clock className="w-3.5 h-3.5" />
-                    프로모션 시즌 준비중 (지난 이벤트 종료)
-                  </div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-zinc-900">
-                    현재 진행 중인 특별 프로모션이 마감되었습니다
-                  </h3>
-                  <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed max-w-xl mx-auto">
-                    퍼베이드는 정기적인 시즌 페스티벌과 웰니스 클린 이벤트를 준비하고 있습니다.<br />
-                    신규 회원 가입 시 기본 3,000P 적립 혜택은 상시 적용 중입니다.
-                  </p>
-                  <div className="pt-3">
-                    <Link
-                      href="/shop"
-                      className="inline-flex items-center gap-2 px-8 py-3.5 bg-zinc-950 text-white rounded-full font-bold text-xs hover:bg-zinc-800 transition-all shadow-md hover:scale-105"
-                    >
-                      전체 상품 둘러보기 <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </div>
-          </section>
-        );
+        return null;
 
       case "features":
         return (
@@ -640,6 +550,7 @@ export default async function Home() {
         .filter(s => s.visible)
         .map(s => renderSection(s.id))
       }
+      <PromotionModal promotion={latestPromotion ? JSON.parse(JSON.stringify(latestPromotion)) : null} />
     </div>
   );
 }
