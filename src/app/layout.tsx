@@ -19,6 +19,9 @@ const notoSerifKr = Noto_Serif_KR({
   weight: ["300", "400", "500", "600", "700"],
 });
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.pervade.co.kr"),
   title: {

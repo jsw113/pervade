@@ -99,7 +99,7 @@ export function Navbar({
   const checkAuthAndCart = async () => {
     try {
       // 1. Theme
-      const themeRes = await fetch("/api/admin/theme");
+      const themeRes = await fetch(`/api/admin/theme?_t=${Date.now()}`, { cache: "no-store" });
       if (themeRes.ok) {
         const data = await themeRes.json();
         if (data.LOGO_URL && data.LOGO_URL.trim() !== "") setLogoUrl(data.LOGO_URL);
@@ -108,7 +108,7 @@ export function Navbar({
       }
 
       // 2. Policies (Top Banner)
-      const policyRes = await fetch("/api/policies");
+      const policyRes = await fetch(`/api/policies?_t=${Date.now()}`, { cache: "no-store" });
       if (policyRes.ok) {
         const pData = await policyRes.json();
         if (pData.TOP_BANNER_MESSAGES) {
