@@ -30,9 +30,9 @@ export async function GET(request: Request) {
       }
     });
     return NextResponse.json(products);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to fetch products:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: error?.message || "Internal Server Error" }, { status: 500 });
   }
 }
 
