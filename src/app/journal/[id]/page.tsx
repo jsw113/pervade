@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { ArrowLeft, BookOpen, ArrowRight, ShoppingBag } from "lucide-react";
 import { ShareButtons } from "@/components/common/ShareButtons";
-import { DEFAULT_JOURNAL_POSTS, EditorialPost } from "@/lib/defaultEditorialContent";
+import { ALL_DEFAULT_POSTS, EditorialPost } from "@/lib/defaultEditorialContent";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }).catch(() => null);
 
   if (!post) {
-    post = DEFAULT_JOURNAL_POSTS.find((p) => p.id === id) || null;
+    post = ALL_DEFAULT_POSTS.find((p) => p.id === id) || null;
   }
 
   if (!post) return { title: "저널 아티클 | PERVADE" };
@@ -40,7 +40,7 @@ export default async function JournalDetailPage({ params }: { params: Promise<{ 
   });
 
   if (!post) {
-    post = DEFAULT_JOURNAL_POSTS.find((p) => p.id === id) || null;
+    post = ALL_DEFAULT_POSTS.find((p) => p.id === id) || null;
   }
 
   if (!post) {

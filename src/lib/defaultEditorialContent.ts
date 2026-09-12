@@ -100,3 +100,70 @@ export const DEFAULT_JOURNAL_POSTS: EditorialPost[] = [
 시각적인 깨끗함을 넘어, 후각과 감각까지 채워주는 완벽한 공간 케어를 경험해 보세요.`
   }
 ];
+
+export const DEFAULT_NEWS_POSTS: EditorialPost[] = [
+  {
+    id: "news-01",
+    title: "퍼베이드 공식 온라인 플래그십 스토어 오픈 안내",
+    type: "NOTICE",
+    published: true,
+    createdAt: new Date("2026-08-20T09:00:00.000Z"),
+    updatedAt: new Date("2026-08-20T09:00:00.000Z"),
+    imageUrl: "https://images.unsplash.com/photo-1608248597359-5936735e00b6?q=80&w=1200&auto=format&fit=crop",
+    content: `퍼베이드(PERVADE) 공식 온라인 플래그십 스토어가 정식 오픈하였습니다.
+
+공간을 비우고 본질을 채우는 퍼베이드만의 시그니처 프리미엄 클리닝 라인업을 가장 먼저 만나보실 수 있습니다.
+
+■ 공식 플래그십 혜택:
+· 신규 회원 가입 즉시 10% 웰컴 쿠폰 지급
+· 전 제품 무료 배송 프로모션 진행
+· 정기 구독 및 에코 리필 팩 구매 시 추가 마일리지 적립
+
+앞으로 다양한 에디토리얼 저널과 공간 케어 솔루션으로 찾아뵙겠습니다. 많은 관심과 사랑 부탁드립니다.`
+  },
+  {
+    id: "news-02",
+    title: "대용량 1,000ml 친환경 에코 리필 파우치 정식 출시",
+    type: "NOTICE",
+    published: true,
+    createdAt: new Date("2026-08-18T09:00:00.000Z"),
+    updatedAt: new Date("2026-08-18T09:00:00.000Z"),
+    imageUrl: "https://images.unsplash.com/photo-1585670210693-e7fdd16b142e?q=80&w=1200&auto=format&fit=crop",
+    content: `플라스틱 사용량을 70% 줄이고 공간의 미니멀리즘을 유지하는 퍼베이드의 순환 프로젝트, 1,000ml 대용량 에코 리필 파우치가 출시되었습니다.
+
+기존 500ml 본품 보틀에 2회 가득 채워 사용할 수 있는 경제적이고 친환경적인 선택입니다.
+
+■ 에코 리필 파우치 특장점:
+· 플라스틱 플라스틱 배출량 70% 감소
+· 안전 캡 스파우트로 잔여물 없이 깔끔한 리필 가능
+· 본품 대비 20% 절약된 경제적인 용량과 가격
+
+지속 가능한 라이프스타일을 퍼베이드와 함께 시작해보세요.`
+  },
+  {
+    id: "news-03",
+    title: "신규 가입 회원 대상 첫 구매 10% 웰컴 쿠폰 혜택",
+    type: "NOTICE",
+    published: true,
+    createdAt: new Date("2026-08-10T09:00:00.000Z"),
+    updatedAt: new Date("2026-08-10T09:00:00.000Z"),
+    imageUrl: "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?q=80&w=1200&auto=format&fit=crop",
+    content: `퍼베이드 공식 스토어에 가입해주신 모든 분들께 감사의 마음을 담아 첫 구매 10% 할인 웰컴 쿠폰을 증정합니다.
+
+가입 즉시 마이페이지 쿠폰함에서 확인하실 수 있으며, 전 제품 구매 시 제한 없이 적용 가능합니다.
+
+■ 쿠폰 사용 안내:
+· 지급 대상: 신규 회원 가입 고객 전체
+· 혜택: 전 품목 10% 할인
+· 유효기간: 발급일로부터 30일 이내
+
+퍼베이드가 선사하는 고요하고 깨끗한 일상을 경험해보세요.`
+  }
+];
+
+export const ALL_DEFAULT_POSTS: EditorialPost[] = [
+  DEFAULT_BRAND_STORY,
+  ...DEFAULT_JOURNAL_POSTS,
+  ...DEFAULT_NEWS_POSTS
+];
+

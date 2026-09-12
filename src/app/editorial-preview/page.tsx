@@ -12,36 +12,36 @@ export const metadata = {
 export default function EditorialPreviewPage() {
   const curatedArticles = [
     {
-      id: "journal-01",
+      id: "minimal-cleaning-solution",
       issue: "ISSUE 01 / LIVING & ROUTINE",
       title: "단정한 아침을 여는 10분의 정돈 습관",
       desc: "어수선한 일상에서 벗어나 나와 나의 공간을 돌보는 가장 고요하고 다정한 케어 리추얼.",
       image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1200&auto=format&fit=crop",
-      link: "/journal"
+      link: "/journal/minimal-cleaning-solution"
     },
     {
-      id: "journal-02",
+      id: "safe-ingredients-choice",
       issue: "ISSUE 02 / SAFE ESSENCE",
       title: "우리가 머무는 공간에 남아야 할 성분들",
       desc: "인공 향료와 독한 화학 잔여물 없이, 표면을 지키고 공기를 맑게 만드는 자연 유래 포뮬러 이야기.",
       image: "https://images.unsplash.com/photo-1507652313519-d4e9174996dd?q=80&w=1200&auto=format&fit=crop",
-      link: "/journal"
+      link: "/journal/safe-ingredients-choice"
     },
     {
-      id: "journal-03",
+      id: "scent-and-living-space",
       issue: "ISSUE 03 / KITCHEN AESTHETIC",
       title: "오브제가 되는 주방과 찌든 때 없는 일상",
       desc: "수납장에 숨기지 않고 아일랜드 식탁 위에 올려두어도 감각적인 인테리어가 되는 미니멀 디자인.",
       image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1200&auto=format&fit=crop",
-      link: "/journal"
+      link: "/journal/scent-and-living-space"
     },
     {
-      id: "journal-04",
+      id: "news-02",
       issue: "ISSUE 04 / ZERO PLASTIC",
       title: "지속 가능한 집을 만드는 에코 리필 파우치",
       desc: "플라스틱 사용량을 70% 줄이고 공간의 미니멀리즘을 유지하는 퍼베이드의 순환 프로젝트.",
       image: "https://images.unsplash.com/photo-1585670210693-e7fdd16b142e?q=80&w=1200&auto=format&fit=crop",
-      link: "/journal"
+      link: "/journal/news-02"
     }
   ];
 

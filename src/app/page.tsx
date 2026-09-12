@@ -255,7 +255,7 @@ export default async function Home() {
   // 1. Fallback Brand Stories
   const defaultBrandStories = [
     {
-      id: "story-01",
+      id: "brand-story-default",
       title: "가장 맑은 본래의 상태로 되돌리는 클리닝",
       image: "https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200&auto=format&fit=crop",
       link: "/about"
@@ -283,28 +283,22 @@ export default async function Home() {
   // 2. Fallback Journal Articles
   const defaultJournalArticles = [
     {
-      id: "journal-01",
-      title: "단정한 아침을 여는 10분의 정돈 습관",
+      id: "minimal-cleaning-solution",
+      title: "미니멀 라이프를 위한 단 하나의 세정 솔루션",
       image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=1200&auto=format&fit=crop",
-      link: "/journal"
+      link: "/journal/minimal-cleaning-solution"
     },
     {
-      id: "journal-02",
+      id: "safe-ingredients-choice",
       title: "우리가 머무는 공간에 남아야 할 성분들",
       image: "https://images.unsplash.com/photo-1507652313519-d4e9174996dd?q=80&w=1200&auto=format&fit=crop",
-      link: "/journal"
+      link: "/journal/safe-ingredients-choice"
     },
     {
-      id: "journal-03",
-      title: "오브제가 되는 주방과 찌든 때 없는 일상",
+      id: "scent-and-living-space",
+      title: "머무는 자리에 남는 은은한 감각, 공간 향과 잔향의 미학",
       image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=1200&auto=format&fit=crop",
-      link: "/journal"
-    },
-    {
-      id: "journal-04",
-      title: "지속 가능한 집을 만드는 에코 리필 파우치",
-      image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1200&auto=format&fit=crop",
-      link: "/journal"
+      link: "/journal/scent-and-living-space"
     }
   ];
 
@@ -314,19 +308,19 @@ export default async function Home() {
       id: "news-01",
       title: "퍼베이드 공식 온라인 플래그십 스토어 오픈 안내",
       image: "https://images.unsplash.com/photo-1608248597359-5936735e00b6?q=80&w=1200&auto=format&fit=crop",
-      link: "/journal"
+      link: "/journal/news-01"
     },
     {
       id: "news-02",
       title: "대용량 1,000ml 친환경 에코 리필 파우치 정식 출시",
       image: "https://images.unsplash.com/photo-1585670210693-e7fdd16b142e?q=80&w=1200&auto=format&fit=crop",
-      link: "/journal"
+      link: "/journal/news-02"
     },
     {
       id: "news-03",
       title: "신규 가입 회원 대상 첫 구매 10% 웰컴 쿠폰 혜택",
       image: "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?q=80&w=1200&auto=format&fit=crop",
-      link: "/journal"
+      link: "/journal/news-03"
     }
   ];
 
