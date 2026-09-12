@@ -365,70 +365,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 4. Full-Width Split Editorial Visual & Routine */}
-      <section className="py-16 sm:py-24 md:py-32 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
-          {/* Left: Atmospheric Living Scene */}
-          <div className="relative aspect-[4/3] sm:aspect-[4/5] rounded-none overflow-hidden border border-zinc-200 shadow-xl group">
-            <img
-              src="https://images.unsplash.com/photo-1507652313519-d4e9174996dd?q=80&w=1200&auto=format&fit=crop"
-              alt="Pervade Morning Routine"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 rounded-none"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-            <div className="absolute bottom-6 left-6 right-6 sm:bottom-8 sm:left-8 sm:right-8 text-white">
-              <span className="text-[10px] font-mono tracking-widest uppercase opacity-80 block mb-1">
-                Aesthetic Routine
-              </span>
-              <p className="font-serif text-lg sm:text-2xl font-light">
-                “청소는 고된 노동이 아니라, 나의 공간을 환대하는 가장 다정한 의식입니다.”
-              </p>
-            </div>
-          </div>
-
-          {/* Right: Narrative Detail */}
-          <div className="space-y-6 sm:space-y-8 lg:pl-4">
-            <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.3em] uppercase text-zinc-400">
-              Care Routine
-            </span>
-            <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-light text-zinc-900 tracking-tight leading-tight break-keep">
-              매일 아침 햇살과 함께<br className="hidden sm:inline" />
-              시작하는 10분의 정돈
-            </h2>
-            <p className="text-xs sm:text-sm text-zinc-500 font-light leading-relaxed break-keep">
-              가벼운 분무 한 번으로 공간의 공기가 달라집니다. 끈적임이나 독한 잔여물 없이 깔끔하게 닦아내고, 은은하고 자연스러운 여운만을 남깁니다.
-            </p>
-
-            <div className="space-y-4 pt-2 border-t border-zinc-200">
-              <div className="flex items-start gap-4">
-                <span className="font-mono text-xs text-zinc-400 pt-0.5">01</span>
-                <div>
-                  <h4 className="text-sm font-medium text-zinc-900 font-serif">주방 인덕션 &amp; 상판 케어</h4>
-                  <p className="text-xs text-zinc-500 font-light break-keep">찌든 기름때 위에 분무 후 30초 뒤 극세사 타월로 부드럽게 닦아냅니다.</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <span className="font-mono text-xs text-zinc-400 pt-0.5">02</span>
-                <div>
-                  <h4 className="text-sm font-medium text-zinc-900 font-serif">욕실 거울 &amp; 수전 광택</h4>
-                  <p className="text-xs text-zinc-500 font-light break-keep">유리 표면의 얼룩과 물때를 지우고 오염 재착색 방지 코팅막을 형성합니다.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-2 sm:pt-4">
-              <Link
-                href="/guide"
-                className="inline-flex items-center gap-2 text-xs font-serif tracking-widest uppercase text-zinc-900 hover:text-zinc-600 border-b border-zinc-900 pb-1"
-              >
-                케어 루틴 가이드북 읽어보기 <ArrowUpRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. Living Journal (Horizontal Flowing Carousel) */}
+      {/* 4. Living Journal (Horizontal Flowing Carousel) */}
       <section className="py-16 sm:py-24 bg-white border-t border-zinc-200/70 px-4 sm:px-6 lg:px-8 overflow-hidden w-full">
         <div className="container mx-auto max-w-6xl">
           <EditorialJournalCarousel articles={displayArticles} />
