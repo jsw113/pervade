@@ -116,7 +116,7 @@ export default function AdminContentsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">CUSTOMER (고객센터 CMS)</h1>
+          <h1 className="text-3xl font-bold tracking-tight">CUSTOMER</h1>
           <p className="text-sm text-zinc-500 mt-1">
             FAQ(자주 묻는 질문), 배송/반품 정책, 이용약관 및 개인정보처리방침 내용을 관리합니다.
           </p>
