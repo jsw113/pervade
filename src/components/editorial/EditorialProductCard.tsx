@@ -66,19 +66,14 @@ export function EditorialProductCard({
             }`}
           />
 
-          {/* Minimal Badges */}
-          <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
-            {badge && (
+          {/* Minimal Badge */}
+          {(badge || tag) && (
+            <div className="absolute top-3 left-3 z-10">
               <span className="text-[10px] tracking-widest font-mono uppercase px-2 py-0.5 bg-white text-zinc-900 rounded-none shadow-xs">
-                {badge}
+                {badge || tag}
               </span>
-            )}
-            {tag && (
-              <span className="text-[10px] tracking-widest font-mono uppercase px-2 py-0.5 bg-zinc-900 text-white rounded-none shadow-xs">
-                {tag}
-              </span>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Quick Add Floating Button on Hover */}
           <div className="absolute bottom-3 right-3 z-20">

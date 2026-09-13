@@ -252,8 +252,8 @@ export default async function Home() {
           originalPrice: prod.originalPrice || undefined,
           primaryImage: pImg || defaultCuratedProducts[idx % defaultCuratedProducts.length].primaryImage,
           secondaryImage: sImg || defaultCuratedProducts[idx % defaultCuratedProducts.length].secondaryImage,
-          badge: prod.badge || (idx === 0 ? "Signature" : undefined),
-          tag: prod.tag || (idx === 1 ? "Best Seller" : undefined),
+          badge: prod.badge || (idx === 0 ? "Signature" : idx === 1 ? "Best Seller" : undefined),
+          tag: prod.tag || undefined,
         };
       })
     : defaultCuratedProducts;
