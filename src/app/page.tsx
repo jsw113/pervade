@@ -337,8 +337,8 @@ export default async function Home() {
       }))
     : defaultBrandStories;
 
-  // Map Journals
-  const displayJournals = (journalPosts.length > 0 || featuredGuides.length > 0)
+  // Map Journals - Strictly true JOURNAL posts only (no Guides / 사용가이드 mixed in)
+  const displayJournals = journalPosts.length > 0
     ? [
         ...journalPosts.map((post, idx) => ({
           id: post.id,
@@ -346,12 +346,7 @@ export default async function Home() {
           image: post.imageUrl || defaultJournalArticles[idx % defaultJournalArticles.length].image,
           link: `/journal/${post.id}`
         })),
-        ...featuredGuides.map((guide, idx) => ({
-          id: guide.id,
-          title: guide.title,
-          image: guide.thumbnailUrl || defaultJournalArticles[(idx + 2) % defaultJournalArticles.length].image,
-          link: `/guide/${guide.id}`
-        }))
+        ...(journalPosts.length < 3 ? defaultJournalArticles.slice(journalPosts.length) : [])
       ].slice(0, 8)
     : defaultJournalArticles;
 
