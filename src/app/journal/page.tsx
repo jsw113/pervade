@@ -117,6 +117,7 @@ export default async function JournalPage({
                 </div>
               </Link>
 
+              {/* 아티클 읽기 버튼 (필요시 복구 가능하도록 주석 처리)
               <div className="pt-1">
                 <Link 
                   href={`/journal/${post.id}`} 
@@ -126,6 +127,7 @@ export default async function JournalPage({
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
+              */}
             </article>
           );
         })}
