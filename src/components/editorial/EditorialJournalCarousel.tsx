@@ -131,7 +131,7 @@ export function EditorialJournalCarousel({
 
               {/* Title embedded inside bottom-left of image only */}
               <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 text-white z-10">
-                <h3 className="font-serif text-base sm:text-lg font-light text-white leading-snug tracking-tight break-keep group-hover:underline underline-offset-4 line-clamp-2">
+                <h3 className="font-serif text-base sm:text-lg font-light text-white/95 group-hover:text-white leading-snug tracking-tight break-keep transition-colors duration-300 line-clamp-2">
                   {item.title}
                 </h3>
               </div>
