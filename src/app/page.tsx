@@ -340,17 +340,14 @@ export default async function Home() {
       }))
     : defaultBrandStories;
 
-  // Map Journals - Strictly true JOURNAL posts only (no Guides / 사용가이드 mixed in)
+  // Map Journals - Strictly true JOURNAL posts only
   const displayJournals = journalPosts.length > 0
-    ? [
-        ...journalPosts.map((post, idx) => ({
-          id: post.id,
-          title: post.title,
-          image: post.imageUrl || defaultJournalArticles[idx % defaultJournalArticles.length].image,
-          link: `/journal/${post.id}`
-        })),
-        ...(journalPosts.length < 3 ? defaultJournalArticles.slice(journalPosts.length) : [])
-      ].slice(0, 8)
+    ? journalPosts.map((post, idx) => ({
+        id: post.id,
+        title: post.title,
+        image: post.imageUrl || defaultJournalArticles[idx % defaultJournalArticles.length].image,
+        link: `/journal/${post.id}`
+      }))
     : defaultJournalArticles;
 
   // Map News
