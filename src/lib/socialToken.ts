@@ -11,7 +11,7 @@ export interface SocialPendingProfile {
   expiresAt: number;
 }
 
-const SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || "pervade_secure_social_secret_key_2026_salt";
+const SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || "default_jwt_secret_change_in_production";
 
 export function signSocialToken(profile: SocialPendingProfile): string {
   const jsonStr = JSON.stringify(profile);
