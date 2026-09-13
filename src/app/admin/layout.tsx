@@ -113,7 +113,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 <li>
                   <Link href="/admin/contents" className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-zinc-100 text-zinc-700 transition-colors">
                     <HelpCircle className="w-4 h-4 text-zinc-500" />
-                    고객센터 CMS (FAQ/안내)
+                    CUSTOMER
                   </Link>
                 </li>
                 <li>

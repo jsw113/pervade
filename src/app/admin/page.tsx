@@ -30,7 +30,7 @@ export default async function AdminDashboard() {
     { title: "CONTENTS", desc: "브랜드 스토리, 저널, 공지, 가이드 통합 CMS", href: "/admin/posts", icon: BookOpen, count: "통합 콘텐츠 관리" },
     { title: "회원 및 권한 관리", desc: "실명인증 회원, 포인트, 등급 수정", href: "/admin/users", icon: Users, count: `${userCount}명 가입` },
     { title: "FRONT FLOW", desc: "배경 동영상/이미지 업로드, 테마 및 메인 섹션 순서", href: "/admin/theme", icon: Palette, count: "실시간 렌더링" },
-    { title: "고객센터 CMS", desc: "자주 묻는 질문(FAQ), 배송안내, 약관", href: "/admin/contents", icon: HelpCircle, count: "공식 고지 관리" },
+    { title: "CUSTOMER", desc: "자주 묻는 질문(FAQ), 배송안내, 약관, 공식 고지", href: "/admin/contents", icon: HelpCircle, count: "고객센터 CMS" },
     { title: "공식 PDF 운영매뉴얼", desc: "백오피스 & ERP 통합 사용설명서 다운로드", href: "/PERVADE_Admin_ERP_Manual.pdf", icon: FileText, count: "PDF 다운로드" },
   ];
 
