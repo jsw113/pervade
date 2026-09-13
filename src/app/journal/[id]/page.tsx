@@ -114,7 +114,7 @@ export default async function JournalDetailPage({ params }: { params: Promise<{ 
             {post.content}
           </div>
 
-          {/* Bottom Right Subtle Product Link */}
+          {/* Bottom Right Subtle Product Link (필요시 복구 가능하도록 주석 처리)
           <div className="pt-6 flex justify-end">
             <Link
               href="/shop"
@@ -124,14 +124,16 @@ export default async function JournalDetailPage({ params }: { params: Promise<{ 
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
+          */}
 
-          {/* Social Share (Minimalist Grey Text) */}
+          {/* Social Share (필요시 복구 가능하도록 주석 처리)
           <div className="pt-4 border-t border-zinc-200/60">
             <ShareButtons 
               title={post.title}
               description={post.content.replace(/[#*`]/g, "").slice(0, 100)}
             />
           </div>
+          */}
         </div>
 
       </div>

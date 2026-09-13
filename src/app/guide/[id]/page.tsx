@@ -142,7 +142,7 @@ export default async function GuideDetailPage({
             </div>
           )}
 
-          {/* Bottom Right Product Link */}
+          {/* Bottom Right Product Link (필요시 복구 가능하도록 주석 처리)
           <div className="pt-6 flex justify-end">
             <Link
               href={guide.productId ? `/shop/${guide.productId}` : "/shop"}
@@ -152,14 +152,16 @@ export default async function GuideDetailPage({
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
+          */}
 
-          {/* Social Share Buttons */}
+          {/* Social Share Buttons (필요시 복구 가능하도록 주석 처리)
           <div className="pt-4">
             <ShareButtons 
               title={guide.title}
               description={guide.summary || guide.content.substring(0, 100)}
             />
           </div>
+          */}
         </div>
       </div>
     </div>
