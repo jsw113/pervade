@@ -4,14 +4,15 @@ import { prisma } from "@/lib/prisma";
 export async function GET() {
   try {
     const guides = await prisma.guidePost.findMany({
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ isPinned: "desc" }, { order: "asc" }, { createdAt: "desc" }],
       include: {
         product: {
           select: { id: true, name: true, imageUrl: true }
         }
       }
     });
-    return NextResponse.json(guides);
+    const { sortPinnableContents } = await import("@/lib/contentSort");
+    return NextResponse.json(sortPinnableContents(guides));
   } catch (error) {
     console.error("Admin fetch guides error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -21,7 +22,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, category, summary, content, thumbnailUrl, images, tips, productId, published } = body;
+    const { title, category, summary, content, thumbnailUrl, images, tips, productId, published, order, isPinned, pinUntil } = body;
 
     if (!title || !content) {
       return NextResponse.json({ error: "가이드 제목과 본문 내용은 필수입니다." }, { status: 400 });
@@ -38,6 +39,9 @@ export async function POST(request: Request) {
         tips: tips || "",
         productId: productId || null,
         published: published !== undefined ? !!published : true,
+        order: Number(order || 0),
+        isPinned: !!isPinned,
+        pinUntil: pinUntil ? new Date(pinUntil) : null,
       }
     });
 

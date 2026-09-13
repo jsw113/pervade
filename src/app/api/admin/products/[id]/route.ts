@@ -83,6 +83,8 @@ export async function PATCH(
         ...(parsedSafetyStock !== undefined && { safetyStock: parsedSafetyStock }),
         ...(isVisible !== undefined && { isVisible: !!isVisible }),
         ...(parsedOrder !== undefined && { order: parsedOrder }),
+        ...(body.isPinned !== undefined && { isPinned: !!body.isPinned }),
+        ...(body.pinUntil !== undefined && { pinUntil: body.pinUntil ? new Date(body.pinUntil) : null }),
         ...(badge !== undefined && { badge: badge ? String(badge).trim() : null }),
         ...(tag !== undefined && { tag: tag ? String(tag).trim() : null }),
       },

@@ -53,8 +53,9 @@ export default async function Home() {
       }),
       prisma.product.findMany({
         where: { isVisible: true },
-        take: 8,
+        take: 12,
         orderBy: [
+          { isPinned: "desc" },
           { order: "asc" },
           { createdAt: "desc" }
         ]
@@ -62,32 +63,34 @@ export default async function Home() {
       prisma.post.findMany({
         where: { type: "ABOUT", published: true },
         take: 8,
-        orderBy: { createdAt: "desc" }
+        orderBy: [{ isPinned: "desc" }, { order: "asc" }, { createdAt: "desc" }]
       }),
       prisma.post.findMany({
         where: { type: "JOURNAL", published: true },
-        take: 8,
-        orderBy: { createdAt: "desc" }
+        take: 12,
+        orderBy: [{ isPinned: "desc" }, { order: "asc" }, { createdAt: "desc" }]
       }),
       prisma.post.findMany({
         where: { type: "NOTICE", published: true },
-        take: 8,
-        orderBy: { createdAt: "desc" }
+        take: 12,
+        orderBy: [{ isPinned: "desc" }, { order: "asc" }, { createdAt: "desc" }]
       }),
       prisma.guidePost.findMany({
         where: { published: true },
-        take: 4,
-        orderBy: { createdAt: "desc" }
+        take: 8,
+        orderBy: [{ isPinned: "desc" }, { order: "asc" }, { createdAt: "desc" }]
       }),
     ]);
 
+    const { sortPinnableContents } = await import("@/lib/contentSort");
+
     policies = policiesRes;
     latestPromotion = latestPromotionRes;
-    featuredProducts = featuredProductsRes;
-    brandStoryPosts = brandStoryPostsRes;
-    journalPosts = journalPostsRes;
-    newsPosts = newsPostsRes;
-    featuredGuides = featuredGuidesRes;
+    featuredProducts = sortPinnableContents(featuredProductsRes).slice(0, 8);
+    brandStoryPosts = sortPinnableContents(brandStoryPostsRes).slice(0, 8);
+    journalPosts = sortPinnableContents(journalPostsRes).slice(0, 8);
+    newsPosts = sortPinnableContents(newsPostsRes).slice(0, 8);
+    featuredGuides = sortPinnableContents(featuredGuidesRes).slice(0, 4);
   } catch (error) {
     console.error("Home page DB fallback triggered:", error);
   }

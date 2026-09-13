@@ -48,17 +48,20 @@ model User {
 }
 
 model Post {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   title     String
-  content   String   // Rich text or Markdown
-  imageUrl  String?  // Main / cover thumbnail image URL
-  type      String   // "ABOUT" or "PRODUCT" or "JOURNAL"
-  published Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  content   String    // Rich text or Markdown
+  imageUrl  String?   // Main / cover thumbnail image URL
+  type      String    // "ABOUT" or "PRODUCT" or "JOURNAL"
+  published Boolean   @default(false)
+  order     Int       @default(0)     // Display priority order
+  isPinned  Boolean   @default(false) // 1st priority pinned
+  pinUntil  DateTime?                 // Pin expiration date (null = permanent)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   
   authorId  String
-  author    User     @relation("UserPosts", fields: [authorId], references: [id])
+  author    User      @relation("UserPosts", fields: [authorId], references: [id])
 }
 
 model GuidePost {
@@ -72,6 +75,9 @@ model GuidePost {
   tips         String?   // Pro tips or caution
   viewCount    Int       @default(0)
   published    Boolean   @default(true)
+  order        Int       @default(0)     // Display priority order
+  isPinned     Boolean   @default(false) // 1st priority pinned
+  pinUntil     DateTime?                 // Pin expiration date (null = permanent)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
@@ -93,6 +99,8 @@ model Promotion {
   endDate      DateTime? // Event end date
   isActive     Boolean   @default(true)
   order        Int       @default(0)
+  isPinned     Boolean   @default(false)
+  pinUntil     DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 }
@@ -180,8 +188,10 @@ model Product {
   legalInfo     String?  // JSON object of per-product legal disclosure fields (용도, 유통기한, 전성분, 주의사항 등)
   stock         Int      @default(100)
   safetyStock   Int      @default(10)
-  isVisible     Boolean  @default(true)
-  order         Int      @default(0)
+  isVisible     Boolean   @default(true)
+  order         Int       @default(0)
+  isPinned      Boolean   @default(false) // 1st priority pinned
+  pinUntil      DateTime?                 // Pin expiration date
   badge         String?
   tag           String?
   createdAt     DateTime @default(now())

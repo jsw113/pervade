@@ -35,7 +35,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { title, category, summary, content, thumbnailUrl, images, tips, productId, published } = body;
+    const { title, category, summary, content, thumbnailUrl, images, tips, productId, published, order, isPinned, pinUntil } = body;
 
     const guide = await prisma.guidePost.update({
       where: { id },
@@ -49,6 +49,9 @@ export async function PATCH(
         ...(tips !== undefined && { tips }),
         ...(productId !== undefined && { productId: productId || null }),
         ...(published !== undefined && { published: !!published }),
+        ...(order !== undefined && { order: Number(order) }),
+        ...(isPinned !== undefined && { isPinned: !!isPinned }),
+        ...(pinUntil !== undefined && { pinUntil: pinUntil ? new Date(pinUntil) : null }),
       }
     });
 

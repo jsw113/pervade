@@ -64,7 +64,7 @@ export async function GET(request: Request) {
           ]
         } : {})
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ isPinned: "desc" }, { order: "asc" }, { createdAt: "desc" }],
       include: {
         product: {
           select: { id: true, name: true, price: true, imageUrl: true }
@@ -72,7 +72,10 @@ export async function GET(request: Request) {
       }
     });
 
-    return NextResponse.json(guides);
+    const { sortPinnableContents } = await import("@/lib/contentSort");
+    const sortedGuides = sortPinnableContents(guides);
+
+    return NextResponse.json(sortedGuides);
   } catch (error) {
     console.error("Fetch guides error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

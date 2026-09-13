@@ -71,13 +71,16 @@ export default async function ShopPage({
   let totalAllCount = 0;
 
   try {
-    dbProducts = await prisma.product.findMany({
+    const rawProducts = await prisma.product.findMany({
       where,
       orderBy: [
+        { isPinned: "desc" },
         { order: "asc" },
         { createdAt: "desc" }
       ]
     });
+    const { sortPinnableContents } = await import("@/lib/contentSort");
+    dbProducts = sortPinnableContents(rawProducts);
     totalAllCount = allActiveProducts.length || await prisma.product.count({ where: { isVisible: true } });
   } catch (e) {
     console.error("Shop DB fallback triggered:", e);

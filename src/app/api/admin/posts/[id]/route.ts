@@ -33,7 +33,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { title, type, content, published, imageUrl } = body;
+    const { title, type, content, published, imageUrl, order, isPinned, pinUntil } = body;
 
     const post = await prisma.post.update({
       where: { id },
@@ -43,12 +43,17 @@ export async function PATCH(
         ...(content !== undefined && { content }),
         ...(imageUrl !== undefined && { imageUrl: imageUrl || null }),
         ...(published !== undefined && { published: !!published }),
+        ...(order !== undefined && { order: Number(order) }),
+        ...(isPinned !== undefined && { isPinned: !!isPinned }),
+        ...(pinUntil !== undefined && { pinUntil: pinUntil ? new Date(pinUntil) : null }),
       }
     });
 
     try {
       revalidatePath("/");
       revalidatePath("/about");
+      revalidatePath("/journal");
+      revalidatePath(`/journal/${id}`);
       revalidatePath("/admin/posts");
       revalidatePath(`/admin/posts/${id}/edit`);
     } catch (e) {

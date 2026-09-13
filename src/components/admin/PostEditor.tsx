@@ -14,6 +14,9 @@ interface PostEditorProps {
     content?: string;
     imageUrl?: string | null;
     published?: boolean;
+    order?: number;
+    isPinned?: boolean;
+    pinUntil?: string | Date | null;
   };
 }
 
@@ -26,6 +29,14 @@ export function PostEditor({ initialData }: PostEditorProps) {
   const [imageSourceType, setImageSourceType] = useState<"FILE" | "URL">("FILE");
   const [isImageUploading, setIsImageUploading] = useState(false);
   const [published, setPublished] = useState(initialData?.published !== false);
+  const [order, setOrder] = useState<number>(initialData?.order ?? 0);
+  const [isPinned, setIsPinned] = useState<boolean>(!!initialData?.isPinned);
+  const [pinType, setPinType] = useState<"PERMANENT" | "PERIOD">(
+    initialData?.pinUntil ? "PERIOD" : "PERMANENT"
+  );
+  const [pinUntilDate, setPinUntilDate] = useState<string>(
+    initialData?.pinUntil ? new Date(initialData.pinUntil).toISOString().split("T")[0] : ""
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -61,6 +72,10 @@ export function PostEditor({ initialData }: PostEditorProps) {
       const url = isEditMode ? `/api/admin/posts/${initialData.id}` : "/api/admin/posts";
       const method = isEditMode ? "PATCH" : "POST";
 
+      const finalPinUntil = isPinned && pinType === "PERIOD" && pinUntilDate
+        ? new Date(`${pinUntilDate}T23:59:59.999Z`).toISOString()
+        : null;
+
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
@@ -69,7 +84,10 @@ export function PostEditor({ initialData }: PostEditorProps) {
           type, 
           content,
           imageUrl: imageUrl || null,
-          published: shouldPublish 
+          published: shouldPublish,
+          order: Number(order || 0),
+          isPinned,
+          pinUntil: finalPinUntil
         }),
       });
       
@@ -126,7 +144,7 @@ export function PostEditor({ initialData }: PostEditorProps) {
           />
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="block text-xs font-bold text-zinc-700 mb-1">콘텐츠 분류 (채널 선택) *</label>
             <select 
@@ -139,6 +157,17 @@ export function PostEditor({ initialData }: PostEditorProps) {
               <option value="PRODUCT">제품 특장점 아티클 (Product Info)</option>
               <option value="NOTICE">공지사항 &amp; 뉴스 (Notice)</option>
             </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-zinc-700 mb-1">노출 우선순위 (Order 번호)</label>
+            <input 
+              type="number"
+              value={order}
+              onChange={(e) => setOrder(parseInt(e.target.value) || 0)}
+              className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900 text-zinc-900"
+              placeholder="0 (낮을수록 우선)"
+            />
           </div>
 
           <div>
@@ -155,6 +184,68 @@ export function PostEditor({ initialData }: PostEditorProps) {
               </label>
             </div>
           </div>
+        </div>
+
+        {/* 1순위 상단 고정 (PIN) & 고정 기간 설정 */}
+        <div className="p-4 bg-amber-50/50 border border-amber-200/70 rounded-2xl space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-amber-700 font-bold text-xs flex items-center gap-1.5">
+                📌 1순위 상단 고정 (PIN)
+              </span>
+              <span className="text-[11px] text-zinc-500">목록 최상단에 우선 배치</span>
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-amber-900">
+              <input
+                type="checkbox"
+                checked={isPinned}
+                onChange={(e) => setIsPinned(e.target.checked)}
+                className="w-4 h-4 text-amber-600 rounded"
+              />
+              <span>1순위 고정 활성화</span>
+            </label>
+          </div>
+
+          {isPinned && (
+            <div className="pt-2 border-t border-amber-200/50 space-y-3 text-xs">
+              <div className="flex items-center gap-4">
+                <label className="flex items-center gap-1.5 cursor-pointer font-semibold text-zinc-700">
+                  <input
+                    type="radio"
+                    name="pinType"
+                    checked={pinType === "PERMANENT"}
+                    onChange={() => setPinType("PERMANENT")}
+                    className="text-amber-600 focus:ring-amber-500"
+                  />
+                  상시 고정 (종료일 없음)
+                </label>
+                <label className="flex items-center gap-1.5 cursor-pointer font-semibold text-zinc-700">
+                  <input
+                    type="radio"
+                    name="pinType"
+                    checked={pinType === "PERIOD"}
+                    onChange={() => setPinType("PERIOD")}
+                    className="text-amber-600 focus:ring-amber-500"
+                  />
+                  기간 지정 고정
+                </label>
+              </div>
+
+              {pinType === "PERIOD" && (
+                <div className="flex items-center gap-3">
+                  <span className="text-zinc-600 font-medium">고정 종료일:</span>
+                  <input
+                    type="date"
+                    value={pinUntilDate}
+                    onChange={(e) => setPinUntilDate(e.target.value)}
+                    min={new Date().toISOString().split("T")[0]}
+                    className="p-2 bg-white border border-zinc-300 rounded-xl font-bold text-zinc-900"
+                  />
+                  <span className="text-[11px] text-zinc-400">해당 일자 23:59까지 고정 후 자동 일반 정렬 복귀</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Cover / Thumbnail Image Upload Section */}

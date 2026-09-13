@@ -26,6 +26,13 @@ export function ProductEditForm({ product }: { product: any }) {
   const [shippingFee, setShippingFee] = useState(product.shippingFee !== undefined ? product.shippingFee : "3000");
   const [isVisible, setIsVisible] = useState(product.isVisible !== false);
   const [order, setOrder] = useState(product.order !== undefined ? product.order : 0);
+  const [isPinned, setIsPinned] = useState<boolean>(!!product.isPinned);
+  const [pinType, setPinType] = useState<"PERMANENT" | "PERIOD">(
+    product.pinUntil ? "PERIOD" : "PERMANENT"
+  );
+  const [pinUntilDate, setPinUntilDate] = useState<string>(
+    product.pinUntil ? new Date(product.pinUntil).toISOString().split("T")[0] : ""
+  );
   const [badge, setBadge] = useState(product.badge || "");
   const [tag, setTag] = useState(product.tag || "");
 
@@ -261,6 +268,8 @@ export function ProductEditForm({ product }: { product: any }) {
         },
         isVisible,
         order: parseInt(String(order || "0").replace(/[^0-9]/g, ""), 10) || 0,
+        isPinned,
+        pinUntil: isPinned && pinType === "PERIOD" && pinUntilDate ? new Date(`${pinUntilDate}T23:59:59.999Z`).toISOString() : null,
         badge: badge ? String(badge).trim() : null,
         tag: tag ? String(tag).trim() : null,
       };
@@ -573,6 +582,82 @@ export function ProductEditForm({ product }: { product: any }) {
                 체크 해제 시 관리자에게만 보이고 쇼핑몰에서는 일시 품절/비노출 처리됩니다.
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* 1st-Priority Pin & Display Order */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+          <div>
+            <label className="block text-xs font-bold text-zinc-700 mb-1">노출 우선순위 (Order 번호)</label>
+            <input 
+              type="number"
+              value={order} 
+              onChange={e => setOrder(parseInt(e.target.value) || 0)}
+              className="w-full p-3 bg-zinc-50 border rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-zinc-900 text-zinc-900"
+              placeholder="0 (낮을수록 우선)"
+            />
+            <span className="text-[10px] text-zinc-400 mt-1 block">상품 목록에서 정렬 순서 (0, 1, 2...)</span>
+          </div>
+
+          <div className="sm:col-span-2 p-4 bg-amber-50/50 border border-amber-200/70 rounded-2xl space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-amber-700 font-bold text-xs flex items-center gap-1.5">
+                  📌 1순위 대표 상품 고정 (PIN)
+                </span>
+                <span className="text-[11px] text-zinc-500">쇼핑몰 상품 목록 최상단에 우선 노출</span>
+              </div>
+              <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-amber-900">
+                <input
+                  type="checkbox"
+                  checked={isPinned}
+                  onChange={(e) => setIsPinned(e.target.checked)}
+                  className="w-4 h-4 text-amber-600 rounded"
+                />
+                <span>1순위 고정</span>
+              </label>
+            </div>
+
+            {isPinned && (
+              <div className="pt-2 border-t border-amber-200/50 space-y-3 text-xs">
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-1.5 cursor-pointer font-semibold text-zinc-700">
+                    <input
+                      type="radio"
+                      name="prodPinType"
+                      checked={pinType === "PERMANENT"}
+                      onChange={() => setPinType("PERMANENT")}
+                      className="text-amber-600 focus:ring-amber-500"
+                    />
+                    상시 고정 (종료일 없음)
+                  </label>
+                  <label className="flex items-center gap-1.5 cursor-pointer font-semibold text-zinc-700">
+                    <input
+                      type="radio"
+                      name="prodPinType"
+                      checked={pinType === "PERIOD"}
+                      onChange={() => setPinType("PERIOD")}
+                      className="text-amber-600 focus:ring-amber-500"
+                    />
+                    기간 지정 고정
+                  </label>
+                </div>
+
+                {pinType === "PERIOD" && (
+                  <div className="flex items-center gap-3">
+                    <span className="text-zinc-600 font-medium">고정 종료일:</span>
+                    <input
+                      type="date"
+                      value={pinUntilDate}
+                      onChange={(e) => setPinUntilDate(e.target.value)}
+                      min={new Date().toISOString().split("T")[0]}
+                      className="p-2 bg-white border border-zinc-300 rounded-xl font-bold text-zinc-900"
+                    />
+                    <span className="text-[11px] text-zinc-400">해당 일자 23:59까지 1순위 고정 후 자동 복귀</span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { BookOpen, ArrowRight, Sparkles } from "lucide-react";
+import { BookOpen, ArrowRight, Sparkles, Pin } from "lucide-react";
 import { DEFAULT_JOURNAL_POSTS, DEFAULT_NEWS_POSTS, EditorialPost } from "@/lib/defaultEditorialContent";
+import { sortPinnableContents, isContentPinned } from "@/lib/contentSort";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -35,11 +36,13 @@ export default async function JournalPage({
 
   const dbPosts = await prisma.post.findMany({
     where: { type: targetType, published: true },
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ isPinned: "desc" }, { order: "asc" }, { createdAt: "desc" }],
   });
 
-  const posts: EditorialPost[] = dbPosts.length > 0
-    ? dbPosts
+  const sortedDbPosts = sortPinnableContents(dbPosts);
+
+  const posts: (EditorialPost & { isPinned?: boolean; pinUntil?: Date | string | null })[] = sortedDbPosts.length > 0
+    ? sortedDbPosts
     : isNotice
     ? DEFAULT_NEWS_POSTS
     : DEFAULT_JOURNAL_POSTS;
@@ -74,6 +77,7 @@ export default async function JournalPage({
           const formattedDate = new Date(post.createdAt).toLocaleDateString();
           const cleanExcerpt = post.content.replace(/[#*`]/g, "").slice(0, 120);
           const imgUrl = post.imageUrl || defaultImages[idx % defaultImages.length];
+          const isPinnedActive = isContentPinned(post as any);
 
           return (
             <article 
@@ -88,12 +92,21 @@ export default async function JournalPage({
                     alt={post.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
+                  {isPinnedActive && (
+                    <div className="absolute top-3 left-3 px-2.5 py-1 bg-zinc-950/90 backdrop-blur-xs text-white text-[10px] font-bold tracking-widest uppercase flex items-center gap-1 shadow-md">
+                      <Pin className="w-3 h-3 fill-amber-400 text-amber-400" />
+                      <span>{isNotice ? "NOTICE" : "FEATURED"}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Content */}
                 <div className="space-y-2.5">
-                  <time className="text-xs text-zinc-400 font-mono tracking-wider block">
-                    {formattedDate} · JOURNAL
+                  <time className="text-xs text-zinc-400 font-mono tracking-wider block flex items-center gap-2">
+                    <span>{formattedDate} · {isNotice ? "NOTICE" : "JOURNAL"}</span>
+                    {isPinnedActive && (
+                      <span className="text-amber-700 font-bold text-[10px] tracking-normal">📌 1순위 고정</span>
+                    )}
                   </time>
                   <h2 className="font-serif font-normal text-xl sm:text-2xl text-zinc-950 group-hover:text-zinc-600 transition-colors line-clamp-2 leading-snug">
                     {post.title}

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { sortPinnableContents } from "@/lib/contentSort";
 
 export const dynamic = "force-dynamic";
 
@@ -16,11 +17,13 @@ export async function GET(request: Request) {
 
     const posts = await prisma.post.findMany({
       where,
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ isPinned: "desc" }, { order: "asc" }, { createdAt: "desc" }],
       include: { author: true }
     });
 
-    return NextResponse.json(posts);
+    const sortedPosts = sortPinnableContents(posts);
+
+    return NextResponse.json(sortedPosts);
   } catch (error) {
     console.error("Failed to fetch posts:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -30,7 +33,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, type, content, published, imageUrl } = body;
+    const { title, type, content, published, imageUrl, order, isPinned, pinUntil } = body;
 
     let adminUser = await prisma.user.findFirst({ where: { role: "ADMIN" } });
     
@@ -52,6 +55,9 @@ export async function POST(request: Request) {
         content,
         imageUrl: imageUrl || null,
         published: published !== undefined ? !!published : true,
+        order: Number(order || 0),
+        isPinned: !!isPinned,
+        pinUntil: pinUntil ? new Date(pinUntil) : null,
         authorId: adminUser.id
       }
     });
@@ -59,6 +65,7 @@ export async function POST(request: Request) {
     try {
       revalidatePath("/");
       revalidatePath("/about");
+      revalidatePath("/journal");
       revalidatePath("/admin/posts");
     } catch (e) {
       console.warn("Revalidation warning:", e);
@@ -70,3 +77,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Failed to create post" }, { status: 500 });
   }
 }
+
