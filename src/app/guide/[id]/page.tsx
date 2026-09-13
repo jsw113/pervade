@@ -146,9 +146,9 @@ export default async function GuideDetailPage({
           <div className="pt-6 flex justify-end">
             <Link
               href={guide.productId ? `/shop/${guide.productId}` : "/shop"}
-              className="text-sm font-semibold tracking-tight text-zinc-900 hover:text-zinc-500 transition-colors inline-flex items-center gap-1 group"
+              className="text-xs font-semibold tracking-wider uppercase text-zinc-900 hover:text-zinc-500 transition-colors inline-flex items-center gap-1 group"
             >
-              관련제품
+              관련제품보기
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>

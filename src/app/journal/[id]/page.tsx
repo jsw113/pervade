@@ -120,7 +120,7 @@ export default async function JournalDetailPage({ params }: { params: Promise<{ 
               href="/shop"
               className="text-xs font-semibold tracking-wider uppercase text-zinc-900 hover:text-zinc-500 transition-colors inline-flex items-center gap-1 group"
             >
-              관련 제품 컬렉션 보기
+              관련제품보기
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
