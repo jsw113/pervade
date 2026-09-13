@@ -91,7 +91,7 @@ export function GuideEditor({ initialData }: GuideEditorProps) {
 
       if (res.ok) {
         alert(initialData?.id ? "가이드가 성공적으로 수정되었습니다." : "새 사용가이드가 성공적으로 발행되었습니다.");
-        router.push("/admin/guides");
+        router.push("/admin/posts?type=GUIDE");
         router.refresh();
       } else {
         alert("저장에 실패했습니다.");
@@ -107,7 +107,7 @@ export function GuideEditor({ initialData }: GuideEditorProps) {
   return (
     <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-8 rounded-2xl border space-y-6 shadow-sm max-w-4xl mx-auto">
       <div className="flex justify-between items-center border-b pb-4">
-        <Link href="/admin/guides" className="inline-flex items-center gap-2 text-xs font-bold text-zinc-500 hover:text-black">
+        <Link href="/admin/posts?type=GUIDE" className="inline-flex items-center gap-2 text-xs font-bold text-zinc-500 hover:text-black">
           <ArrowLeft className="w-4 h-4" /> 가이드 목록으로 돌아가기
         </Link>
         <span className="text-xs text-zinc-400">블로그 & 매거진 스타일 CMS</span>
@@ -261,7 +261,7 @@ export function GuideEditor({ initialData }: GuideEditorProps) {
       <div className="flex justify-end gap-3 pt-6 border-t">
         <button
           type="button"
-          onClick={() => router.push("/admin/guides")}
+          onClick={() => router.push("/admin/posts?type=GUIDE")}
           className="px-6 py-3 border rounded-xl text-xs font-bold text-zinc-600 hover:bg-zinc-50 transition-colors"
         >
           취소

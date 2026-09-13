@@ -19,7 +19,7 @@ export default async function EditGuidePage({
     return (
       <div className="max-w-4xl mx-auto p-12 text-center space-y-4">
         <h2 className="text-xl font-bold">가이드를 찾을 수 없습니다.</h2>
-        <Link href="/admin/guides" className="text-xs font-bold text-blue-600 underline">
+        <Link href="/admin/posts?type=GUIDE" className="text-xs font-bold text-blue-600 underline">
           가이드 목록으로 돌아가기
         </Link>
       </div>
@@ -30,7 +30,7 @@ export default async function EditGuidePage({
     <div className="space-y-6 max-w-4xl mx-auto pb-12">
       <div className="flex items-center gap-3">
         <Link 
-          href="/admin/guides" 
+          href="/admin/posts?type=GUIDE" 
           className="p-2 bg-white border rounded-xl hover:bg-zinc-100 transition-colors text-zinc-600"
           title="목록으로"
         >

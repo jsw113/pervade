@@ -18,12 +18,13 @@ interface PostEditorProps {
     isPinned?: boolean;
     pinUntil?: string | Date | null;
   };
+  defaultType?: string;
 }
 
-export function PostEditor({ initialData }: PostEditorProps) {
+export function PostEditor({ initialData, defaultType }: PostEditorProps) {
   const router = useRouter();
   const [title, setTitle] = useState(initialData?.title || "");
-  const [type, setType] = useState(initialData?.type || "JOURNAL");
+  const [type, setType] = useState(initialData?.type || defaultType || "ABOUT");
   const [content, setContent] = useState(initialData?.content || "");
   const [imageUrl, setImageUrl] = useState(initialData?.imageUrl || "");
   const [imageSourceType, setImageSourceType] = useState<"FILE" | "URL">("FILE");
@@ -94,7 +95,7 @@ export function PostEditor({ initialData }: PostEditorProps) {
       if (!res.ok) throw new Error("콘텐츠 저장에 실패했습니다.");
       
       alert(isEditMode ? "✅ 콘텐츠가 성공적으로 수정되었습니다!" : "✅ 새 콘텐츠가 성공적으로 등록되었습니다!");
-      router.push("/admin/posts");
+      router.push(`/admin/posts?type=${type}`);
       router.refresh();
     } catch (error: any) {
       console.error(error);
@@ -116,7 +117,7 @@ export function PostEditor({ initialData }: PostEditorProps) {
 
       if (res.ok) {
         alert("콘텐츠가 삭제되었습니다.");
-        router.push("/admin/posts");
+        router.push(`/admin/posts?type=${type}`);
         router.refresh();
       } else {
         alert("삭제에 실패했습니다.");
@@ -372,7 +373,7 @@ export function PostEditor({ initialData }: PostEditorProps) {
 
         <div className="flex items-center gap-3">
           <Link
-            href="/admin/posts"
+            href={`/admin/posts?type=${type}`}
             className="px-5 py-2.5 border rounded-xl text-xs font-bold text-zinc-600 hover:bg-zinc-50 transition-colors"
           >
             취소

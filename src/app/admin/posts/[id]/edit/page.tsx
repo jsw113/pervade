@@ -6,20 +6,25 @@ import { ArrowLeft } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 export default async function EditPostPage({
-  params
+  params,
+  searchParams,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ returnType?: string }>;
 }) {
   const { id } = await params;
+  const resolvedSearch = await searchParams;
   const post = await prisma.post.findUnique({
     where: { id }
   });
+
+  const returnType = resolvedSearch?.returnType || post?.type || "ABOUT";
 
   if (!post) {
     return (
       <div className="max-w-4xl mx-auto p-12 text-center space-y-4">
         <h2 className="text-xl font-bold">콘텐츠를 찾을 수 없습니다.</h2>
-        <Link href="/admin/posts" className="text-xs font-bold text-blue-600 underline">
+        <Link href={`/admin/posts?type=${returnType}`} className="text-xs font-bold text-blue-600 underline">
           콘텐츠 목록으로 돌아가기
         </Link>
       </div>
@@ -30,7 +35,7 @@ export default async function EditPostPage({
     <div className="space-y-6 max-w-4xl mx-auto pb-12">
       <div className="flex items-center gap-3">
         <Link 
-          href="/admin/posts" 
+          href={`/admin/posts?type=${returnType}`} 
           className="p-2 bg-white border rounded-xl hover:bg-zinc-100 transition-colors text-zinc-600"
           title="목록으로"
         >

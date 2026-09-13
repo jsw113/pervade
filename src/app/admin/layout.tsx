@@ -95,19 +95,19 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                 <li>
                   <Link href="/admin/promotions" className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-zinc-100 text-zinc-700 transition-colors">
                     <Megaphone className="w-4 h-4 text-zinc-500" />
-                    프로모션 & 이벤트 관리
+                    PROMOTION
                   </Link>
                 </li>
                 <li>
                   <Link href="/admin/coupons" className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-zinc-100 text-zinc-700 transition-colors">
                     <Ticket className="w-4 h-4 text-amber-600" />
-                    쿠폰 마스터 & 재고 관리
+                    COUPON
                   </Link>
                 </li>
                 <li>
-                  <Link href="/admin/guides" className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-zinc-100 text-zinc-700 transition-colors">
-                    <BookOpen className="w-4 h-4 text-zinc-500" />
-                    사용가이드 블로그 관리
+                  <Link href="/admin/posts" className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-zinc-100 text-zinc-700 transition-colors">
+                    <FileText className="w-4 h-4 text-zinc-500" />
+                    CONTENTS
                   </Link>
                 </li>
                 <li>
@@ -117,15 +117,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
                   </Link>
                 </li>
                 <li>
-                  <Link href="/admin/posts" className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-zinc-100 text-zinc-700 transition-colors">
-                    <FileText className="w-4 h-4 text-zinc-500" />
-                    브랜드스토리 &amp; 저널 관리
-                  </Link>
-                </li>
-                <li>
                   <Link href="/admin/theme" className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-zinc-100 text-zinc-700 transition-colors">
                     <Palette className="w-4 h-4 text-zinc-500" />
-                    테마 & 메인 배너 설정
+                    FRONT FLOW
                   </Link>
                 </li>
               </>
