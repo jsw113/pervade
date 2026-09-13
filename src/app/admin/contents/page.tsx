@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Plus, Edit, Trash2, HelpCircle, FileText, Check, X, RefreshCw, Eye, EyeOff } from "lucide-react";
 
 export default function AdminContentsPage() {
-  const [activeCategory, setActiveCategory] = useState<"FAQ" | "GUIDE" | "SHIPPING" | "TERMS" | "PRIVACY">("FAQ");
+  const [activeCategory, setActiveCategory] = useState<"FAQ" | "SHIPPING" | "TERMS" | "PRIVACY">("FAQ");
   const [contents, setContents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -133,7 +133,7 @@ export default function AdminContentsPage() {
 
       {/* Category Tabs */}
       <div className="flex gap-2 border-b overflow-x-auto pb-3">
-        {(["FAQ", "GUIDE", "SHIPPING", "TERMS", "PRIVACY"] as const).map((cat) => (
+        {(["FAQ", "SHIPPING", "TERMS", "PRIVACY"] as const).map((cat) => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
@@ -145,8 +145,6 @@ export default function AdminContentsPage() {
           >
             {cat === "FAQ"
               ? "FAQ (자주 묻는 질문)"
-              : cat === "GUIDE"
-              ? "사용 가이드"
               : cat === "SHIPPING"
               ? "배송/반품 안내"
               : cat === "TERMS"
