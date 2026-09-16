@@ -67,6 +67,7 @@ export default async function JournalDetailPage({ params }: { params: Promise<{ 
   ];
 
   const articleImage = post.imageUrl || defaultFallbackImages[0];
+  const typeLabel = post.type === "ABOUT" ? "BRAND STORY" : post.type === "NOTICE" ? "NEWS" : "JOURNAL";
   const listHref = post.type === "ABOUT" ? "/about" : post.type === "NOTICE" ? "/journal?type=NOTICE" : "/journal";
   const listLabel = post.type === "ABOUT" ? "브랜드 스토리 목록으로 돌아가기" : post.type === "NOTICE" ? "공지사항 목록으로 돌아가기" : "저널 목록으로 돌아가기";
 
