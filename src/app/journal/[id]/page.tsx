@@ -67,17 +67,18 @@ export default async function JournalDetailPage({ params }: { params: Promise<{ 
   ];
 
   const articleImage = post.imageUrl || defaultFallbackImages[0];
-  const typeLabel = post.type === "ABOUT" ? "BRAND STORY" : post.type === "NOTICE" ? "NEWS" : "JOURNAL";
+  const listHref = post.type === "ABOUT" ? "/about" : post.type === "NOTICE" ? "/journal?type=NOTICE" : "/journal";
+  const listLabel = post.type === "ABOUT" ? "브랜드 스토리 목록으로 돌아가기" : post.type === "NOTICE" ? "공지사항 목록으로 돌아가기" : "저널 목록으로 돌아가기";
 
   return (
     <div className="w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 py-12 sm:py-20 space-y-10 sm:space-y-14">
       {/* Top Breadcrumb / Return */}
       <div className="flex items-center justify-between border-b border-zinc-200/70 pb-5">
         <Link 
-          href="/journal" 
+          href={listHref} 
           className="inline-flex items-center gap-1.5 text-zinc-400 hover:text-zinc-950 text-xs font-medium transition-colors"
         >
-          <ArrowLeft className="w-3.5 h-3.5" /> 목록으로 돌아가기
+          <ArrowLeft className="w-3.5 h-3.5" /> {listLabel}
         </Link>
         <span className="text-[11px] font-mono tracking-widest text-zinc-400 uppercase">
           PERVADE {typeLabel}
