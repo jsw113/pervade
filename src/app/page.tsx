@@ -142,6 +142,13 @@ export default async function Home() {
     }
   } catch (e) {}
 
+  if (sectionsOrder.length > 0) {
+    const featureSec = sectionsOrder.find(s => s.id === "features" || s.id === "why");
+    if (featureSec && featureSec.visible === false) {
+      isWhyVisible = false;
+    }
+  }
+
   if (sectionsOrder.length === 0) {
     sectionsOrder = DEFAULT_SECTIONS_ORDER;
   } else {

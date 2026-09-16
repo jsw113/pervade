@@ -358,7 +358,7 @@ export default function ThemeAdminPage() {
 
             // Sync why visible from WHY_VISIBLE policy if present
             if (data.WHY_VISIBLE !== undefined) {
-              const whySec = mapped.find((s: any) => s.id === "features" || s.id === "why" || s.id === "brand_story");
+              const whySec = mapped.find((s: any) => s.id === "features" || s.id === "why");
               if (whySec) whySec.visible = data.WHY_VISIBLE !== "false";
             }
 
@@ -397,7 +397,7 @@ export default function ThemeAdminPage() {
     if (newSections[index].id === "hero") {
       setHeroVisible(newSections[index].visible);
     }
-    if (newSections[index].id === "features" || newSections[index].id === "why" || newSections[index].id === "brand_story") {
+    if (newSections[index].id === "features" || newSections[index].id === "why") {
       setWhyVisible(newSections[index].visible);
     }
     setSections(newSections);
@@ -411,7 +411,7 @@ export default function ThemeAdminPage() {
 
   const handleWhyVisibleToggle = (visible: boolean) => {
     setWhyVisible(visible);
-    const newSections = sections.map(s => (s.id === "features" || s.id === "why" || s.id === "brand_story") ? { ...s, visible } : s);
+    const newSections = sections.map(s => (s.id === "features" || s.id === "why") ? { ...s, visible } : s);
     setSections(newSections);
   };
 
