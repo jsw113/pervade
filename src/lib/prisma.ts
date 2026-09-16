@@ -1,10 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-export const ACTIVE_NEON_URL = "postgresql://neondb_owner:npg_YHmgIAzS0b6L@ep-royal-rain-auhkp6ue-pooler.c-10.us-east-1.aws.neon.tech/neondb?sslmode=require";
-
-const DB_URL = process.env.DATABASE_URL && process.env.DATABASE_URL.includes("ep-royal-rain")
-  ? process.env.DATABASE_URL
-  : ACTIVE_NEON_URL;
+const DB_URL = process.env.DATABASE_URL || "postgresql://pervade_user:Pervade2026!SecureDB@49.247.200.153:5432/pervade_db?schema=public";
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
