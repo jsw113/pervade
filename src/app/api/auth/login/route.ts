@@ -62,10 +62,8 @@ export async function POST(request: Request) {
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
+        maxAge: rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7, // 30 days or 7 days default
       };
-      if (rememberMe) {
-        cookieOptions.maxAge = 60 * 60 * 24 * 7;
-      }
 
       cookieStore.set("userId", adminUser.id, cookieOptions);
 
@@ -107,10 +105,8 @@ export async function POST(request: Request) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
+      maxAge: rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7, // 30 days or 7 days default
     };
-    if (rememberMe) {
-      cookieOptions.maxAge = 60 * 60 * 24 * 7;
-    }
 
     cookieStore.set("userId", user.id, cookieOptions);
 
