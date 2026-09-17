@@ -56,7 +56,6 @@ export async function POST(request: Request) {
         }
       } catch (e) {}
 
-      const cookieStore = await cookies();
       const cookieOptions: any = {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -65,9 +64,7 @@ export async function POST(request: Request) {
         maxAge: rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7, // 30 days or 7 days default
       };
 
-      cookieStore.set("userId", adminUser.id, cookieOptions);
-
-      return NextResponse.json({
+      const response = NextResponse.json({
         success: true,
         user: {
           id: adminUser.id,
@@ -77,6 +74,9 @@ export async function POST(request: Request) {
           role: adminUser.role,
         },
       });
+
+      response.cookies.set("userId", adminUser.id, cookieOptions);
+      return response;
     }
 
     // Find regular user by either email OR loginId
@@ -98,8 +98,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "비밀번호가 일치하지 않습니다." }, { status: 401 });
     }
 
-    // Set cookie
-    const cookieStore = await cookies();
     const cookieOptions: any = {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -108,9 +106,7 @@ export async function POST(request: Request) {
       maxAge: rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7, // 30 days or 7 days default
     };
 
-    cookieStore.set("userId", user.id, cookieOptions);
-
-    return NextResponse.json({ 
+    const response = NextResponse.json({ 
       success: true, 
       user: { 
         id: user.id, 
@@ -120,6 +116,9 @@ export async function POST(request: Request) {
         role: user.role
       } 
     });
+
+    response.cookies.set("userId", user.id, cookieOptions);
+    return response;
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json({ error: "로그인 처리 중 오류가 발생했습니다." }, { status: 500 });

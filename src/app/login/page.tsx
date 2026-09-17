@@ -17,7 +17,7 @@ function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSocialAuthHelp, setShowSocialAuthHelp] = useState(false);
 
-  // Load saved ID on mount and clear password
+  // Check if user is already authenticated with valid server cookie
   useEffect(() => {
     setPassword("");
     try {
@@ -27,7 +27,19 @@ function LoginForm() {
         setRememberId(true);
       }
     } catch (e) {}
-  }, []);
+
+    // Verify if already logged in on server
+    fetch("/api/auth/me", { cache: "no-store", credentials: "include" })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data && data.loggedIn && data.user) {
+          const isAdmin = data.user.role === "ADMIN" || data.user.role === "SUPER_ADMIN" || data.user.loginId === "admin";
+          const dest = redirectUrl || (isAdmin ? "/admin" : "/");
+          window.location.href = dest;
+        }
+      })
+      .catch(() => {});
+  }, [redirectUrl]);
 
   // Social Auth Modal State
   const [socialModalProvider, setSocialModalProvider] = useState<"KAKAO" | "NAVER" | "GOOGLE" | null>(null);

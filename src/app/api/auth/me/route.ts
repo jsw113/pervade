@@ -33,17 +33,7 @@ export async function GET(request: Request) {
       });
     }
 
-    // Refresh/ensure session cookie is actively set (session-only, no persistent maxAge)
-    try {
-      cookieStore.set("userId", user.id, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        path: "/",
-      });
-    } catch (e) {}
-
-    return NextResponse.json({
+    const response = NextResponse.json({
       loggedIn: true,
       user: {
         id: user.id,
@@ -63,6 +53,17 @@ export async function GET(request: Request) {
     }, {
       headers: { "Cache-Control": "no-store, max-age=0" }
     });
+
+    // Actively synchronize the userId HTTP cookie on response
+    response.cookies.set("userId", user.id, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    });
+
+    return response;
   } catch (error) {
     console.error("Auth me error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
