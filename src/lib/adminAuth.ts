@@ -23,28 +23,13 @@ export async function getAdminUser(request?: Request): Promise<AdminAuthInfo | n
       userId = request.headers.get("x-user-id") || undefined;
     }
 
-    let user: any = null;
-
-    if (userId) {
-      user = await prisma.user.findFirst({
-        where: { id: userId },
-      });
+    if (!userId) {
+      return null;
     }
 
-    // If no user found by cookie (e.g. fresh DB seed or stale cookie), check if default super admin exists
-    if (!user) {
-      user = await prisma.user.findFirst({
-        where: {
-          OR: [
-            { role: "SUPER_ADMIN" },
-            { role: "ADMIN" },
-            { loginId: "admin" },
-            { email: "admin@pervade.co.kr" }
-          ]
-        },
-        orderBy: { createdAt: "asc" }
-      });
-    }
+    const user = await prisma.user.findFirst({
+      where: { id: userId },
+    });
 
     if (!user) return null;
 
