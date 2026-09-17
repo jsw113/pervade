@@ -8,6 +8,7 @@ import { ProfileEditor } from "@/components/shop/ProfileEditor";
 import { MyPageAddressEditor } from "@/components/shop/MyPageAddressEditor";
 import { ShippingAddressManager } from "@/components/shop/ShippingAddressManager";
 import { MyPageCouponBox } from "@/components/shop/MyPageCouponBox";
+import { MyPageOrderList } from "@/components/mypage/MyPageOrderList";
 import { ClientSessionSync } from "@/components/shop/ClientSessionSync";
 import { calculateUserTier } from "@/lib/userTier";
 
@@ -36,10 +37,10 @@ export default async function MyPage() {
     policyMap[p.key] = p.value;
   });
 
-  // Fetch live orders
+  // Fetch live orders with products and reviews
   const orders = await prisma.order.findMany({
     where: { userId: dbUser.id },
-    include: { product: true },
+    include: { product: true, reviews: true },
     orderBy: { createdAt: "desc" }
   });
 
@@ -266,37 +267,7 @@ export default async function MyPage() {
           최근 주문 내역 ({orders.length}건)
         </h3>
 
-        {orders.length === 0 ? (
-          <div className="py-12 text-center text-xs text-zinc-400 space-y-2">
-            <p>아직 주문한 내역이 없습니다.</p>
-            <Link href="/shop" className="inline-block font-bold text-zinc-950 underline">
-              쇼핑하러 가기
-            </Link>
-          </div>
-        ) : (
-          <div className="divide-y">
-            {orders.map((order) => (
-              <div key={order.id} className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-zinc-950">{order.product?.name || "주문 상품"}</span>
-                    <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-md font-bold text-[10px]">
-                      {order.status === "COMPLETED" ? "결제완료 / 출고준비" : order.status}
-                    </span>
-                  </div>
-                  <p className="text-zinc-500">
-                    옵션: {order.optionSelected} · {new Date(order.createdAt).toLocaleDateString("ko-KR")}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <span className="font-black text-sm text-zinc-950">
-                    ₩{order.totalAmount.toLocaleString()}원
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <MyPageOrderList orders={JSON.parse(JSON.stringify(orders))} />
       </div>
 
     </div>

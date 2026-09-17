@@ -122,6 +122,7 @@ model Order {
   couponId       String?
   couponDiscount Int      @default(0)
   coupon         Coupon?  @relation(fields: [couponId], references: [id])
+  reviews        Review[]
 }
 
 model Policy {
@@ -137,12 +138,17 @@ model Review {
   rating    Int      // 1 to 5
   content   String
   comment   String?  // Admin response/reply comment
+  imageUrl  String?  // Optional photo attachment
+  isPhoto   Boolean  @default(false)
   createdAt DateTime @default(now())
   
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   productId String
   product   Product  @relation(fields: [productId], references: [id])
+
+  orderId   String?
+  order     Order?   @relation(fields: [orderId], references: [id])
 }
 
 model Question {

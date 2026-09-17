@@ -130,10 +130,33 @@ export function generateOrderConfirmationEmailHtml(data: OrderNotificationData):
                     <td style="font-size: 20px; color: #ffffff; font-weight: 900; text-align: right;">₩${data.totalAmount.toLocaleString()}원</td>
                   </tr>
                   <tr>
-                    <td style="font-size: 11px; color: #c084fc; padding-top: 8px; font-weight: 600;">✨ 구매 확정 시 적립 예정 포인트</td>
+                    <td style="font-size: 11px; color: #c084fc; padding-top: 8px; font-weight: 600;">✨ 구매 확정 시 기본 적립 예정 포인트</td>
                     <td style="font-size: 12px; color: #c084fc; text-align: right; padding-top: 8px; font-weight: bold;">+${data.earnedPoints.toLocaleString()} P</td>
                   </tr>
                 </table>
+              </td>
+            </tr>
+
+            <!-- Review Reward Promotion Banner -->
+            <tr>
+              <td style="padding: 0 36px 24px;">
+                <div style="background: linear-gradient(135deg, #fdf4ff 0%, #f5f3ff 100%); border: 1px solid #e9d5ff; border-radius: 16px; padding: 18px 20px;">
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                      <td width="36" valign="top" style="font-size: 24px; line-height: 1;">🎁</td>
+                      <td style="padding-left: 12px;">
+                        <div style="font-size: 13px; font-weight: 800; color: #7e22ce; margin-bottom: 4px;">
+                          제품 수령 후 후기를 남겨주시면 최대 2.0% 추가 적립!
+                        </div>
+                        <div style="font-size: 11px; color: #6b21a8; line-height: 1.5;">
+                          • <strong>텍스트 후기:</strong> 결제금액의 1.0% 즉시 적립<br/>
+                          • <strong>포토 후기:</strong> 결제금액의 2.0% 즉시 적립<br/>
+                          배송완료 후 마이페이지에서 [구매후기 작성]을 클릭하시면 즉시 지급됩니다.
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
               </td>
             </tr>
 
@@ -179,7 +202,98 @@ export function generateOrderConfirmationEmailHtml(data: OrderNotificationData):
   `;
 }
 
-// 2. Dispatch Email & Record MessageLog
+// 2. Generate Dedicated Review Encouragement Email
+export function generateReviewEncouragementEmailHtml(data: {
+  customerName: string;
+  orderNumber: string;
+  productName: string;
+}): string {
+  return `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PERVADE 소중한 구매 후기를 남겨주세요</title>
+  </head>
+  <body style="margin: 0; padding: 0; background-color: #f8f8f8; font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f8f8f8; padding: 40px 10px;">
+      <tr>
+        <td align="center">
+          <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #eeeeee;">
+            
+            <!-- Header -->
+            <tr>
+              <td style="padding: 36px 36px 24px; text-align: center; background-color: #09090b;">
+                <h1 style="margin: 0; font-size: 22px; letter-spacing: 0.2em; color: #ffffff; font-weight: 900; text-transform: uppercase;">PERVADE</h1>
+                <p style="margin: 6px 0 0; font-size: 11px; color: #a1a1aa; letter-spacing: 0.1em;">PREMIUM SHOWER SYSTEM & LIFESTYLE</p>
+              </td>
+            </tr>
+
+            <!-- Title & Message -->
+            <tr>
+              <td style="padding: 32px 36px 20px;">
+                <div style="display: inline-block; padding: 4px 12px; background-color: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 999px; font-size: 11px; font-weight: bold; color: #6d28d9; margin-bottom: 12px;">
+                  ✨ 최대 2.0% 적립 혜택
+                </div>
+                <h2 style="margin: 0 0 10px; font-size: 20px; font-weight: 800; color: #09090b;">${data.customerName}님, 제품은 마음에 드셨나요?</h2>
+                <p style="margin: 0; font-size: 13px; color: #52525b; line-height: 1.6;">
+                  구매하신 [${data.productName}] 제품에 대한 솔직한 경험을 들려주세요.<br/>
+                  고객님의 소중한 후기는 퍼베이드의 더 나은 제품과 서비스 개발에 큰 힘이 됩니다.
+                </p>
+              </td>
+            </tr>
+
+            <!-- Reward Detail Card -->
+            <tr>
+              <td style="padding: 0 36px 24px;">
+                <div style="background-color: #fafafa; border: 1px solid #f0f0f0; border-radius: 16px; padding: 20px;">
+                  <h3 style="margin: 0 0 12px; font-size: 13px; font-weight: 800; color: #18181b;">후기 작성 혜택 안내</h3>
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                      <td style="padding: 8px 0; font-size: 12px; color: #52525b; border-bottom: 1px dashed #e4e4e7;">📷 포토 후기 작성 시</td>
+                      <td style="padding: 8px 0; font-size: 12px; font-weight: 800; color: #7c3aed; text-align: right; border-bottom: 1px dashed #e4e4e7;">결제금액의 2.0% 즉시 적립</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 8px 0; font-size: 12px; color: #52525b;">✍️ 일반 텍스트 후기 작성 시</td>
+                      <td style="padding: 8px 0; font-size: 12px; font-weight: 800; color: #09090b; text-align: right;">결제금액의 1.0% 즉시 적립</td>
+                    </tr>
+                  </table>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Action Button -->
+            <tr>
+              <td style="padding: 0 36px 36px; text-align: center;">
+                <a href="https://pervade.co.kr/mypage" target="_blank" style="display: inline-block; padding: 14px 36px; background-color: #09090b; color: #ffffff; text-decoration: none; border-radius: 12px; font-size: 13px; font-weight: 800; letter-spacing: 0.05em; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                  구매후기 작성하고 적립금 받기 →
+                </a>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="padding: 24px 36px; background-color: #fafafa; border-top: 1px solid #f0f0f0; text-align: center;">
+                <p style="margin: 0 0 6px; font-size: 11px; color: #71717a; font-weight: 700;">PERVADE 고객 감동 센터</p>
+                <p style="margin: 0 0 8px; font-size: 10px; color: #a1a1aa; line-height: 1.5;">
+                  상담시간: 평일 10:00 ~ 17:00 | 이메일: support@pervade.co.kr<br/>
+                  본 메일은 발신전용 메일입니다.
+                </p>
+                <p style="margin: 0; font-size: 9px; color: #d4d4d8;">© 2026 PERVADE Co., Ltd. All rights reserved.</p>
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+  </html>
+  `;
+}
+
+// 3. Dispatch Email & Record MessageLog
 export async function sendOrderNotification(userId: string, data: OrderNotificationData) {
   const subject = `[PERVADE] ${data.customerName}님의 주문 및 결제가 안전하게 완료되었습니다. (${data.orderNumber.slice(0, 8)})`;
   const html = generateOrderConfirmationEmailHtml(data);
@@ -220,6 +334,56 @@ export async function sendOrderNotification(userId: string, data: OrderNotificat
         userId,
         type: "EMAIL",
         content: `[주문결제완료] 주문번호: ${data.orderNumber} | 수신자: ${data.customerEmail} | 결제금액: ₩${data.totalAmount.toLocaleString()}원 | 결제수단: ${data.paymentMethod}`,
+        status: sendSuccess ? "SENT" : "LOGGED",
+      }
+    });
+  } catch (e) {
+    console.error("Failed to write MessageLog:", e);
+  }
+
+  return { success: true, sendSuccess };
+}
+
+// 4. Send Review Encouragement Notification
+export async function sendReviewEncouragementNotification(userId: string, data: {
+  customerName: string;
+  customerEmail: string;
+  orderNumber: string;
+  productName: string;
+}) {
+  const subject = `[PERVADE] ${data.customerName}님, 제품은 만족스러우셨나요? 포토후기 작성 시 2% 즉시 적립!`;
+  const html = generateReviewEncouragementEmailHtml(data);
+
+  let sendSuccess = false;
+  const resendApiKey = process.env.RESEND_API_KEY;
+
+  if (resendApiKey) {
+    try {
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          from: process.env.RESEND_FROM_EMAIL || "PERVADE <orders@pervade.co.kr>",
+          to: [data.customerEmail],
+          subject,
+          html
+        })
+      });
+      if (res.ok) sendSuccess = true;
+    } catch (e) {
+      console.error("Resend fetch error:", e);
+    }
+  }
+
+  try {
+    await prisma.messageLog.create({
+      data: {
+        userId,
+        type: "EMAIL",
+        content: `[후기작성독려] 주문번호: ${data.orderNumber} | 수신자: ${data.customerEmail} | 상품: ${data.productName}`,
         status: sendSuccess ? "SENT" : "LOGGED",
       }
     });

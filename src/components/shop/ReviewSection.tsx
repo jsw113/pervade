@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Star, MessageSquare } from "lucide-react";
+import { Star, MessageSquare, CheckCircle2, Camera, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
 
 export function ReviewSection({ productId }: { productId: string }) {
   const router = useRouter();
@@ -12,6 +14,7 @@ export function ReviewSection({ productId }: { productId: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
   const fetchReviews = async () => {
     try {
@@ -68,7 +71,7 @@ export function ReviewSection({ productId }: { productId: string }) {
         setContent("");
         setRating(5);
         fetchReviews();
-        alert("리뷰가 등록되었습니다. (리뷰 보상 포인트가 자동으로 적립되었습니다)");
+        alert("리뷰가 등록되었습니다. 마이페이지에서 구매 내역을 통해 포토 후기를 작성하시면 최대 2.0% 추가 적립금이 지급됩니다!");
       } else {
         alert("리뷰 등록에 실패했습니다.");
       }
@@ -82,9 +85,30 @@ export function ReviewSection({ productId }: { productId: string }) {
 
   return (
     <div className="space-y-8">
+      {/* Review Banner Notice */}
+      <div className="bg-gradient-to-r from-zinc-900 to-zinc-800 text-white rounded-2xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-sm">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2 py-0.5 bg-amber-400/20 text-amber-300 text-[11px] font-bold rounded-full border border-amber-400/30">
+              리뷰 적립 혜택
+            </span>
+            <span className="text-sm font-bold">실구매자 리뷰 작성 시 최대 2.0% 적립금 지급</span>
+          </div>
+          <p className="text-xs text-zinc-400">
+            마이페이지의 최근 주문 내역에서 [구매후기 작성]을 클릭하시면 텍스트 후기 1.0%, 포토 후기 2.0%가 즉시 적립됩니다.
+          </p>
+        </div>
+        <Link
+          href="/mypage"
+          className="px-4 py-2 bg-white text-zinc-900 hover:bg-zinc-100 rounded-xl text-xs font-bold transition-colors whitespace-nowrap shadow-sm"
+        >
+          마이페이지 주문내역 가기 →
+        </Link>
+      </div>
+
       {/* Review Form */}
       <div className="bg-zinc-50 border rounded-2xl p-6">
-        <h3 className="font-bold text-lg mb-4">리뷰 작성하기</h3>
+        <h3 className="font-bold text-lg mb-4">한 줄 리뷰 작성하기</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">
@@ -127,7 +151,10 @@ export function ReviewSection({ productId }: { productId: string }) {
             />
           </div>
 
-          <div className="flex justify-end">
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-zinc-400">
+              * 포토 리뷰 및 구매 인증은 <Link href="/mypage" className="underline font-semibold text-zinc-600">마이페이지</Link>에서 가능합니다.
+            </span>
             {isLoggedIn ? (
               <button
                 type="submit"
@@ -162,28 +189,63 @@ export function ReviewSection({ productId }: { productId: string }) {
             {reviews.map((review) => (
               <div key={review.id} className="pt-6 first:pt-0 space-y-3">
                 <div className="flex justify-between items-start">
-                  <div className="flex gap-1.5">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        className={`w-4 h-4 ${
-                          star <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-zinc-200"
-                        }`}
-                      />
-                    ))}
+                  <div className="flex items-center gap-2">
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`w-4 h-4 ${
+                            star <= review.rating ? "fill-yellow-400 text-yellow-400" : "text-zinc-200"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    {/* Badges */}
+                    {review.orderId && (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                        인증된 실구매자
+                      </span>
+                    )}
+                    {review.isPhoto && (
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded-md">
+                        <Camera className="w-3 h-3 text-amber-600" />
+                        포토 후기
+                      </span>
+                    )}
                   </div>
                   <div className="flex gap-2 text-xs text-zinc-400">
-                    <span className="font-semibold text-zinc-700">{review.user?.name}</span>
+                    <span className="font-semibold text-zinc-700">{review.user?.name || "익명 고객"}</span>
                     <span>•</span>
                     <span>{new Date(review.createdAt).toLocaleDateString()}</span>
                   </div>
                 </div>
                 
-                <p className="text-zinc-700 leading-relaxed text-sm">{review.content}</p>
+                <p className="text-zinc-700 leading-relaxed text-sm whitespace-pre-line">{review.content}</p>
+
+                {/* Photo Thumbnail */}
+                {review.imageUrl && (
+                  <div className="pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPhoto(review.imageUrl)}
+                      className="group relative block w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden border border-zinc-200 hover:border-zinc-900 transition-all cursor-zoom-in"
+                    >
+                      <img
+                        src={review.imageUrl}
+                        alt="리뷰 첨부 사진"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
+                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
+                        확대보기
+                      </div>
+                    </button>
+                  </div>
+                )}
 
                 {/* Admin Comment Reply */}
                 {review.comment ? (
-                  <div className="bg-zinc-50 border border-zinc-150 rounded-xl p-4 ml-4 space-y-1.5">
+                  <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4 ml-4 space-y-1.5 mt-3">
                     <div className="flex items-center gap-1.5 text-xs font-bold text-zinc-800">
                       <MessageSquare className="w-3.5 h-3.5 text-zinc-600" />
                       <span>PERVADE 관리자 답변</span>
@@ -196,6 +258,31 @@ export function ReviewSection({ productId }: { productId: string }) {
           </div>
         )}
       </div>
+
+      {/* Photo Zoom Modal */}
+      {selectedPhoto && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm"
+          onClick={() => setSelectedPhoto(null)}
+        >
+          <div
+            className="relative max-w-2xl max-h-[85vh] bg-zinc-900 rounded-2xl p-2 overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSelectedPhoto(null)}
+              className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-black/60 text-white hover:bg-black flex items-center justify-center transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <img
+              src={selectedPhoto}
+              alt="리뷰 사진 원본"
+              className="w-auto h-auto max-w-full max-h-[80vh] object-contain rounded-xl mx-auto"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
